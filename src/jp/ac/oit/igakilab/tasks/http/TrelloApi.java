@@ -24,8 +24,15 @@ public class TrelloApi {
 		System.out.println(boards.toString());
 		for(Object t : boards){
 			JSONObject board = (JSONObject)t;
-			System.out.println("ボード: " + board.get("name"));
+			System.out.println("ボード: " + board.get("name") + " (" + ((String)board.get("id")).substring(0, 7) + ")");
 		}
+
+		/*
+		Parameters params = new Parameters();
+		params.setParameter("name", "test10");
+		Object ret = api.post("/1/boards", params);
+		System.out.println("reply: " + ret.toString());
+		*/
 	}
 
 	interface TrelloApiErrorHandler{
@@ -33,7 +40,7 @@ public class TrelloApi {
 		public void onException(Exception e0);
 	}
 
-	class Parameters {
+	public static class Parameters {
 		Map<String,String> params;
 
 		public Parameters(){
