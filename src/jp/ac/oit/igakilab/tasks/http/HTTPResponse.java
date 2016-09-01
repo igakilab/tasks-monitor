@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.http;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +22,10 @@ public class HTTPResponse {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public String getResponse() {
+	public String getResponseText() {
 		return response;
 	}
-	public void setResponse(String response) {
+	public void setResponseText(String response) {
 		this.response = response;
 	}
 	public String getUrl() {
@@ -45,5 +46,16 @@ public class HTTPResponse {
 
 	public String getHeader(String key){
 		return headers.get(key);
+	}
+
+	public void printResponse(PrintStream stream){
+		stream.println("status: " + status);
+		stream.println("url: " + url);
+		stream.println("method: " + method);
+		stream.println("headers:");
+		for(String key : headers.keySet()){
+			stream.println("  " + key + ": " + headers.get(key));
+		}
+		stream.println("responseText: " + response);
 	}
 }
