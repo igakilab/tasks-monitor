@@ -99,26 +99,62 @@ public class TrelloApi {
 		return parser.parse(json);
 	}
 
+	private Object sendRequestAndParseJson(String method, String url, Parameters params){
+		HttpRequest request = createDefaultHttpRequest(method, url, params);
+		HttpResponse response = request.sendRequest();
+		if( response != null ){
+			if( response.getStatus() == HttpRequest.HTTP_OK ){
+				Object replyJson;
+				try{
+					replyJson = parseJSON(response.getResponseText());
+				}catch(ParseException e0){
+					if( errorHandler != null ){
+						errorHandler.onException(e0);
+					}
+					return null;
+				}
+				return replyJson;
+			}else{
+				if( errorHandler != null ){
+					errorHandler.onHttpNG(response.getStatus(), response);
+				}
+				return null;
+			}
+		}else{
+			return null;
+		}
+	}
+
 	public Object get(String url){
 		return get(url, null);
 	}
 
 	public Object get(String url, Parameters params){
-		HttpRequest request = createDefaultHttpRequest("GET", url, params);
-		HttpResponse response = request.sendRequest();
-		if( response != null ){
-			Object json;
-			try{
-				json = parseJSON(response.getResponseText());
-			}catch(ParseException e0){
-				if( errorHandler != null ){
-					errorHandler.onException(e0);
-				}
-				return null;
-			}
-			return json;
-		}
-		return null;
+		return sendRequestAndParseJson("GET", url, params);
+	}
+
+	public Object post(String url){
+		return post(url, null);
+	}
+
+	public Object post(String url, Parameters params){
+		return sendRequestAndParseJson("POST", url, params);
+	}
+
+	public Object put(String url){
+		return put(url, null);
+	}
+
+	public Object put(String url, Parameters params){
+		return sendRequestAndParseJson("PUT", url, params);
+	}
+
+	public Object delete(String url){
+		return delete(url, null);
+	}
+
+	public Object delete(String url, Parameters params){
+		return sendRequestAndParseJson("DELETE", url, params);
 	}
 
 }

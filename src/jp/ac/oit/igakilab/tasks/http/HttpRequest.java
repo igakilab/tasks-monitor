@@ -31,6 +31,8 @@ public class HttpRequest {
 		public void onError(Exception e0);
 	}
 
+	public static int HTTP_OK = HttpURLConnection.HTTP_OK;
+
 	private String url;
 	private String method;
 	private Map<String,String> params;
