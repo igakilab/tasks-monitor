@@ -21,6 +21,7 @@ public class HTTPRequest {
 			}
 		});
 
+		System.out.println("Request start");
 		HTTPResponse response = request.sendRequest();
 		response.printResponse(System.out);
 	}
@@ -115,9 +116,9 @@ public class HTTPRequest {
 
 	public String generateUrl(){
 		if( params.size() > 0 ){
-			return url;
-		}else{
 			return url + "?" + generateUrlParameter();
+		}else{
+			return url;
 		}
 	}
 
@@ -150,48 +151,27 @@ public class HTTPRequest {
 		int statusCode;
 		boolean redirect = false;
 
-		do {
-			URL objUrl = new URL(generateUrl());
-			connection = createConnection(objUrl, method);
-			statusCode = connection.getResponseCode();
-
-			if(
-				statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
-				statusCode == HttpURLConnection.HTTP_MOVED_TEMP
-			){
-				String loc = connection.getHeaderField("Location");
-				if( loc != null ){
-					objUrl = new URL(loc);
-					redirect = true;
-				}
-			}else{
-				redirect = false;
-			}
-		} while( redirect );
-
-		HTTPResponse response = new HTTPResponse(statusCode);
-		response.setUrl(generateUrl());
-		response.setMethod(method);
-		for(String key : connection.getHeaderFields().keySet()){
-			if( key != null ){
-				String value = connection.getHeaderField(key);
-			}
-		}
-
-
 		try{
 			URL objUrl = new URL(generateUrl());
+			do {
+				connection = createConnection(objUrl, method);
+				statusCode = connection.getResponseCode();
 
-			connection = (HttpURLConnection)objUrl.openConnection();
-			if( method.equals("POST") ){
-				connection.setDoOutput(true);
-			}
-			connection.setRequestMethod(method);
-
-			statusCode = connection.getResponseCode();
-			if( statusCode == HttpURLConnection.HTTP_OK ){
-				text = receiveResponseText(connection);
-			}
+				if(
+					statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
+					statusCode == HttpURLConnection.HTTP_MOVED_TEMP
+				){
+					String loc = connection.getHeaderField("Location");
+					if( loc != null ){
+						objUrl = new URL(loc);
+						redirect = true;
+					}else{
+						redirect = false;
+					}
+				}else{
+					redirect = false;
+				}
+			} while( redirect && followRedirects );
 		}catch(Exception e0){
 			if( errorHander != null ){
 				errorHander.onError(e0);
@@ -213,7 +193,16 @@ public class HTTPRequest {
 				}
 			}
 		}
-		response.setResponseText(text);
+		if( statusCode == HttpURLConnection.HTTP_OK ){
+			try{
+				String text = receiveResponseText(connection);
+				response.setResponseText(text);
+			}catch(IOException e0){
+				if( errorHander != null ){
+					errorHander.onError(e0);
+				}
+			}
+		}
 
 		connection.disconnect();
 		return response;
