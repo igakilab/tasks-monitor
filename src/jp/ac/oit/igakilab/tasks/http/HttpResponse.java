@@ -4,14 +4,14 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HTTPResponse {
+public class HttpResponse {
 	private int status;
 	private String response;
 	private String url;
 	private String method;
 	private Map<String,String> headers;
 
-	public HTTPResponse(int s0){
+	public HttpResponse(int s0){
 		status = s0;
 		headers = new HashMap<String,String>();
 	}

@@ -9,12 +9,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HTTPRequest {
+public class HttpRequest {
 	public static void main(String[] args){
-		HTTPRequest request = new HTTPRequest("GET", "http://api.trello.com/1/members/me");
+		HttpRequest request = new HttpRequest("GET", "http://api.trello.com/1/members/me");
 		request.setParameter("key", "67ad72d3feb45f7a0a0b3c8e1467ac0b")
 			.setParameter("token", "268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
-		request.setErrorHander(new ConnectionErrorHander(){
+		request.setErrorHandler(new ConnectionErrorHandler(){
 			public void onError(Exception e0){
 				System.err.println(e0.getMessage());
 				e0.printStackTrace();
@@ -22,32 +22,32 @@ public class HTTPRequest {
 		});
 
 		System.out.println("Request start");
-		HTTPResponse response = request.sendRequest();
+		HttpResponse response = request.sendRequest();
 		response.printResponse(System.out);
 	}
 
 
-	interface ConnectionErrorHander{
+	interface ConnectionErrorHandler{
 		public void onError(Exception e0);
 	}
 
 	private String url;
 	private String method;
 	private Map<String,String> params;
-	private ConnectionErrorHander errorHander;
+	private ConnectionErrorHandler errorHandler;
 	private boolean followRedirects = true;
 
-	public HTTPRequest(){
+	public HttpRequest(){
 		params = new HashMap<String,String>();
 	}
 
-	public HTTPRequest(String method, String url){
+	public HttpRequest(String method, String url){
 		this();
 		setMethod(method);
 		setUrl(url);
 	}
 
-	public HTTPRequest(String method, String url, Map<String,String> params){
+	public HttpRequest(String method, String url, Map<String,String> params){
 		this();
 		setMethod(method);
 		setUrl(url);
@@ -56,7 +56,7 @@ public class HTTPRequest {
 		}
 	}
 
-	public HTTPRequest setMethod(String method){
+	public HttpRequest setMethod(String method){
 		this.method = method;
 		return this;
 	}
@@ -65,7 +65,7 @@ public class HTTPRequest {
 		return method;
 	}
 
-	public HTTPRequest setUrl(String url){
+	public HttpRequest setUrl(String url){
 		int idx = url.indexOf('?');
 		this.url = idx >= 0 ?
 			url.substring(0, Math.max(idx-1, 0)) : url;
@@ -80,7 +80,7 @@ public class HTTPRequest {
 		params.clear();
 	}
 
-	public HTTPRequest setParameter(String key, String value){
+	public HttpRequest setParameter(String key, String value){
 		params.put(key, value);
 		return this;
 	}
@@ -93,12 +93,12 @@ public class HTTPRequest {
 		return params;
 	}
 
-	public HTTPRequest setErrorHander(ConnectionErrorHander handler){
-		errorHander = handler;
+	public HttpRequest setErrorHandler(ConnectionErrorHandler handler){
+		errorHandler = handler;
 		return this;
 	}
 
-	public HTTPRequest setFollowRedirects(boolean a0){
+	public HttpRequest setFollowRedirects(boolean a0){
 		followRedirects = a0;
 		return this;
 	}
@@ -146,7 +146,7 @@ public class HTTPRequest {
 		return response.toString();
 	}
 
-	public HTTPResponse sendRequest(){
+	public HttpResponse sendRequest(){
 		HttpURLConnection connection = null;
 		int statusCode;
 		boolean redirect = false;
@@ -173,8 +173,8 @@ public class HTTPRequest {
 				}
 			} while( redirect && followRedirects );
 		}catch(Exception e0){
-			if( errorHander != null ){
-				errorHander.onError(e0);
+			if( errorHandler != null ){
+				errorHandler.onError(e0);
 			}
 			if( connection != null ){
 				connection.disconnect();
@@ -182,7 +182,7 @@ public class HTTPRequest {
 			return null;
 		}
 
-		HTTPResponse response = new HTTPResponse(statusCode);
+		HttpResponse response = new HttpResponse(statusCode);
 		response.setUrl(generateUrl());
 		response.setMethod(method);
 		for(String key : connection.getHeaderFields().keySet()){
@@ -198,8 +198,8 @@ public class HTTPRequest {
 				String text = receiveResponseText(connection);
 				response.setResponseText(text);
 			}catch(IOException e0){
-				if( errorHander != null ){
-					errorHander.onError(e0);
+				if( errorHandler != null ){
+					errorHandler.onError(e0);
 				}
 			}
 		}
