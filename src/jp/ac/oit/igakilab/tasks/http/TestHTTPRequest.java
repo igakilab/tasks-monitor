@@ -14,6 +14,7 @@ import java.util.Map;
 public class TestHTTPRequest {
 	public static void main(String[] args) {
         executeGet();
+        executePost();
     }
 
 	private static String listToString(List<String> list){
