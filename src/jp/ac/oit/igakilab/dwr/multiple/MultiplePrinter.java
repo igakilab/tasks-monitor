@@ -3,6 +3,8 @@ package jp.ac.oit.igakilab.dwr.multiple;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.oit.igakilab.marsh.util.LogRecorder;
+
 /**
  * DWRでJSから呼ばれるメソッドはすべてpublicでなければならない．また，必要なクラスはすべてdwr.xmlに定義されている必要がある．
  * @author Hiroshi
@@ -79,6 +81,8 @@ public class MultiplePrinter {
      * @return nameに":HelloWorld"を付与したものを返す
      */
     public String helloWorld(String name){
+    	LogRecorder logger = new LogRecorder("printer-test.txt", true);
+    	logger.addSingleLog(name + ":HelloWorld", true);
     	return name + ":HelloWorld";
 
     }
