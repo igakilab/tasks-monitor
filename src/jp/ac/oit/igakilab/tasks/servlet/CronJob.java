@@ -11,10 +11,13 @@ public class CronJob implements ServletContextListener{
 	public void contextInitialized(ServletContextEvent event){
 		System.out.println("initialization!");
     	LogRecorder logger = new LogRecorder("init-test.txt", true);
-    	logger.addSingleLog("initialization!", true);
+    	logger.addSingleLog("initialization!: " + text, true);
+    	text = "initialized.";
 	}
 
 	public void contextDestroyed(ServletContextEvent event){
 		System.out.println("destroyed!");
+		LogRecorder logger = new LogRecorder("init-test.txt", true);
+		logger.addSingleLog("destroyed!: " + text, true);
 	}
 }
