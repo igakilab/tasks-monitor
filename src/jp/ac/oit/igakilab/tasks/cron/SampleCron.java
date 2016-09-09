@@ -23,9 +23,10 @@ public class SampleCron {
 		}
 	}
 
-	public void schedulerSimple(){
+	public Scheduler schedulerSimple(){
 		Scheduler scheduler = new Scheduler();
 		scheduler.schedule("* * * * *", new CronTask()); //every minute
 		scheduler.start();
+		return scheduler;
 	}
 }

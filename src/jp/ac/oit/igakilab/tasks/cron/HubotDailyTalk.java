@@ -19,7 +19,8 @@ public class HubotDailyTalk implements Runnable{
 		"今日も一日頑張ろう！",
 		"課題やタスクは早めに終わらせよう",
 		"今日の運勢が気になったときは\"@igakilabot 運勢は？\"で聞いてみてね",
-		"@ueda いつやるの？"
+		"@ueda いつやるの？",
+		"今日も一日気合を入れろ!"
 	};
 	static String[] WEEKS = {"null", "日", "月", "火", "水", "木", "金", "土"};
 
