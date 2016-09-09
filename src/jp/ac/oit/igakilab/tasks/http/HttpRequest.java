@@ -30,7 +30,7 @@ public class HttpRequest {
 	}
 
 
-	interface ConnectionErrorHandler{
+	public interface ConnectionErrorHandler{
 		public void onError(Exception e0);
 	}
 
@@ -39,11 +39,13 @@ public class HttpRequest {
 	private String url;
 	private String method;
 	private Map<String,String> params;
+	private Map<String, String> properties;
 	private ConnectionErrorHandler errorHandler;
 	private boolean followRedirects = true;
 
 	public HttpRequest(){
 		params = new HashMap<String,String>();
+		properties = new HashMap<String, String>();
 	}
 
 	public HttpRequest(String method, String url){
@@ -92,6 +94,11 @@ public class HttpRequest {
 
 	public String getParameter(String key){
 		return params.get(key);
+	}
+
+	public HttpRequest setRequestProperty(String key, String value){
+		properties.put(key, value);
+		return this;
 	}
 
 	public Map<String,String> getParameters(){
@@ -164,6 +171,10 @@ public class HttpRequest {
 			URL objUrl = new URL(generateUrl());
 			do {
 				connection = createConnection(objUrl, method);
+
+				for(String key : properties.keySet()){
+					connection.setRequestProperty(key, properties.get(key));
+				}
 
 				if( bodyText != null ){
 					BufferedWriter writer = new BufferedWriter(
