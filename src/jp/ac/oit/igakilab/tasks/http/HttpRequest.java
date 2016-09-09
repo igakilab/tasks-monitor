@@ -1,11 +1,14 @@
 package jp.ac.oit.igakilab.tasks.http;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -149,6 +152,10 @@ public class HttpRequest {
 	}
 
 	public HttpResponse sendRequest(){
+		return sendRequest(null);
+	}
+
+	public HttpResponse sendRequest(String bodyText){
 		HttpURLConnection connection = null;
 		int statusCode;
 		boolean redirect = false;
@@ -157,6 +164,16 @@ public class HttpRequest {
 			URL objUrl = new URL(generateUrl());
 			do {
 				connection = createConnection(objUrl, method);
+
+				if( bodyText != null ){
+					BufferedWriter writer = new BufferedWriter(
+							new OutputStreamWriter(
+									connection.getOutputStream(), StandardCharsets.UTF_8
+					));
+					writer.write(bodyText);
+					writer.flush();
+				}
+
 				statusCode = connection.getResponseCode();
 
 				if(
