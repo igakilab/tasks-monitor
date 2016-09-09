@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.cron;
 
+import java.util.Calendar;
+
 import org.bson.Document;
 
 import it.sauronsoftware.cron4j.Scheduler;
@@ -19,6 +21,7 @@ public class HubotDailyTalk implements Runnable{
 		"今日の運勢が気になったときは\"@igakilabot 運勢は？\"で聞いてみてね",
 		"@ueda いつやるの？"
 	};
+	static String[] WEEKS = {"null", "日", "月", "火", "水", "木", "金", "土"};
 
 	public static Scheduler createSchedule(String schedule, String u0, String r0){
 		Scheduler scheduler = new Scheduler();
@@ -57,7 +60,12 @@ public class HubotDailyTalk implements Runnable{
 	}
 
 	public void run(){
-		String reply = sendMessage(room, messages[(int)(Math.random() * messages.length)]);
-		//System.out.println(reply);
+		Calendar cal = Calendar.getInstance();
+		String date = String.format("今日は%d年%d月%d日(%s）です",
+			cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE),
+			WEEKS[cal.get(Calendar.DAY_OF_WEEK)]);
+		String talk = messages[(int)(Math.random() * messages.length)];
+
+		sendMessage(room, date + "\n" + talk);
 	}
 }
