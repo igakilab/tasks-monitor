@@ -13,7 +13,7 @@ public class DebugLog {
 	public static final int LS_EXCEPTION = 104;
 	public static final int LS_FATAL = 105;
 
-	public static String LOG_DIR = "LabMemberManager/logs/";
+	public static String LOG_DIR = "";
 	public static String DEFAULT_NAME = "default";
 
 	public static String getSubjectString(int code){
@@ -38,7 +38,7 @@ public class DebugLog {
 
 	public static String getLogFileName(String mname, Date date){
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		return "logs_" + mname + "_" + df.format(date) + ".txt";
+		return mname + "_" + df.format(date) + ".log";
 	}
 
 	public static void writeLog(String mname, String msg){
