@@ -19,5 +19,8 @@
     <create creator="new" javascript="TestDbConnection">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.test.TestDbConnection"/>
     </create>
+    <create creator="new" javascript="Configs">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.Configs"/>
+    </create>
   </allow>
 </dwr>
