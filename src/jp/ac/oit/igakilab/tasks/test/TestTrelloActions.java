@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,14 +17,18 @@ public class TestTrelloActions {
 	public static String TRELLO_API_KEY = "67ad72d3feb45f7a0a0b3c8e1467ac0b";
 	public static String TRELLO_API_TOKEN = "268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65";
 
+	static String board_koike = "57cfb3b08c566b61d9edc3f7";
+	static String board_actions_test = "57d3f5cac2c3720549a9b8c1";
+
 	public static void main(String[] args){
 		TrelloApi trello = new TrelloApi(TRELLO_API_KEY, TRELLO_API_TOKEN);
 
 		Parameters params = new Parameters();
 		params.setParameter("display", "true");
-		Object reply = trello.get("/1/boards/57cfb3b08c566b61d9edc3f7/actions", params);
+		Object reply = trello.get("/1/boards/57d3f5cac2c3720549a9b8c1/actions", params);
 
 		JSONArray actions = (JSONArray)reply;
+		Set<String> types = new HashSet<String>();
 		for(Object data : actions){
 			JSONObject action = (JSONObject)data;
 			System.out.println(action.get("id"));
@@ -38,6 +44,15 @@ public class TestTrelloActions {
 			if( old != null ) System.out.println("\t" + "OLD: " + old.toJSONString());
 
 			System.out.println();
+
+			if( !types.contains(action.get("type")) ){
+				types.add((String)action.get("type"));
+			}
+		}
+
+		System.out.println("RECEIVED TYPES");
+		for(String type : types){
+			System.out.println("\t" + type);
 		}
 	}
 
@@ -50,4 +65,5 @@ public class TestTrelloActions {
 			return null;
 		}
 	}
+
 }
