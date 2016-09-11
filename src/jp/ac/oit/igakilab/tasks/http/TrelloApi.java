@@ -35,7 +35,7 @@ public class TrelloApi {
 		*/
 	}
 
-	interface TrelloApiErrorHandler{
+	public interface TrelloApiErrorHandler{
 		public void onHttpNG(int status, HttpResponse response);
 		public void onException(Exception e0);
 	}
