@@ -27,6 +27,11 @@ public class AppProperties {
 		}
 	}
 
+	public static String get(String key, String defaultValue){
+		String value = get(key);
+		return value != null ? value : defaultValue;
+	}
+
 	public static void set(String key, String value){
 		if( properties != null ){
 			properties.put(key, value);
