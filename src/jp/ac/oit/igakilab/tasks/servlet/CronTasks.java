@@ -20,7 +20,8 @@ public class CronTasks implements ServletContextListener{
 
 	public void contextInitialized(ServletContextEvent event){
 		logger.addSingleLog("Cron Initialization.", true);
-		hello = cron.schedulerSimple();
+		hello = cron.schedule("* * * * *", null);
+		hello.start();
 		dailyTalk = HubotDailyTalk.createSchedule("* * * * *", "http://localhost:8080", "shell");
 		dailyTalk.start();
 	}

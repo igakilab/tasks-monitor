@@ -6,6 +6,7 @@
 
 <web-app>
   <listener>
+    <listener-class>jp.ac.oit.igakilab.tasks.servlet.AppInitializer</listener-class>
     <listener-class>jp.ac.oit.igakilab.tasks.servlet.CronTasks</listener-class>
   </listener>
 

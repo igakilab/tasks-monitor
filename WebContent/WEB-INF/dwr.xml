@@ -6,6 +6,7 @@
 
 <dwr>
   <allow>
+  	<!-- multiple-dwr -->
     <create creator="new" javascript="MultiplePrinter">
       <param name="class" value="jp.ac.oit.igakilab.dwr.multiple.MultiplePrinter"/>
     </create>
@@ -16,8 +17,13 @@
     <convert converter="exception" match="java.lang.Exception" />
     <convert converter="bean" match="java.lang.StackTraceElement"/>
 
+	<!-- tasks-monitor -->
     <create creator="new" javascript="TestDbConnection">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.test.TestDbConnection"/>
     </create>
+    <create creator="new" javascript="Configs">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.Configs"/>
+    </create>
+    <convert converter="bean" match="jp.ac.oit.igakilab.tasks.dwr.forms.*"/>
   </allow>
 </dwr>
