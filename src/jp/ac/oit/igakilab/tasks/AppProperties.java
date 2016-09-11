@@ -33,6 +33,19 @@ public class AppProperties {
 		}
 	}
 
+	public static Map<String,String> getChildProperties(String upperKey){
+		Map<String,String> childs = new HashMap<String,String>();
+		String regex = "^" + upperKey.replaceAll("\\.", "\\\\.") + "\\..*";
+		if( properties != null ){
+			for(Map.Entry<String,String> entry : properties.entrySet()){
+				if( entry.getKey().matches(regex) ){
+					childs.put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		return childs;
+	}
+
 	public static Map<String,String> getPropertiesMap(){
 		return properties;
 	}
