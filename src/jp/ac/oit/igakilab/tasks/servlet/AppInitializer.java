@@ -28,7 +28,7 @@ public class AppInitializer implements ServletContextListener{
 		}
 
 		//init logger
-		DebugLog.LOG_DIR = HOMEPATH + "logs/";
+		DebugLog.LOG_DIR = HOMEPATH + "logs/tasks-monitor/";
 		logger = new DebugLog("AppInitializer");
 	}
 
