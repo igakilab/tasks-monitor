@@ -2,56 +2,88 @@ package jp.ac.oit.igakilab.tasks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class AppProperties {
-	static Map<String, String> properties = null;
-
-	public static void init(){
-		properties = new HashMap<String, String>();
+	private static String parentKeyRegex(String parentKey){
+		if( parentKey == null ) return null;
+		return "^" + parentKey.replaceAll("\\.", "\\\\.") + "\\..*";
 	}
 
-	public static void loadSystemProperties(){
-		for(Object keyObj : System.getProperties().keySet()){
-			try{
-				String key = (String)keyObj;
-				set(key, System.getProperty(key));
-			}catch(ClassCastException e0){}
+	private static AppProperties globalInstance = null;
+
+	public static void globalInit(){
+		globalInstance = new AppProperties();
+	}
+
+	public static boolean globalIsValid(){
+		return globalInstance != null;
+	}
+
+	public static String globalGet(String key, String defaultValue){
+		return globalIsValid() ?
+			globalInstance.get(key, defaultValue) : null;
+	}
+
+	public static String globalGet(String key){
+		return globalGet(key, null);
+	}
+
+	public static void globalSet(String key, String value){
+		if( globalIsValid() ){
+			globalInstance.set(key, value);
 		}
 	}
 
-	public static String get(String key){
-		if( properties != null ){
-			return properties.get(key);
-		}else{
-			return null;
-		}
+	public static AppProperties globalInstance(){
+		return globalInstance;
 	}
 
-	public static String get(String key, String defaultValue){
-		String value = get(key);
+
+	private Map<String,String> properties;
+
+	public AppProperties(){
+		properties = new HashMap<String,String>();
+	}
+
+	public String get(String key, String defaultValue){
+		String value = properties.get(key);
 		return value != null ? value : defaultValue;
 	}
 
-	public static void set(String key, String value){
-		if( properties != null ){
-			properties.put(key, value);
-		}
+	public String get(String key){
+		return get(key, null);
 	}
 
-	public static Map<String,String> getChildProperties(String upperKey){
+	public void set(String key, String value){
+		properties.put(key, value);
+	}
+
+	public Map<String,String> getChildProperties(String parentKey){
+		String regex = parentKeyRegex(parentKey);
 		Map<String,String> childs = new HashMap<String,String>();
-		String regex = "^" + upperKey.replaceAll("\\.", "\\\\.") + "\\..*";
-		if( properties != null ){
-			for(Map.Entry<String,String> entry : properties.entrySet()){
-				if( entry.getKey().matches(regex) ){
-					childs.put(entry.getKey(), entry.getValue());
-				}
+		for(Entry<String,String> entry : properties.entrySet()){
+			if( regex != null && entry.getKey().matches(regex) ){
+				childs.put(entry.getKey(), entry.getValue());
 			}
 		}
 		return childs;
 	}
 
-	public static Map<String,String> getPropertiesMap(){
+	public void importPropertiesMap(Map<String,String> map, String filter){
+		String regex = parentKeyRegex(filter);
+		for(Entry<String,String> entry : map.entrySet()){
+			if( regex == null || entry.getKey().matches(regex) ){
+				properties.put(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+
+	public void importPropertiesMap(Map<String,String> map){
+		importPropertiesMap(map, null);
+	}
+
+	public Map<String,String> getProperties(){
 		return properties;
 	}
 }

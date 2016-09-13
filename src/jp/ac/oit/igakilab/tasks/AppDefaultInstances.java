@@ -7,14 +7,14 @@ import jp.ac.oit.igakilab.tasks.http.TrelloApi;
 
 public class AppDefaultInstances {
 	public static MongoClient createMongoClient(){
-		String dbHost = AppProperties.get("tasks.db.host", "localhost");
-		int dbPort = Integer.parseInt(AppProperties.get("tasks.db.port", "27017"));
+		String dbHost = AppProperties.globalGet("tasks.db.host", "localhost");
+		int dbPort = Integer.parseInt(AppProperties.globalGet("tasks.db.port", "27017"));
 		return new MongoClient(dbHost, dbPort);
 	}
 
 	public static TrelloApi getTrelloApiClient(){
-		String apiKey = AppProperties.get("tasks.trello.key");
-		String apiToken = AppProperties.get("tasks.trello.token");
+		String apiKey = AppProperties.globalGet("tasks.trello.key");
+		String apiToken = AppProperties.globalGet("tasks.trello.token");
 		if( apiKey != null && apiToken != null ){
 			return new TrelloApi(apiKey, apiToken);
 		}else{
