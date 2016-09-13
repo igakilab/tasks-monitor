@@ -11,17 +11,17 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 
-public class MongoTrelloBoardActionUpdater {
+public class TrelloBoardActionUpdater {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "board_actions";
 
 	private MongoClient client;
 
-	public MongoTrelloBoardActionUpdater(MongoClient client){
+	public TrelloBoardActionUpdater(MongoClient client){
 		this.client = client;
 	}
 
-	public MongoTrelloBoardActionUpdater(String host, int port){
+	public TrelloBoardActionUpdater(String host, int port){
 		this.client = new MongoClient(host, port);
 	}
 

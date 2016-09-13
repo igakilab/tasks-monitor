@@ -10,7 +10,7 @@ import org.bson.Document;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
-import jp.ac.oit.igakilab.tasks.db.MongoTrelloBoardActionUpdater;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
 
 public class TrelloBoardActionsUpdater implements Runnable{
 	static class Board{
@@ -55,8 +55,8 @@ public class TrelloBoardActionsUpdater implements Runnable{
 		Calendar cal = Calendar.getInstance();
 
 		BoardDBDriver bdb = new BoardDBDriver(client);
-		MongoTrelloBoardActionUpdater tadb =
-			new MongoTrelloBoardActionUpdater(client);
+		TrelloBoardActionUpdater tadb =
+			new TrelloBoardActionUpdater(client);
 
 		List<Board> boards = getBoardList(bdb);
 
