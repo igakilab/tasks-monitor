@@ -3,6 +3,8 @@ package jp.ac.oit.igakilab.tasks.servlet;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -51,9 +53,14 @@ public class AppInitializer implements ServletContextListener{
 		logger.log(DebugLog.LS_INFO, "Server Started");
 
 		//AppProperties init
-		AppProperties.init();
+		AppProperties.globalInit();
 		loadPropertyFile("test.properties");
-		AppProperties.loadSystemProperties();
+		Map<String,String> systemProperties = new HashMap<String,String>();
+		for(Object key : System.getProperties().keySet()){
+			systemProperties.put((String)key, System.getProperty((String)key));
+		}
+		AppProperties.globalInstance().importPropertiesMap(
+			systemProperties, "test");
 		logger.log(DebugLog.LS_INFO, "AppProperties configured");
 
 		logger.log(DebugLog.LS_INFO, "App Initialized!");
