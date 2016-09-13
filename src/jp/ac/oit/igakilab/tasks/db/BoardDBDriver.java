@@ -17,6 +17,21 @@ public class BoardDBDriver {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "boards";
 
+	public static class Board{
+		static Board convert(Document doc){
+			Board board = new Board();
+			board.id = doc.getString("id");
+			board.lastUpdate = doc.getDate("lastUpdate");
+			return board;
+		}
+
+		private String id;
+		private Date lastUpdate;
+
+		public String getId(){return id;}
+		public Date getLastUpdate(){return lastUpdate;}
+	}
+
 	private MongoClient client;
 
 	public BoardDBDriver(MongoClient client){
@@ -36,10 +51,10 @@ public class BoardDBDriver {
 		return getCollection().find(filter).first();
 	}
 
-	public List<Document> getBoardList(){
-		List<Document> result = new ArrayList<Document>();
+	public List<Board> getBoardList(){
+		List<Board> result = new ArrayList<Board>();
 		for(Document doc : getCollection().find()){
-			result.add(doc);
+			result.add(Board.convert(doc));
 		}
 		return result;
 	}
