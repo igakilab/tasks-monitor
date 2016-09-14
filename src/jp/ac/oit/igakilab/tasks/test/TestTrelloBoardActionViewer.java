@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.test;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +36,13 @@ public class TestTrelloBoardActionViewer {
 	}
 
 	private static void showActions(List<Document> actions){
+		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 		for(int i=0; i<actions.size(); i++){
-			System.out.format("%2d: %s\n", i, actions.get(i).toJson());
+			Document action = actions.get(i);
+			Document memberCreator = (Document)action.get("memberCreator");
+			System.out.format("%2d: %s %s\n",
+				i, df.format(action.getDate("date")),
+				action.getString("type"), memberCreator.getString("fullname"));
 		}
 	}
 }

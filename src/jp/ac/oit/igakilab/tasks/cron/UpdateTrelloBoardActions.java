@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -41,15 +40,14 @@ public class UpdateTrelloBoardActions implements Runnable{
 		JSONArray data = fetcher.getJSONArrayData();
 		logger.log("-- received " + data.size() + "record(s)");
 
-		List<Document> actions = new ArrayList<Document>();
+		List<String> jsons = new ArrayList<String>();
 		for(int i=data.size()-1; i>=0; i--){
-			JSONObject jobj = (JSONObject)data.get(i);
-			actions.add(Document.parse(jobj.toJSONString()));
+			jsons.add(((JSONObject)data.get(i)).toJSONString());
 		}
 
 		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(
 			TasksMongoClientBuilder.createClient());
-		int uc = updater.upsertDatabase(actions, boardId);
+		int uc = updater.upsertDatabaseByJson(jsons, boardId);
 		logger.log("-- upserted " + uc + "record(s)");
 
 		return uc;

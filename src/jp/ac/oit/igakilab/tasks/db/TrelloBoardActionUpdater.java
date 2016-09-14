@@ -1,5 +1,9 @@
 package jp.ac.oit.igakilab.tasks.db;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -45,5 +49,25 @@ public class TrelloBoardActionUpdater {
 		}
 
 		return upsertCnt;
+	}
+
+	public int upsertDatabaseByJson(List<String> jsons, String boardId){
+		List<Document> docs = new ArrayList<Document>();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+		for(String json : jsons){
+			Document doc = Document.parse(json);
+			if( doc.containsKey("date") ){
+				Date date = null;
+				try{
+					date = df.parse(doc.getString("date"));
+				}catch(Exception e0){
+					e0.printStackTrace();
+				}
+				doc.append("date", date);
+			}
+			docs.add(doc);
+		}
+
+		return upsertDatabase(docs, boardId);
 	}
 }
