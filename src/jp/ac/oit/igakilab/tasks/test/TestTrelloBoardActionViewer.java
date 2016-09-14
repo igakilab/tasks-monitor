@@ -1,8 +1,10 @@
 package jp.ac.oit.igakilab.tasks.test;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -36,13 +38,19 @@ public class TestTrelloBoardActionViewer {
 	}
 
 	private static void showActions(List<Document> actions){
+		DateFormat pdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 		for(int i=0; i<actions.size(); i++){
 			Document action = actions.get(i);
 			Document memberCreator = (Document)action.get("memberCreator");
+			Date date;
+			try{ date = pdf.parse(action.getString("date"));
+			}catch(ParseException e0){ date = null; }
 			System.out.format("%2d: %s %s\n",
-				i, df.format(action.getDate("date")),
+				i, df.format(date),
 				action.getString("type"), memberCreator.getString("fullname"));
 		}
 	}
+	
+	
 }

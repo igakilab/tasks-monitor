@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.http;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -133,6 +134,9 @@ public class TrelloApi {
 			if( DEBUG ){
 				System.out.println("TrelloApi[debug]: receive:" + response.getStatus());
 				System.out.println("TrelloApi[debug]: receive:" + response.getResponseText());
+				for(Entry<String,String> entry : response.getHeaders().entrySet()){
+					System.out.format("  %s: %s\n", entry.getKey(), entry.getValue());
+				}
 			}
 			if( response.getStatus() == HttpRequest.HTTP_OK ){
 				Object replyJson;

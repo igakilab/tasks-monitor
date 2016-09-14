@@ -58,6 +58,7 @@ public class TestTrelloBoardActionsUpdater {
 
 		List<Document> actions = new ArrayList<Document>();
 		for(Object obj : data){
+			System.out.println(obj.toString());
 			JSONObject jobj = (JSONObject)obj;
 			actions.add(Document.parse(jobj.toJSONString()));
 		}

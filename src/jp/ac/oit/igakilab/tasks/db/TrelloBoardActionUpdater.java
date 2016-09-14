@@ -1,9 +1,5 @@
 package jp.ac.oit.igakilab.tasks.db;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -51,6 +47,7 @@ public class TrelloBoardActionUpdater {
 		return upsertCnt;
 	}
 
+	/*
 	public int upsertDatabaseByJson(List<String> jsons, String boardId){
 		List<Document> docs = new ArrayList<Document>();
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
@@ -70,4 +67,5 @@ public class TrelloBoardActionUpdater {
 
 		return upsertDatabase(docs, boardId);
 	}
+	*/
 }
