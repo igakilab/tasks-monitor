@@ -15,7 +15,7 @@ import com.mongodb.client.result.UpdateResult;
 
 public class BoardDBDriver {
 	public static String DB_NAME = "tasks-monitor";
-	public static String COL_NAME = "boards";
+	public static String COL_NAME = "trello_boards";
 
 	public static class Board{
 		static Board convert(Document doc){

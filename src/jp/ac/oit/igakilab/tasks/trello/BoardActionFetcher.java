@@ -2,7 +2,9 @@ package jp.ac.oit.igakilab.tasks.trello;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
 
@@ -13,8 +15,6 @@ import jp.ac.oit.igakilab.tasks.http.TrelloApi.Parameters;
 import jp.ac.oit.igakilab.tasks.http.TrelloApi.TrelloApiErrorHandler;
 
 public class BoardActionFetcher {
-	public static DateFormat isodateFormatter =
-		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 	public static DebugLog logger = new DebugLog("BoardActionFetcher");
 
 	private TrelloApi client;
@@ -41,19 +41,34 @@ public class BoardActionFetcher {
 		});
 	}
 
-	private Object getBoardActionFromServer(Date since){
+	private Object getBoardActionFromServer(Calendar since){
 		String url = "/1/boards/" + boardId + "/actions";
 		Parameters params = new Parameters();
 		if( since != null ){
-			params.setParameter("since", isodateFormatter.format(since));
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			df.setTimeZone(TimeZone.getTimeZone("UTC"));
+			params.setParameter("since", df.format(since.getTime()));
 		}
 
 		return client.get(url, params);
 	}
 
-	public boolean fetch(Date since){
+	public boolean fetch(Calendar since){
 		rawData = getBoardActionFromServer(since);
 		return rawData != null;
+	}
+
+	public boolean fetch(Date since){
+		Calendar cal = null;
+		if( since != null ){
+			cal = Calendar.getInstance();
+			cal.setTime(since);
+		}
+		return fetch(cal);
+	}
+
+	public boolean fetch(){
+		return fetch((Calendar)null);
 	}
 
 	public Object getRawData(){

@@ -13,7 +13,7 @@ import com.mongodb.client.result.UpdateResult;
 
 public class TrelloBoardActionUpdater {
 	public static String DB_NAME = "tasks-monitor";
-	public static String COL_NAME = "board_actions";
+	public static String COL_NAME = "trello_board_actions";
 
 	private MongoClient client;
 

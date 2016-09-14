@@ -28,7 +28,9 @@ public class TasksTrelloClientBuilder {
 		String key = apiKey();
 		String token = apiToken();
 		if( key != null && token != null ){
-			return new TrelloApi(key, token);
+			TrelloApi api = new TrelloApi(key, token);
+			api.setErrorHandler(new TrelloApi.SimpleErrorHandler());
+			return api;
 		}
 		return null;
 	}
