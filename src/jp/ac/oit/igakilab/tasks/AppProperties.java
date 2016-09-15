@@ -10,19 +10,15 @@ public class AppProperties {
 		return "^" + parentKey.replaceAll("\\.", "\\\\.") + "\\..*";
 	}
 
-	private static AppProperties globalInstance = null;
-
-	public static void globalInit(){
-		globalInstance = new AppProperties();
-	}
+	public static final AppProperties global = new AppProperties();
 
 	public static boolean globalIsValid(){
-		return globalInstance != null;
+		return global != null;
 	}
 
 	public static String globalGet(String key, String defaultValue){
 		return globalIsValid() ?
-			globalInstance.get(key, defaultValue) : null;
+			global.get(key, defaultValue) : null;
 	}
 
 	public static String globalGet(String key){
@@ -31,12 +27,8 @@ public class AppProperties {
 
 	public static void globalSet(String key, String value){
 		if( globalIsValid() ){
-			globalInstance.set(key, value);
+			global.set(key, value);
 		}
-	}
-
-	public static AppProperties globalInstance(){
-		return globalInstance;
 	}
 
 
@@ -44,6 +36,10 @@ public class AppProperties {
 
 	public AppProperties(){
 		properties = new HashMap<String,String>();
+	}
+
+	public void clear(){
+		properties.clear();
 	}
 
 	public String get(String key, String defaultValue){
