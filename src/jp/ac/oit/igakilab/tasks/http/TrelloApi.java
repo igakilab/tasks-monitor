@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.http;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -35,9 +36,21 @@ public class TrelloApi {
 		*/
 	}
 
-	interface TrelloApiErrorHandler{
+	public interface TrelloApiErrorHandler{
 		public void onHttpNG(int status, HttpResponse response);
 		public void onException(Exception e0);
+	}
+
+	public static class SimpleErrorHandler
+	implements TrelloApiErrorHandler{
+		@Override
+		public void onHttpNG(int status, HttpResponse response){
+			System.err.println("TrelloApi[HTTP-NG] status:" + status);
+		}
+		@Override
+		public void onException(Exception e0){
+			e0.printStackTrace();
+		}
 	}
 
 	public static class Parameters {
@@ -67,6 +80,7 @@ public class TrelloApi {
 	}
 
 	private static String URL_HEAD = "http://api.trello.com";
+	public static boolean DEBUG = false;
 
 	private String apiKey;
 	private String apiToken;
@@ -108,8 +122,22 @@ public class TrelloApi {
 
 	private Object sendRequestAndParseJson(String method, String url, Parameters params){
 		HttpRequest request = createDefaultHttpRequest(method, url, params);
+		if( DEBUG ){
+			System.out.println("TrelloApi[debug]: send:" + method + " " + url);
+			for(String key : params.keySet()){
+				System.out.println("TrelloApi[debug]: send:param " +
+					key + "=" + params.getParameter(key));
+			}
+		}
 		HttpResponse response = request.sendRequest();
 		if( response != null ){
+			if( DEBUG ){
+				System.out.println("TrelloApi[debug]: receive:" + response.getStatus());
+				System.out.println("TrelloApi[debug]: receive:" + response.getResponseText());
+				for(Entry<String,String> entry : response.getHeaders().entrySet()){
+					System.out.format("  %s: %s\n", entry.getKey(), entry.getValue());
+				}
+			}
 			if( response.getStatus() == HttpRequest.HTTP_OK ){
 				Object replyJson;
 				try{

@@ -54,12 +54,24 @@ public class AppInitializer implements ServletContextListener{
 
 		//AppProperties init
 		loadPropertyFile("test.properties");
+		loadPropertyFile("tasks.properties");
+
 		Map<String,String> systemProperties = new HashMap<String,String>();
 		for(Object key : System.getProperties().keySet()){
 			systemProperties.put((String)key, System.getProperty((String)key));
 		}
-		AppProperties.global.importPropertiesMap(
-			systemProperties, "test");
+		AppProperties.global.importPropertiesMap(systemProperties, "test");
+		AppProperties.global.importPropertiesMap(systemProperties, "tasks");
+
+		if(
+			AppProperties.global.get("tasks.trello.key") == null ||
+			AppProperties.global.get("tasks.trello.token") == null
+		){
+			AppProperties.global.set("tasks.trello.key", "67ad72d3feb45f7a0a0b3c8e1467ac0b");
+			AppProperties.global.set("tasks.trello.token",
+				"268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
+		}
+
 		logger.log(DebugLog.LS_INFO, "AppProperties configured");
 
 		logger.log(DebugLog.LS_INFO, "App Initialized!");
