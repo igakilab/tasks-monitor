@@ -26,7 +26,7 @@ public class Configs {
 
 	public StringKeyValueForm[] getAppProperties(){
 		List<StringKeyValueForm> result = new ArrayList<StringKeyValueForm>();
-		Map<String,String> properties = AppProperties.globalInstance().getProperties();
+		Map<String,String> properties = AppProperties.global.getProperties();
 
 		for(String key : properties.keySet()){
 			result.add(new StringKeyValueForm(key, properties.get(key)));
@@ -37,7 +37,7 @@ public class Configs {
 
 	public StringKeyValueForm[] getChildAppProperties(String upperkey){
 		List<StringKeyValueForm> result = new ArrayList<StringKeyValueForm>();
-		Map<String,String> properties = AppProperties.globalInstance()
+		Map<String,String> properties = AppProperties.global
 			.getChildProperties(upperkey);
 
 		for(Object keyObj : properties.keySet()){

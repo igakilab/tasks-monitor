@@ -53,13 +53,12 @@ public class AppInitializer implements ServletContextListener{
 		logger.log(DebugLog.LS_INFO, "Server Started");
 
 		//AppProperties init
-		AppProperties.globalInit();
 		loadPropertyFile("test.properties");
 		Map<String,String> systemProperties = new HashMap<String,String>();
 		for(Object key : System.getProperties().keySet()){
 			systemProperties.put((String)key, System.getProperty((String)key));
 		}
-		AppProperties.globalInstance().importPropertiesMap(
+		AppProperties.global.importPropertiesMap(
 			systemProperties, "test");
 		logger.log(DebugLog.LS_INFO, "AppProperties configured");
 
