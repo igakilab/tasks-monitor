@@ -11,6 +11,11 @@ public class TrelloList {
 		isClosed = false;
 	}
 
+	public TrelloList(String id){
+		this();
+		setId(id);
+	}
+
 	public String getId() {
 		return id;
 	}

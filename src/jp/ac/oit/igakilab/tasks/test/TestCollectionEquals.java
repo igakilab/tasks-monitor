@@ -14,5 +14,6 @@ public class TestCollectionEquals {
 		col2.add("B");
 
 		System.out.println("equals? : " + col1.equals(col2));
+		System.out.println("col1 contains A? : " + col1.contains("A"));
 	}
 }

@@ -25,6 +25,16 @@ public class TrelloBoard {
 		lists = new ArrayList<TrelloList>();
 	}
 
+	public void clear(){
+		id = null;
+		name = null;
+		desc = null;
+		memberIds.clear();
+		isClosed = false;
+		cards.clear();
+		lists.clear();
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -94,13 +104,17 @@ public class TrelloBoard {
 		}
 	}
 
-	public boolean containsCardById(String cid){
+	public TrelloCard getCardById(String cid){
 		for(TrelloCard card : cards){
 			if( card.getId().equals(cid) ){
-				return true;
+				return card;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	public boolean containsCardById(String cid){
+		return getCardById(cid) != null;
 	}
 
 	public List<TrelloList> getLists() {
@@ -124,13 +138,17 @@ public class TrelloBoard {
 		}
 	}
 
-	public boolean containsListById(String lid){
+	public TrelloList getListById(String lid){
 		for(TrelloList list : lists){
 			if( list.getId().equals(lid) ){
-				return true;
+				return list;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	public boolean containsListById(String lid){
+		return getListById(lid) != null;
 	}
 
 

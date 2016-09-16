@@ -2,12 +2,13 @@ package jp.ac.oit.igakilab.tasks.trello.model.actions;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bson.Document;
+
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloDateFormat;
 
 public class DocumentTrelloActionParser {
 	public static void main(String[] args){
@@ -38,6 +39,10 @@ public class DocumentTrelloActionParser {
 				map.put(thiskey, (String)entry.getValue());
 			}else if( entry.getValue() instanceof Integer ){
 				map.put(thiskey, String.valueOf((Integer)entry.getValue()));
+			}else if( entry.getValue() instanceof Boolean ){
+				map.put(thiskey, String.valueOf((Boolean)entry.getValue()));
+			}else if( entry.getValue() == null ){
+				map.put(thiskey, "null");
 
 			//in unknown data type
 			}else{
@@ -49,7 +54,7 @@ public class DocumentTrelloActionParser {
 	}
 
 	public static TrelloAction parse(Document doc){
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+		DateFormat df = new TrelloDateFormat();
 		TrelloAction action = new TrelloAction();
 
 		//parse id

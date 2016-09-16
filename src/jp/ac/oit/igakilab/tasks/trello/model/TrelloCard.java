@@ -23,6 +23,11 @@ public class TrelloCard {
 		isClosed = false;
 	}
 
+	public TrelloCard(String id){
+		this();
+		setId(id);
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -77,6 +82,10 @@ public class TrelloCard {
 
 	public void removeMemberId(String mid){
 		memberIds.remove(mid);
+	}
+
+	public boolean containsMemberId(String mid){
+		return memberIds.contains(mid);
 	}
 
 	public boolean isClosed() {
