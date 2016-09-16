@@ -70,18 +70,22 @@ public class TestTrelloBoardActionViewer {
 			Document board = (Document) ((Document)action.get("data")).get("board");
 			String actLabel = actionType.equals("createBoard") ? "CREATE" : "UPDATE";
 			System.out.format("%2d: \tBOARD %s %s\n", num, actLabel, board.toJson());
+			
 		}else if( actionType.equals("createList") || actionType.equals("updateList") ){
 			Document list = (Document) ((Document)action.get("data")).get("list");
 			String actLabel = actionType.equals("createList") ? "CREATE" : "UPDATE";
 			System.out.format("%2d: \tLIST %s %s\n", num, actLabel, list.toJson());
+			
 		}else if( actionType.equals("createCard") || actionType.equals("updateCard") ){
 			Document card = (Document) ((Document)action.get("data")).get("card");
 			String actLabel = actionType.equals("createCard") ? "CREATE" : "UPDATE";
 			System.out.format("%2d: \tCARD %s %s\n", num, actLabel, card.toJson());
+			
 		}else if( actionType.equals("addMemberToBoard") || actionType.equals("addMemberToCard") ){
 			Document member = (Document)action.get("member");
 			String targetLabel = actionType.equals("addMemberToCard") ? "CARD" : "BOARD";
 			System.out.format("%2d: \t%s ADDMEMBER %s\n", num, targetLabel, member.toJson());
+			
 		}else{
 			System.out.format("%2d: \tignore action type:%s\n", num, actionType);
 		}
