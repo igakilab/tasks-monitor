@@ -156,6 +156,10 @@ public class TrelloAction {
 
 	public String dataString(){
 		StringBuffer buffer = new StringBuffer();
+		buffer.append(id).append('\n');
+		buffer.append("date: ").append(date).append('\n');
+		buffer.append("memberCreatorId: ").append(memberCreatorId).append('\n');
+
 		String target = (
 			targetType == TARGET_BOARD ? "BOARD" :
 			targetType == TARGET_LIST ? "LIST" :
