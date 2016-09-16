@@ -41,7 +41,7 @@ public class TestTrelloBoardActionViewer2 {
 		//DateFormat pdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 		//DateFormat df = new SimpleDateFormat("yy/MM/dd HH:mm");
 		for(int i=0; i<actions.size(); i++){
-			TrelloAction action = DocumentTrelloActionParser.parse(actions.get(i));
+			TrelloAction action = DocumentTrelloActionParser.parseAction(actions.get(i));
 			System.out.println(String.format("%2d: ", i) + action.dataString());
 			if( action.getTargetType() == TrelloAction.TARGET_CARD ){
 				Map<String,String> card = action.getData().getChildMap("card");

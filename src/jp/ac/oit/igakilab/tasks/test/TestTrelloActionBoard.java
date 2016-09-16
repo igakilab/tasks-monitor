@@ -48,7 +48,7 @@ public class TestTrelloActionBoard {
 	private static List<TrelloAction> convertToTrelloActions(List<Document> docs){
 		List<TrelloAction> actions = new ArrayList<TrelloAction>();
 		for(Document doc : docs){
-			actions.add(DocumentTrelloActionParser.parse(doc));
+			actions.add(DocumentTrelloActionParser.parseAction(doc));
 		}
 		return actions;
 	}
