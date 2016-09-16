@@ -5,9 +5,9 @@ import javax.servlet.ServletContextListener;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.LogRecorder;
-import jp.ac.oit.igakilab.tasks.cron.HubotDailyTalk;
-import jp.ac.oit.igakilab.tasks.cron.SampleCron;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
+import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
+import jp.ac.oit.igakilab.tasks.cron.samples.SampleCron;
 
 public class CronTasks implements ServletContextListener{
 	LogRecorder logger;
