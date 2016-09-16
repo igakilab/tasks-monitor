@@ -1,8 +1,7 @@
 package jp.ac.oit.igakilab.tasks.trello.model;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Map.Entry;
 
 public class TrelloAction {
 	public static final int TARGET_BOARD = 101;
@@ -65,11 +64,12 @@ public class TrelloAction {
 	}
 
 
+	protected String id;
 	protected String type;
 	protected int targetType;
 	protected int actionType;
 	protected Date date;
-	protected Map<String,String> data;
+	protected TrelloActionData data;
 	protected String memberCreatorId;
 	protected String rawText;
 
@@ -78,13 +78,22 @@ public class TrelloAction {
 	}
 
 	public void init(){
+		id = null;
 		type = null;
 		targetType = TARGET_UNKNOWN;
 		actionType = ACTION_UNKNOWN;
 		date = null;
-		data = new HashMap<String,String>();
+		data = null;
 		memberCreatorId = null;
 		rawText = null;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getType() {
@@ -121,11 +130,11 @@ public class TrelloAction {
 		this.date = date;
 	}
 
-	public Map<String, String> getData() {
+	public TrelloActionData getData() {
 		return data;
 	}
 
-	public void setData(Map<String, String> data) {
+	public void setData(TrelloActionData data) {
 		this.data = data;
 	}
 
@@ -143,5 +152,26 @@ public class TrelloAction {
 
 	public void setRawText(String rawText) {
 		this.rawText = rawText;
+	}
+
+	public String dataString(){
+		StringBuffer buffer = new StringBuffer();
+		String target = (
+			targetType == TARGET_BOARD ? "BOARD" :
+			targetType == TARGET_LIST ? "LIST" :
+			targetType == TARGET_CARD ? "CARD" : "UNKNOWN" );
+		String action = (
+			actionType == ACTION_CREATE ? "CREATE" :
+			actionType == ACTION_UPDATE ? "UPDATE" :
+			actionType == ACTION_DELETE ? "DELETE" :
+			actionType == ACTION_ADDMEMBER ? "ADDMEMBER" :
+			actionType == ACTION_REMOVEMEMBER ? "REMOVEMEMBER" : "UNKNOWN" );
+		buffer.append(target).append(' ').append(action).append("(" + type + ")").append('\n');
+
+		for(Entry<String,String> entry : data.entrySet()){
+			buffer.append(String.format("\t%s: %s\n", entry.getKey(), entry.getValue()));
+		}
+
+		return buffer.toString();
 	}
 }
