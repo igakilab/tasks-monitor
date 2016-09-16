@@ -31,6 +31,9 @@ public class TestTrelloActionBoard {
 
 		board.printListsAndCards(System.out);
 
+		System.out.println();
+		System.out.println("<ignored actions (" + board.getIgnoredActions().size() + ")>");
+
 		client.close();
 	}
 

@@ -97,7 +97,7 @@ public class TrelloCard {
 	}
 
 	public String toString(){
-		return String.format("CARD %s %s - %s %s %s %s",
+		return String.format("CARD %s %s | %s %s %s %s",
 			name, (id != null ? id.substring(id.length()-4) : "null"),
 			(listId != null ? listId.substring(listId.length()-4) : "null"),
 			(isClosed ? "C" : "-"),

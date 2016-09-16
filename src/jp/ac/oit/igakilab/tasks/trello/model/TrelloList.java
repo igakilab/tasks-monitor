@@ -41,7 +41,7 @@ public class TrelloList {
 	}
 
 	public String toString(){
-		return String.format("LIST %s %s - %s, ",
+		return String.format("LIST %s %s | %s",
 			name, (id != null ? id.substring(id.length()-4) : "null"),
 			(isClosed ? "C" : "-"));
 	}

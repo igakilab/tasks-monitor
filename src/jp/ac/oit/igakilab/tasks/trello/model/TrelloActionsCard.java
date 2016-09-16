@@ -26,9 +26,9 @@ public class TrelloActionsCard extends TrelloCard {
 
 	public boolean applyAction(TrelloAction action){
 		//check action
-		if( action.getTargetType() == TrelloAction.TARGET_CARD ) return false;
+		if( action.getTargetType() != TrelloAction.TARGET_CARD ) return false;
 		if( (action.getDate() == null) ||
-			(actions.size() <= 0 ||
+			(actions.size() > 0 &&
 			actions.get(actions.size()-1).getDate().compareTo(action.getDate()) > 0)
 		) return false;
 
@@ -37,6 +37,15 @@ public class TrelloActionsCard extends TrelloCard {
 
 		if( actionType == TrelloAction.ACTION_CREATE ){
 			setId(dataCard.get("id"));
+			if( !dataCard.containsKey("idList") ){
+				if( action.getData().containsKey("list.id") ){
+					dataCard.put("idList", action.getData().get("list.id"));
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
 		}
 
 		if( getId() == null || !getId().equals(dataCard.get("id")) ) return false;
