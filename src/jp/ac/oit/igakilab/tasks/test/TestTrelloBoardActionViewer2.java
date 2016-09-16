@@ -1,9 +1,9 @@
 package jp.ac.oit.igakilab.tasks.test;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bson.Document;
 
@@ -38,11 +38,17 @@ public class TestTrelloBoardActionViewer2 {
 	}
 
 	private static void showActions(List<Document> actions){
-		DateFormat pdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-		DateFormat df = new SimpleDateFormat("yy/MM/dd HH:mm");
+		//DateFormat pdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+		//DateFormat df = new SimpleDateFormat("yy/MM/dd HH:mm");
 		for(int i=0; i<actions.size(); i++){
-			TrelloAction action = DocumentTrelloActionParser.getTrelloActionInstance(actions.get(i));
+			TrelloAction action = DocumentTrelloActionParser.parse(actions.get(i));
 			System.out.println(String.format("%2d: ", i) + action.dataString());
+			if( action.getTargetType() == TrelloAction.TARGET_CARD ){
+				Map<String,String> card = action.getData().getChildMap("card");
+				for(Entry<String,String> entry : card.entrySet()){
+					System.out.format("\t\t%s: %s\n", entry.getKey(), entry.getValue());
+				}
+			}
 		}
 	}
 

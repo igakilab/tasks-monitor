@@ -48,7 +48,7 @@ public class DocumentTrelloActionParser {
 		}
 	}
 
-	public static TrelloAction getTrelloActionInstance(Document doc){
+	public static TrelloAction parse(Document doc){
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 		TrelloAction action = new TrelloAction();
 
