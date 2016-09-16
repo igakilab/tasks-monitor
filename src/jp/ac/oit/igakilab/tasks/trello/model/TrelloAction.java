@@ -70,7 +70,7 @@ public class TrelloAction {
 	protected int actionType;
 	protected Date date;
 	protected Map<String,String> data;
-	protected Map<String,String> memberCreator;
+	protected String memberCreatorId;
 	protected String rawText;
 
 	public TrelloAction(){
@@ -83,7 +83,7 @@ public class TrelloAction {
 		actionType = ACTION_UNKNOWN;
 		date = null;
 		data = new HashMap<String,String>();
-		memberCreator = new HashMap<String,String>();
+		memberCreatorId = null;
 		rawText = null;
 	}
 
@@ -129,12 +129,12 @@ public class TrelloAction {
 		this.data = data;
 	}
 
-	public Map<String, String> getMemberCreator() {
-		return memberCreator;
+	public String getMemberCreatorId() {
+		return memberCreatorId;
 	}
 
-	public void setMemberCreator(Map<String, String> memberCreator) {
-		this.memberCreator = memberCreator;
+	public void setMemberCreatorId(String memberCreatorId) {
+		this.memberCreatorId = memberCreatorId;
 	}
 
 	public String getRawText() {

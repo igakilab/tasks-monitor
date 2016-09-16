@@ -10,70 +10,27 @@ import java.util.Map.Entry;
 import org.bson.Document;
 
 public class DocumentTrelloActionParser {
-	static int DATA_BOARD = 101;
-	static int DATA_LIST = 102;
-	static int DATA_CARD = 103;
-	static int DATA_UNKNOWN = 104;
 
-	public static int getDataType(String type){
-		if( type.equals("createBoard") ||
-			type.equals("updateBoard") ||
-			type.equals("addMemberToBoard") ||
-			type.equals("removeMemberFromBoard") ){
-			return DATA_BOARD;
-		}else
-		if( type.equals("createList") ||
-			type.equals("updateList") ){
-			return DATA_LIST;
-		}else
-		if( type.equals("createCard") ||
-			type.equals("updateCard") ||
-			type.equals("addMemberToCard") ||
-			type.equals("removeMemberFromCard") ||
-			type.equals("deleteCard") ){
-			return DATA_CARD;
-		}
-		return DATA_UNKNOWN;
-	}
+	public static void parseActionData(Map<String,String> map, String keyHead, Document doc){
+		for(Entry<String,Object> entry : doc.entrySet()){
+			String thiskey = keyHead + entry.getKey();
+			//in document object
+			if( entry.getValue() instanceof Document ){
+				parseActionData(map, thiskey + TrelloActionData.KEY_SEPARATOR, (Document)entry.getValue());
 
-	public static boolean isMemberData(String type){
-		return (
-			type.equals("addMemberToBoard") ||
-			type.equals("removeMemberFromBoard") ||
-			type.equals("addMemberToCard") ||
-			type.equals("removeMemberFromCard") );
-	}
+			//in other data types
+			}else if( entry.getValue() instanceof String ){
+				map.put(thiskey, (String)entry.getValue());
+			}else if( entry.getValue() instanceof Integer ){
+				map.put(thiskey, String.valueOf((Integer)entry.getValue()));
 
-	public static Map<String,String> parseActionData(String type, Document doc){
-		int dataType = getDataType(type);
-		boolean isMember = isMemberData(type);
-		Map<String,String> data = new HashMap<String,String>();
-
-		Document target = null;
-		if( dataType == DATA_CARD ){
-			target = (Document) ((Document)doc.get("data")).get("card");
-		}else if( dataType == DATA_LIST ){
-			target = (Document) ((Document)doc.get("data")).get("list");
-		}else if( dataType == DATA_BOARD ){
-			target = (Document) ((Document)doc.get("data")).get("board");
-		}
-
-		if( target != null ){
-			for(Entry<String,Object> entry : target.entrySet()){
-				try{
-					String val = (String)entry.getValue();
-					data.put(entry.getKey(), val);
-				}catch(ClassCastException e0){}
+			//in unknown data type
+			}else{
+				String uskey = TrelloActionData.KEY_SEPARATOR + "unsupported";
+				if( !map.containsKey(uskey) ) map.put(uskey, "");
+				map.put(uskey, map.get(uskey) + thiskey + ";");
 			}
 		}
-
-		if( isMember ){
-			try{
-				data.put("idMember", target.getString("idMember"));
-			}catch(ClassCastException e0){}
-		}
-
-		return data;
 	}
 
 	public static TrelloAction getTrelloActionInstance(Document doc){
@@ -90,17 +47,12 @@ public class DocumentTrelloActionParser {
 		catch(ParseException e0){ return null; }
 
 		//parse data
-		action.setData(parseActionData(action.getType(), doc));
+		Map<String,String> data = new HashMap<String,String>();
+		parseActionData(data, "", (Document)doc.get("data"));
+		action.setData(data);
 
 		//parse memberCreator
-		if( doc.containsKey("memberCreator") ){
-			for(Entry<String,Object> entry : ((Document)doc.get("memberCreator")).entrySet()){
-				try{
-					action.getMemberCreator().put(
-						entry.getKey(), (String)entry.getValue());
-				}catch(ClassCastException e0){}
-			}
-		}
+		action.setMemberCreatorId(((Document)doc.get("memberCreator")).getString("id"));
 
 		//set raw text
 		action.setRawText(doc.toJson());
