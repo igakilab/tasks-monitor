@@ -94,6 +94,15 @@ public class TrelloBoard {
 		}
 	}
 
+	public boolean containsCardById(String cid){
+		for(TrelloCard card : cards){
+			if( card.getId().equals(cid) ){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public List<TrelloList> getLists() {
 		return lists;
 	}
@@ -113,6 +122,15 @@ public class TrelloBoard {
 				return;
 			}
 		}
+	}
+
+	public boolean containsListById(String lid){
+		for(TrelloList list : lists){
+			if( list.getId().equals(lid) ){
+				return true;
+			}
+		}
+		return false;
 	}
 
 
