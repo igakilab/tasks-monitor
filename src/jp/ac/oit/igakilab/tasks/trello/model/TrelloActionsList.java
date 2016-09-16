@@ -7,15 +7,15 @@ import java.util.Map.Entry;
 
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
-public class TrelloActionList extends TrelloList {
+public class TrelloActionsList extends TrelloList {
 	public List<TrelloAction> actions;
 
-	public TrelloActionList(){
+	public TrelloActionsList(){
 		super();
 		actions = new ArrayList<TrelloAction>();
 	}
 
-	public TrelloActionList(String lid){
+	public TrelloActionsList(String lid){
 		super(lid);
 		actions = new ArrayList<TrelloAction>();
 	}

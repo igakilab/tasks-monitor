@@ -14,6 +14,7 @@ public class TrelloActionsBoard extends TrelloBoard{
 
 	public TrelloActionsBoard(){
 		actions = new ArrayList<TrelloAction>();
+		ignoredActions = new ArrayList<TrelloAction>();
 	}
 
 	private boolean sortActions(){
@@ -83,12 +84,12 @@ public class TrelloActionsBoard extends TrelloBoard{
 			String lid = action.getData().get("list.id");
 
 			if( actionType == TrelloAction.ACTION_CREATE ){
-				lists.add(new TrelloActionList(lid));
+				lists.add(new TrelloActionsList(lid));
 			}
 
 			if( actionType == TrelloAction.ACTION_CREATE ||
 				actionType == TrelloAction.ACTION_UPDATE ){
-				TrelloActionList list = getActionListById(lid);
+				TrelloActionsList list = getActionsListById(lid);
 				if( list == null ) return false;
 				result = list.applyAction(action);
 			}else{
@@ -112,7 +113,7 @@ public class TrelloActionsBoard extends TrelloBoard{
 
 		//create card
 		if( action.getActionType() == TrelloAction.ACTION_CREATE ){
-			cards.add(new TrelloActionCard(cid));
+			cards.add(new TrelloActionsCard(cid));
 		}
 
 		//delete card
@@ -122,7 +123,7 @@ public class TrelloActionsBoard extends TrelloBoard{
 		}
 
 		//check vaild card id
-		TrelloActionCard card = getActionCardById(cid);
+		TrelloActionsCard card = getActionsCardById(cid);
 		if( card == null ) return false;
 
 		//check valid action type
@@ -170,18 +171,18 @@ public class TrelloActionsBoard extends TrelloBoard{
 		}
 	}
 
-	public TrelloActionList getActionListById(String lid){
+	public TrelloActionsList getActionsListById(String lid){
 		TrelloList list = getListById(lid);
-		if( list != null && (list instanceof TrelloActionList) ){
-			return (TrelloActionList)list;
+		if( list != null && (list instanceof TrelloActionsList) ){
+			return (TrelloActionsList)list;
 		}
 		return null;
 	}
 
-	public TrelloActionCard getActionCardById(String cid){
+	public TrelloActionsCard getActionsCardById(String cid){
 		TrelloCard card = getCardById(cid);
-		if( card != null && (card instanceof TrelloActionCard) ){
-			return (TrelloActionCard)card;
+		if( card != null && (card instanceof TrelloActionsCard) ){
+			return (TrelloActionsCard)card;
 		}
 		return null;
 	}

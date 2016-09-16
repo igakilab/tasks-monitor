@@ -10,15 +10,15 @@ import java.util.Map.Entry;
 
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
-public class TrelloActionCard extends TrelloCard {
+public class TrelloActionsCard extends TrelloCard {
 	public List<TrelloAction> actions;
 
-	public TrelloActionCard(){
+	public TrelloActionsCard(){
 		super();
 		actions = new ArrayList<TrelloAction>();
 	}
 
-	public TrelloActionCard(String cid){
+	public TrelloActionsCard(String cid){
 		super(cid);
 		actions = new ArrayList<TrelloAction>();
 	}

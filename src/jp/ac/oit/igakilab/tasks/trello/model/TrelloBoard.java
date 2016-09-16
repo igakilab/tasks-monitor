@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.trello.model;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,10 @@ public class TrelloBoard {
 
 	protected List<TrelloCard> cards;
 	protected List<TrelloList> lists;
+
+	public TrelloBoard(){
+		init();
+	}
 
 	public void init(){
 		id = null;
@@ -149,6 +154,17 @@ public class TrelloBoard {
 
 	public boolean containsListById(String lid){
 		return getListById(lid) != null;
+	}
+
+	public void printListsAndCards(PrintStream stream){
+		stream.println("BOARD LISTS --");
+		for(TrelloList list : lists){
+			stream.println("\t" + list.toString());
+		}
+		stream.println("BOARD CARDS --");
+		for(TrelloCard card : cards){
+			stream.println("\t" + card.toString());
+		}
 	}
 
 
