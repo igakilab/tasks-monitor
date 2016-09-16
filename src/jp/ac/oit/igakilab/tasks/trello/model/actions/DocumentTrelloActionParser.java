@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.trello.model;
+package jp.ac.oit.igakilab.tasks.trello.model.actions;
 
 import java.text.DateFormat;
 import java.text.ParseException;

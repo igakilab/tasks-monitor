@@ -13,8 +13,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.model.DocumentTrelloActionParser;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloAction;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TestTrelloBoardActionViewer2 {
 	public static void main(String[] args){
