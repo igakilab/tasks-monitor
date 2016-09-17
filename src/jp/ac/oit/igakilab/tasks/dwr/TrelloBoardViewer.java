@@ -1,5 +1,8 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
+import com.mongodb.MongoClient;
+
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -37,5 +40,9 @@ public class TrelloBoardViewer {
 
 		TrelloBoardForm form = TrelloBoardForm.getInstance(board);
 		return form;
+	}
+
+	public TrelloBoardForm getBoardData(String boardId){
+		MongoClient client = TasksMongoClientBuilder.createClient();
 	}
 }
