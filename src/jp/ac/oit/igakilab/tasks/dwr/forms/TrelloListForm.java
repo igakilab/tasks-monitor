@@ -5,9 +5,9 @@ import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 public class TrelloListForm {
 	public static TrelloListForm getInstance(TrelloList list){
 		TrelloListForm form = new TrelloListForm();
-		list.setId(list.getId());
-		list.setName(list.getName());
-		list.setClosed(list.isClosed());
+		form.setId(list.getId());
+		form.setName(list.getName());
+		form.setClosed(list.isClosed());
 		return form;
 	}
 

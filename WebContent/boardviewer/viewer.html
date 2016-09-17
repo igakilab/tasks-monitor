@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>top page</title>
+
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<span class="navbar-brand">Tasks Monitor</span>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<span class="navbar-text">Board View</span>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<div class="row">
+				<h1 class="board-title">Board Name
+				<small>board-id</small></h1>
+			</div>
+
+			<div class="row board-lists">
+				<div class="col-md-4">
+					<h2>list name</h2>
+					<ul class="list-group">
+						<li class="list-group-item">
+						Task1</li>
+						<li class="list-group-item">
+						Task2</li>
+					</ul>
+				</div>
+				<div class="col-md-4">
+					<h2>list name</h2>
+					<ul class="list-group">
+						<li class="list-group-item">
+						Task1</li>
+						<li class="list-group-item">
+						Task2</li>
+					</ul>
+				</div>
+				<div class="col-md-4">
+					<h2>list name</h2>
+					<ul class="list-group">
+						<li class="list-group-item">
+						Task1</li>
+						<li class="list-group-item">
+						Task2</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/interface/TrelloBoardViewer.js"></script>
+
+		<script src="script.js"></script>
+		<script>
+		function getBoardData(boardId){
+			TrelloBoardViewer.getSampleData(function(data){
+				setBoardData(data);
+			});
+		}
+
+		$(document).ready(function(){
+			getBoardData("sample");
+		});
+		</script>
+	</body>
+</html>

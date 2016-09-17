@@ -32,7 +32,7 @@ public class TrelloBoardViewer {
 		TrelloCard card3 = new TrelloCard();
 		card3.setId("6f25");
 		card3.setListId(list1.getId());
-		card3.setName("task1");
+		card3.setName("task3");
 		board.addCard(card3);
 
 		TrelloBoardForm form = TrelloBoardForm.getInstance(board);
