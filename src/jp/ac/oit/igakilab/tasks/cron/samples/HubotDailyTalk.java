@@ -24,6 +24,8 @@ public class HubotDailyTalk implements Runnable{
 	};
 	static String[] WEEKS = {"null", "日", "月", "火", "水", "木", "金", "土"};
 
+	static boolean SWITCH = true; //falseでテストモード リクエストを送信しない
+
 	public static Scheduler createSchedule(String schedule, String u0, String r0){
 		Scheduler scheduler = new Scheduler();
 		scheduler.schedule(schedule, new HubotDailyTalk(u0, r0));
@@ -67,6 +69,10 @@ public class HubotDailyTalk implements Runnable{
 			WEEKS[cal.get(Calendar.DAY_OF_WEEK)]);
 		String talk = messages[(int)(Math.random() * messages.length)];
 
-		sendMessage(room, date + "\n" + talk);
+		if( SWITCH ){
+			sendMessage(room, date + "\n" + talk);
+		}else{
+			System.out.println("HubotDailyTalk: room:" + room + ", msg:" + date + "\n" + talk);
+		}
 	}
 }

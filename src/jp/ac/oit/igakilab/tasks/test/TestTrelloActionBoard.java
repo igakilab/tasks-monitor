@@ -29,10 +29,14 @@ public class TestTrelloActionBoard {
 		board.addActions(actions);
 		board.build();
 
+		System.out.println("BOARDID: " + board.getId());
+		System.out.println("BOARDNAME: " + board.getName());
 		board.printListsAndCards(System.out);
 
 		System.out.println();
 		System.out.println("<ignored actions (" + board.getIgnoredActions().size() + ")>");
+		board.getIgnoredActions().forEach((action) ->
+			System.out.println(action.getType()));
 
 		client.close();
 	}
