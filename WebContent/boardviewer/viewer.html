@@ -60,6 +60,7 @@
 
 		<script src="../js/jquery-2.1.4.min.js"></script>
 		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/util.js"></script>
 
 		<script src="../dwr/engine.js"></script>
 		<script src="../dwr/util.js"><</script>
@@ -74,6 +75,10 @@
 		}
 
 		$(document).ready(function(){
+			var params = Util.getUrlParameters();
+
+			console.log(params);
+			alert(Util.isNull(params.boardId) ? "idを指定しなはれ" : params.boardId);
 			getBoardData("sample");
 		});
 		</script>
