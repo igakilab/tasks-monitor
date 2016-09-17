@@ -28,7 +28,7 @@ public class CronTasks implements ServletContextListener{
 		dailyTalk.start();
 		updateTrelloBoardActions = UpdateTrelloBoardActions.createScheduler("* * * * *");
 		updateTrelloBoardActions.start();
-		tasksNotification = HubotTasksNotification.createScheduler("* * * * *", null);
+		tasksNotification = HubotTasksNotification.createScheduler("* * * * *", "http://localhost:8090");
 		tasksNotification.start();
 	}
 
