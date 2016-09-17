@@ -27,6 +27,8 @@
 				<small>board-id</small></h1>
 			</div>
 
+			<div class="alert-area alert alert-danger hidden"></div>
+
 			<div class="row board-lists">
 				<div class="col-md-4">
 					<h2>list name</h2>
@@ -78,7 +80,7 @@
 			var params = Util.getUrlParameters();
 
 			console.log(params);
-			alert(Util.isNull(params.boardId) ? "idを指定しなはれ" : params.boardId);
+			if( Util.isNull(params.boardId) ) Util.showAlert("idが指定されていません");
 			getBoardData("sample");
 		});
 		</script>

@@ -15,3 +15,12 @@ Util.getUrlParameters = function(){
 	}
 	return arg;
 };
+
+//alertを表示します
+Util.showAlert = function(msg){
+	if( Util.isNull(msg) ){
+		$(".alert-area").addClass("hidden");
+	}else{
+		$(".alert-area").text(msg).removeClass("hidden");
+	}
+}
