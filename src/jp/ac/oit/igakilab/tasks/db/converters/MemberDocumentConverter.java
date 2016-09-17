@@ -6,7 +6,7 @@ import jp.ac.oit.igakilab.tasks.db.DocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.DocumentValuePicker;
 import jp.ac.oit.igakilab.tasks.members.Member;
 
-public class DocumentMemberConverter
+public class MemberDocumentConverter
 implements DocumentConverter<Member>{
 	public Member parse(Document doc){
 		if( doc.containsKey("id") ){
