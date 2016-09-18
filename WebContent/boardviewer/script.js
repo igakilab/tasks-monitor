@@ -1,5 +1,8 @@
 function generateCardListItem(card){
-	return $("<li></li>").addClass("list-group-item").text(card.name);
+	var item = $("<li></li>").addClass("list-group-item");
+	item.append($("<h4></h4>")
+		.addClass("list-group-item-heading").text(card.name));
+	return item;
 }
 
 function generateListDiv(list, cards){
@@ -25,7 +28,7 @@ function setBoardData(board){
 
 	//set board title
 	$(".board-title")
-		.append(board.name)
+		.append(board.name + " ")
 		.append($("<small></small>").text(board.id));
 
 	//generate list divs
