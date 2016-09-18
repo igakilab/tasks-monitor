@@ -84,11 +84,12 @@ public class TrelloBoardViewer {
 		List<TrelloBoardInfoForm> forms = new ArrayList<TrelloBoardInfoForm>();
 		bdb.getBoardList().forEach((board) -> {
 			TrelloBoardInfoForm form = new TrelloBoardInfoForm();
-			form.setBoardId(board.getId());
+			form.setId(board.getId());
 			form.setLastUpdate(board.getLastUpdate());
 			forms.add(form);
 		});
 
+		client.close();
 		return forms;
 	}
 }

@@ -3,23 +3,26 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 import java.util.Date;
 
 public class TrelloBoardInfoForm {
-	private String boardId;
+	private String id;
 	private Date lastUpdate;
 
 	public TrelloBoardInfoForm(){
-		boardId = null;
+		id = null;
 		lastUpdate = null;
 	}
 
-	public String getBoardId() {
-		return boardId;
+	public String getId() {
+		return id;
 	}
-	public void setBoardId(String boardId) {
-		this.boardId = boardId;
+
+	public void setId(String id) {
+		this.id = id;
 	}
+
 	public Date getLastUpdate() {
 		return lastUpdate;
 	}
+
 	public void setLastUpdate(Date lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}

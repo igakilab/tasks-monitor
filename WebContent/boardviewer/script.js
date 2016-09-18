@@ -55,3 +55,27 @@ function setBoardData(board){
 		console.log(e);
 	});
 }
+
+function generateBoardInfoRow(boardInfo){
+	var viewerLink = "viewer.html?boardId=" + boardInfo.id;
+	var trow = $("<tr></tr>")
+		.append($("<td></td>").text(boardInfo.id))
+		.append($("<td></td>").text(boardInfo.lastUpdate))
+		.append($("<a></a>")
+			.addClass("btn btn-default")
+			.attr("href", viewerLink)
+			.append("VIEW")
+			.append(Util.bsGlyphicon("chevron-right")));
+	return trow;
+}
+
+function setBoardInfo(boardInfos){
+	//init
+	$(".board-info-table-body").empty();
+
+	//generate and set info row
+	for(var i=0; i<boardInfos.length; i++){
+		var row = generateBoardInfoRow(boardInfos[i]);
+		$(".board-info-table-body").append(row);
+	}
+}

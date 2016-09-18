@@ -24,3 +24,12 @@ Util.showAlert = function(msg){
 		$(".alert-area").text(msg).removeClass("hidden");
 	}
 }
+
+//bootstrapのGlyphiconを示すjqueryオブジェクトを返します。
+//もじglyphicon-chevron-rightのオブジェクトを取得したいならば
+//Util.bsGlyphicon("chevron-right")を指定します。
+Util.bsGlyphicon = function(name){
+	return $("<span></span>")
+		.addClass("glyphicon glyphicon-" + name)
+		.attr("aria-hidden", "true");
+}
