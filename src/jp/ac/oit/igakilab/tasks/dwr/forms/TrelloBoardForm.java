@@ -16,7 +16,6 @@ public class TrelloBoardForm {
 		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
 		board.getCards().forEach((card) ->
 			cards.add(TrelloCardForm.getInstance(card)));
-		System.out.println(cards);
 		form.setCards(cards.toArray(new TrelloCardForm[cards.size()]));
 
 		List<TrelloListForm> lists = new ArrayList<TrelloListForm>();

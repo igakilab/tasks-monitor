@@ -44,6 +44,7 @@ public class BoardActionFetcher {
 	private Object getBoardActionFromServer(Calendar since){
 		String url = "/1/boards/" + boardId + "/actions";
 		Parameters params = new Parameters();
+		params.setParameter("limit", "1000");
 		if( since != null ){
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			df.setTimeZone(TimeZone.getTimeZone("UTC"));

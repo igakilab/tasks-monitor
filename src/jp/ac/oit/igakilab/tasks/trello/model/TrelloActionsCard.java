@@ -69,7 +69,7 @@ public class TrelloActionsCard extends TrelloCard {
 					}catch(ParseException e0){};
 					if( tmp != null ) setDue(tmp);
 
-				}else if(entry.getKey().equals("isClosed") ){
+				}else if(entry.getKey().equals("closed") ){
 					setClosed(entry.getValue().equals("true"));
 
 				}

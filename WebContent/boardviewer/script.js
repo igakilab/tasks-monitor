@@ -35,11 +35,12 @@ function setBoardData(board){
 	var listDivs = [];
 	for(var i=0; i<board.lists.length; i++){
 		var list = board.lists[i];
+		if( list.closed ) continue;
 
 		//search cards
 		var cards = [];
 		board.cards.forEach(function(e, i, a){
-			if( e.listId == list.id ) cards.push(e);
+			if( e.listId == list.id && !cards.closed ) cards.push(e);
 		})
 
 		//generate list div
