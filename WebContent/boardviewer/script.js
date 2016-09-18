@@ -86,11 +86,11 @@ function generateBoardInfoRow(boardInfo){
 	var trow = $("<tr></tr>")
 		.append($("<td></td>").text(boardInfo.id))
 		.append($("<td></td>").text(boardInfo.lastUpdate))
-		.append($("<a></a>")
+		.append($("<td></td>").append($("<a></a>")
 			.addClass("btn btn-default")
 			.attr("href", viewerLink)
 			.append("VIEW")
-			.append(Util.bsGlyphicon("chevron-right")));
+			.append(Util.bsGlyphicon("chevron-right"))));
 	return trow;
 }
 
