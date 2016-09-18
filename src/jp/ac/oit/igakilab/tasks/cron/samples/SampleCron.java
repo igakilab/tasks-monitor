@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.cron;
+package jp.ac.oit.igakilab.tasks.cron.samples;
 
 import java.util.Date;
 
