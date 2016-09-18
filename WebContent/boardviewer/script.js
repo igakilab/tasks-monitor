@@ -1,7 +1,31 @@
+function generateCardListItemText(card){
+	var texts = [];
+	if( card.desc != null )
+		texts.push(card.desc);
+	if( card.due != null )
+		texts.push("期限: " + Util.formatDate(card.due, "YYYY/MM/DD hh:mm"));
+
+	if( texts.length > 0 ){
+		var text = $("<p></p>").addClass("list-group-item-text");
+		for(var i=0; i<texts.length; i++){
+			text.append(texts[i]);
+			if( i != (texts.length - 1) ) text.append($("<br></br>"));
+		}
+		return text;
+	}
+	return null;
+}
+
 function generateCardListItem(card){
 	var item = $("<li></li>").addClass("list-group-item");
 	item.append($("<h4></h4>")
 		.addClass("list-group-item-heading").text(card.name));
+
+	var itemText = generateCardListItemText(card);
+	if( itemText != null ){
+		item.append(itemText);
+	}
+
 	return item;
 }
 
