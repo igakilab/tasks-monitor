@@ -71,8 +71,13 @@
 		<script src="script.js"></script>
 		<script>
 		function getBoardData(boardId){
-			TrelloBoardViewer.getSampleData(function(data){
-				setBoardData(data);
+			TrelloBoardViewer.getBoardData(boardId, {
+				callback: function(data){
+					setBoardData(data);
+				},
+				errorHandler: function(msg){
+					Util.showAlert(msg);
+				}
 			});
 		}
 
@@ -80,8 +85,12 @@
 			var params = Util.getUrlParameters();
 
 			console.log(params);
-			if( Util.isNull(params.boardId) ) Util.showAlert("idが指定されていません");
-			getBoardData("sample");
+			if( Util.isNull(params.boardId) ){
+				Util.showAlert("idが指定されていません");
+				return;
+			}
+
+			getBoardData(params.boardId);
 		});
 		</script>
 	</body>

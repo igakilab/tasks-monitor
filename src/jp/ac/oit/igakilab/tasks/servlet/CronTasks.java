@@ -29,7 +29,7 @@ public class CronTasks implements ServletContextListener{
 		updateTrelloBoardActions = UpdateTrelloBoardActions.createScheduler("* * * * *");
 		updateTrelloBoardActions.start();
 		tasksNotification = HubotTasksNotification.createScheduler("* * * * *", "http://localhost:8090");
-		tasksNotification.start();
+		//tasksNotification.start();
 	}
 
 	public void contextDestroyed(ServletContextEvent event){
@@ -37,6 +37,6 @@ public class CronTasks implements ServletContextListener{
 		hello.stop();
 		dailyTalk.stop();
 		updateTrelloBoardActions.stop();
-		tasksNotification.stop();
+		//tasksNotification.stop();
 	}
 }

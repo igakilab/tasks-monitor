@@ -1,9 +1,18 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
+import java.util.List;
+
+import com.mongodb.MongoClient;
+
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloBoardViewer {
 	public TrelloBoardForm getSampleData(){
@@ -39,9 +48,31 @@ public class TrelloBoardViewer {
 		return form;
 	}
 
-	/*
-	public TrelloBoardForm getBoardData(String boardId){
+	public TrelloBoardForm getBoardData(String boardId)
+	throws ExcuteFailedException{
+		if( boardId == null ){
+			throw new ExcuteFailedException("ボードidを指定してください");
+		}
+
 		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
+
+		List<TrelloAction> actions =
+			adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+
+		System.out.println(">> boardId:" + boardId);
+		System.out.println(">> " + actions.size() + " " + actions.toString());
+		if( actions.size() > 0 ){
+			TrelloActionsBoard board = new TrelloActionsBoard();
+			board.addActions(actions);
+			board.build();
+
+			client.close();
+			return TrelloBoardForm.getInstance(board);
+
+		}else{
+			client.close();
+			throw new ExcuteFailedException("ボードがみつかりません");
+		}
 	}
-	*/
 }
