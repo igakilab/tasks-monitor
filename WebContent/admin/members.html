@@ -40,7 +40,8 @@
 			<h1>メンバー編集画面</h1>
 
 			<div>
-				<button class="btn btn-primary">追加</button>
+				<button class="btn btn-primary"
+					data-toggle="modal" data-target="#memberFormModal">追加</button>
 				<button class="btn btn-default">更新</button>
 			</div>
 
@@ -70,6 +71,58 @@
 			</table>
 		</div>
 
+		<!-- 編集画面ダイアログ -->
+		<div class="modal fade" id="memberFormModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">メンバー追加 or メンバー編集</h4>
+			</div>
+			<div class="modal-body">
+				<div class="alert alert-danger" id="memberFormAlertArea">ここアラート</div>
+
+				<!-- 編集フォーム -->
+				<form>
+				<div class="form-group">
+					<label for="memberFormInputId">メンバーID</label>
+					<input type="text" class="form-control"
+						id="memberFormInputId" placeholder="ID">
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputName">メンバー名</label>
+					<input type="text" class="form-control"
+						id="memberFormInputName" placeholder="名前">
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputTrelloId">Trello ID</label>
+					<input type="text" class="form-control"
+						id="memberFormInputTrelloId" placeholder="Trello ID">
+					<p class="help-block">help message.</p>
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputSlackId">Slack ID</label>
+					<input type="text" class="form-control"
+						id="memberFormInputSlackId" placeholder="Slack ID">
+				</div>
+				<div class="form-group">
+					<label>Admin Permission</label>
+					<div class="checkbox">
+						<label><input type="checkbox" id="memberFormCheckboxAdmin">
+						 admin</label>
+					</div>
+				</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary"
+					id="memberFormModalSaveBtn">Save changes</button>
+			</div>
+		</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
 		<script src="../js/jquery-2.1.4.min.js"></script>
 		<script src="../js/bootstrap.min.js"></script>
 		<script src="../js/util.js"></script>
@@ -79,6 +132,9 @@
 
 		<script src="script.js"></script>
 		<script>
+		$(document).ready(function(){
+
+		});
 		</script>
 	</body>
 </html>
