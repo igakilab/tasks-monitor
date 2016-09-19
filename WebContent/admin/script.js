@@ -1,3 +1,14 @@
+/* members functions
+ * generateMemberTableRowButtons(idx)
+ * generateMemberTableRow(member, idx)
+ * setMembers(members)
+ * setMemberFormValues(action, data)
+ * showMemberFormAlert(msg)
+ * generateMemberFormApplyButton(action)
+ * setupMemberFormModal(action, data)
+ * memberFormApplyButtonPressed(action)
+ */
+
 function generateMemberTableRowButtons(idx){
 	return {
 		edit: $("<button></button>")
@@ -144,6 +155,18 @@ function setupMemberFormModal(action, data){
 	//set button
 	$("#memberFormModalApplyBtnArea").append(
 		generateMemberFormApplyButton(action));
+}
+
+function trelloIdAutoComplete(){
+	var username = $("#memberFormInputTrelloId").val();
+	AdminMemberEditor.getTrelloIdByTrelloUserName(username, function(data){
+		if( data !== null ){
+			showMemberFormAlert(null);
+			$("#memberFormInputTrelloId").val(data);
+		}else{
+			showMemberFormAlert("trelloIdを取得できませんでした");
+		}
+	});
 }
 
 function memberFormApplyButtonPressed(action){

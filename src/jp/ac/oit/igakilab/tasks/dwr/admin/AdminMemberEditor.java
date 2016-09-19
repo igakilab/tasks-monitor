@@ -11,7 +11,10 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
 import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
+import jp.ac.oit.igakilab.tasks.http.TrelloApi;
 import jp.ac.oit.igakilab.tasks.members.Member;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloMemberInfo;
 
 public class AdminMemberEditor {
 	public static String ERR_INVALID_DATA = "データが不正です";
@@ -126,5 +129,13 @@ public class AdminMemberEditor {
 		}else{
 			throw new ExcuteFailedException(ERR_INVALID_DATA);
 		}
+	}
+
+	public String getTrelloIdByTrelloUserName(String username){
+		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloMemberInfo trello = new TrelloMemberInfo(api);
+
+		String userId = trello.getUserIdByUserName(username);
+		return userId;
 	}
 }
