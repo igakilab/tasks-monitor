@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 
 import com.mongodb.MongoClient;
 
+import jp.ac.oit.igakilab.tasks.db.DBEditException;
 import jp.ac.oit.igakilab.tasks.db.MembersDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
@@ -22,7 +23,11 @@ public class TestMembersDB {
 		mdata.setTrelloId(
 			getTrelloIdByUserName("user93461510"));
 
-		mdb.addMember(mdata, new MemberDocumentConverter());
+		try{
+			mdb.addMember(mdata, new MemberDocumentConverter());
+		}catch(DBEditException e0){
+			System.out.println(e0.getMessage());
+		}
 
 		mdb.getAllMemberList(new MemberDocumentConverter()).forEach(
 			(member) -> System.out.format("%s %s %s %s\n",

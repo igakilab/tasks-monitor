@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
+import static jp.ac.oit.igakilab.tasks.db.DBEditException.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import org.bson.conversions.Bson;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
+
 
 public class MembersDB {
 	public static String DB_NAME = "tasks-monitor";
@@ -25,16 +27,46 @@ public class MembersDB {
 		return client.getDatabase(DB_NAME).getCollection(COL_NAME);
 	}
 
-	public <T> boolean addMember(T data, DocumentConverter<T> converter){
+	public boolean memberIdExists(String mid){
+		long cnt = getCollection().count(Filters.eq("id", mid));
+		return cnt > 0;
+	}
+
+	public <T> void addMember(T data, DocumentConverter<T> converter)
+	throws DBEditException{
 		Document doc = converter.convert(data);
-		if( doc != null ){
-			Bson filter = Filters.eq("id", doc.get("id"));
-			UpdateOptions options = new UpdateOptions();
-			options.upsert(true);
-			getCollection().replaceOne(filter, doc, options);
-			return true;
+
+		//追加できるかどうかテスト
+		if( doc.containsKey("id") ){
+			String mid = doc.getString("id");
+			if( memberIdExists(mid) ){
+				throw new DBEditException(ID_ALSO_REGISTED, "idが登録されていません");
+			}
+		}else{
+			throw new DBEditException(ID_NOTDEFINED, "idが指定されていません");
 		}
-		return false;
+
+		//追加操作
+		getCollection().insertOne(doc);
+	}
+
+	public <T> void updateMember(T data, DocumentConverter<T> converter)
+	throws DBEditException{
+		Document doc = converter.convert(data);
+
+		//更新できるかどうかテスト
+		if( doc.containsKey("id") ){
+			String mid = doc.getString("id");
+			if( !memberIdExists(mid) ){
+				throw new DBEditException(ID_NOT_REGISTED, "idが登録されていません");
+			}
+		}else{
+			throw new DBEditException(ID_NOTDEFINED, "idが指定されていません");
+		}
+
+		//更新操作
+		Bson filter = Filters.eq("id", doc.getString("id"));
+		getCollection().replaceOne(filter, doc);
 	}
 
 	public <T> List<T> getAllMemberList(DocumentConverter<T> converter){
