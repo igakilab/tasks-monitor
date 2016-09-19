@@ -6,6 +6,7 @@ import java.util.List;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -39,8 +40,12 @@ public class ProjectsDB {
 
 	public <T> List<T> getAllProjects(DocumentConverter<T> converter){
 		List<T> list = new ArrayList<T>();
-		getCollection().find().forEach((Document doc) ->
-			list.add(converter.parse(doc)));
+		getCollection().find().forEach(new Block<Document>(){
+			@Override
+			public void apply(Document doc){
+				list.add(converter.parse(doc));
+			}
+		});
 		return list;
 	}
 }
