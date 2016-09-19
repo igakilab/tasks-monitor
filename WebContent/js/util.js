@@ -17,11 +17,37 @@ Util.getUrlParameters = function(){
 };
 
 //alertを表示します
-Util.showAlert = function(msg){
+Util.showAlert = function(body, type, target){
 	if( Util.isNull(msg) ){
 		$(".alert-area").addClass("hidden");
 	}else{
 		$(".alert-area").text(msg).removeClass("hidden");
+	}
+}
+
+//alertをdiv内に生成します
+Util.showAlertToDiv = function(body, type, target){
+	type = Util.isNull(type) ? "danger" : type;
+	target = Util.isNull(target) ? $(".alert-div") : target;
+
+	target.empty();
+	if( !Util.isNull(body) ){
+		target.append(
+			$("<div></div>").addClass("alert alert-" + type)
+				.append(body)
+		);
+		target.removeClass("hidden");
+	}else{
+		target.addClass("hidden");
+	}
+}
+
+//成功メッセージを表示します
+Util.showSuccessAlert = function(msg){
+	if( Util.isNull(msg) ){
+		$(".alert-success-area").addClass("hidden");
+	}else{
+		$(".alert-success-area").text(msg).removeClass("hidden");
 	}
 }
 
