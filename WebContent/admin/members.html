@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>Board Viewer - Boards</title>
+
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse" data-target="#navbar"
+						aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<span class="navbar-brand">Tasks Monitor</span>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<p class="navbar-text">adminメニュー</p>
+					<ul class="nav navbar-nav">
+						<li class="active"><a>メンバー編集</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<div class="alert-area alert alert-danger" style="margin-top: 30px;">
+				ここはアラートです。
+			</div>
+			<h1>メンバー編集画面</h1>
+
+			<div>
+				<button class="btn btn-primary">追加</button>
+				<button class="btn btn-default">更新</button>
+			</div>
+
+			<table class="table">
+				<thead><tr>
+					<th>メンバーID</th>
+					<th>メンバー名</th>
+					<th>trelloId</th>
+					<th>slackId</th>
+					<th>管理者権限</th>
+					<th>操作</th>
+				</tr></thead>
+
+				<tbody class="board-info-table-body">
+					<tr>
+						<td>taro</td>
+						<td>メンバー太郎</td>
+						<td>1fe34taro5cb</td>
+						<td>mrtarotaro</td>
+						<td>なし</td>
+						<td>
+							<button class="btn btn-success">編集</button>
+							<button class="btn btn-danger">削除</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+
+		<script src="script.js"></script>
+		<script>
+		</script>
+	</body>
+</html>
