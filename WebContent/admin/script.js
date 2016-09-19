@@ -91,6 +91,21 @@ function setMemberFormValues(action, data){
 		.prop("disabled", isRemove);
 	$("#memberFormCheckboxAdmin").prop("checked", values.isAdmin)
 		.prop("disabled", isRemove);
+
+	//trello autocomplete control
+	if( action == "add" || action == "edit" ){
+		$("#memberFormInputTrelloIdHelp").empty().append(
+			"trelloのusernameからtrello IDを自動入力することができます",
+			$("<br></br>"),
+			"trello IDの欄にusernameを入力し、自動入力をクリックしてください。",
+			$("<button></button>").addClass("btn btn-default btn-xs")
+				.attr("type", "button")
+				.text("自動入力")
+				.on("click", trelloIdAutoComplete)
+		).removeClass("hidden");
+	}else{
+		$("#memberFormInputTrelloIdHelp").addClass("hidden");
+	}
 }
 
 function showMemberFormAlert(msg){
@@ -159,14 +174,16 @@ function setupMemberFormModal(action, data){
 
 function trelloIdAutoComplete(){
 	var username = $("#memberFormInputTrelloId").val();
+	$("#memberFormInputTrelloId").val("取得中...").prop("disabled", true);
 	AdminMemberEditor.getTrelloIdByTrelloUserName(username, function(data){
-		if( data !== null ){
+		if( data != null ){
 			showMemberFormAlert(null);
-			$("#memberFormInputTrelloId").val(data);
+			$("#memberFormInputTrelloId").val(data).prop("disabled", false);
 		}else{
-			showMemberFormAlert("trelloIdを取得できませんでした");
-		}
-	});
+			showMemberFormAlert("trello idを取得できませんでした");
+			$("#memberFormInputTrelloId").val(username).prop("disabled", false);
+		};
+	})
 }
 
 function memberFormApplyButtonPressed(action){
