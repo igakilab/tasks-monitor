@@ -54,7 +54,7 @@ public class AdminMemberEditor {
 			MembersDB mdb = new MembersDB(client);
 
 			//登録可能チェック
-			if( canAddMemberId(member.getId()) ){
+			if( !canAddMemberId(member.getId()) ){
 				throw new ExcuteFailedException(ERR_INVALID_MEMBERID);
 			}
 
