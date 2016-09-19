@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>Board Viewer - Boards</title>
+		<title>admin - members</title>
 
 		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
@@ -34,15 +34,21 @@
 		</nav>
 
 		<div class="container">
-			<div class="alert-area alert alert-danger" style="margin-top: 30px;">
-				ここはアラートです。
+			<div class="alert-area alert alert-danger hidden" style="margin-top: 30px;">
 			</div>
+
 			<h1>メンバー編集画面</h1>
 
 			<div>
 				<button class="btn btn-primary"
-					data-toggle="modal" data-target="#memberFormModal">追加</button>
-				<button class="btn btn-default">更新</button>
+					data-toggle="modal" data-target="#memberFormModal">
+					<span class="glyphicon glyphicon-plus" aria-hidden="true">
+					</span> 追加
+				</button>
+				<button class="btn btn-default reload-btn">
+					<span class="glyphicon glyphicon-refresh" aria-hidden="true">
+					</span> 更新
+				</button>
 			</div>
 
 			<table class="table">
@@ -55,7 +61,7 @@
 					<th>操作</th>
 				</tr></thead>
 
-				<tbody class="board-info-table-body">
+				<tbody class="members-tbody">
 					<tr>
 						<td>taro</td>
 						<td>メンバー太郎</td>
@@ -128,12 +134,21 @@
 		<script src="../js/util.js"></script>
 
 		<script src="../dwr/engine.js"></script>
-		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/util.js"></script>
+		<script src="../dwr/interface/AdminMemberEditor.js"></script>
 
 		<script src="script.js"></script>
 		<script>
-		$(document).ready(function(){
+		function loadMembersList(){
+			AdminMemberEditor.getAllMembersList(function(data){
+				setMembers(data);
+			});
+		}
 
+		$(document).ready(function(){
+			$(".reload-btn").on('click', loadMembersList);
+
+			loadMembersList();
 		});
 		</script>
 	</body>

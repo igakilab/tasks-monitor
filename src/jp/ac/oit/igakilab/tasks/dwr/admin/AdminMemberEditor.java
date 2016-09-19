@@ -17,7 +17,7 @@ public class AdminMemberEditor {
 	public static String ERR_INVALID_DATA = "データが不正です";
 	public static String ERR_INVALID_MEMBERID = "このメンバーidは使用できません";
 
-	public List<MemberForm> getAllMemberList(){
+	public List<MemberForm> getAllMembersList(){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		MembersDB mdb = new MembersDB(client);
 
