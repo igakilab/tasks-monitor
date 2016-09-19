@@ -152,6 +152,26 @@ public class TrelloBoard {
 		return null;
 	}
 
+	public List<TrelloCard> getCardsByListId(String lid){
+		List<TrelloCard> pick = new ArrayList<TrelloCard>();
+		cards.stream()
+			.filter((card) -> card.getListId().equals(lid))
+			.forEach((card) -> pick.add(card));
+		return pick;
+	}
+
+	public List<TrelloCard> getCardsByListName(String lname){
+		TrelloList list = lists.stream()
+			.filter((li) -> li.getName().equals(lname))
+			.findFirst()
+			.orElse(null);
+
+		if( list != null ){
+			return getCardsByListId(list.getId());
+		}
+		return new ArrayList<TrelloCard>();
+	}
+
 	public boolean containsListById(String lid){
 		return getListById(lid) != null;
 	}

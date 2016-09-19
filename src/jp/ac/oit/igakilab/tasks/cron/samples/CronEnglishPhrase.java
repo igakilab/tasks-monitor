@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.cron;
+package jp.ac.oit.igakilab.tasks.cron.samples;
 
 import it.sauronsoftware.cron4j.Scheduler;
 

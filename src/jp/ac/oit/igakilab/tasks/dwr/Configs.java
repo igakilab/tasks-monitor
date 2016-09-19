@@ -6,7 +6,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.bson.Document;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Updates;
+
 import jp.ac.oit.igakilab.tasks.AppProperties;
+import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
 
 public class Configs {
@@ -57,5 +65,26 @@ public class Configs {
 		}
 
 		return result.toArray(new StringKeyValueForm[result.size()]);
+	}
+
+	public void clearTrelloActionsCache(){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+
+		//clear actions cache
+		MongoCollection<Document> trelloBoardActions =
+			client.getDatabase("tasks-monitor").getCollection("trello_board_actions");
+		trelloBoardActions.deleteMany(new Document());
+
+		//clear lastupdate data
+		MongoCollection<Document> trelloBoard =
+			client.getDatabase("tasks-monitor").getCollection("trello_boards");
+		trelloBoard.updateMany(new Document(), Updates.set("lastUpdate", null));
+
+		client.close();
+	}
+
+	public void updateTrelloActionsCache(){
+		UpdateTrelloBoardActions updater = new UpdateTrelloBoardActions();
+		updater.run();
 	}
 }

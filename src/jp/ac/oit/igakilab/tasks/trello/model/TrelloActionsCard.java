@@ -63,13 +63,13 @@ public class TrelloActionsCard extends TrelloCard {
 					setDesc(entry.getValue());
 
 				}else if( entry.getKey().equals("due") ){
-					DateFormat df = new TrelloDateFormat();
+					DateFormat df = new TrelloApiDateFormat();
 					Date tmp = null;
 					try{ tmp = df.parse(entry.getValue());
 					}catch(ParseException e0){};
 					if( tmp != null ) setDue(tmp);
 
-				}else if(entry.getKey().equals("isClosed") ){
+				}else if(entry.getKey().equals("closed") ){
 					setClosed(entry.getValue().equals("true"));
 
 				}
