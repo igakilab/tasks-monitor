@@ -25,18 +25,18 @@ public class CronTasks implements ServletContextListener{
 		hello = cron.schedule("* * * * *", null);
 		hello.start();
 		dailyTalk = HubotDailyTalk.createSchedule("* * * * *", "http://localhost:8090", "shell");
-		dailyTalk.start();
+		//dailyTalk.start();
 		updateTrelloBoardActions = UpdateTrelloBoardActions.createScheduler("* * * * *");
 		updateTrelloBoardActions.start();
 		tasksNotification = HubotTasksNotification.createScheduler("* * * * *", "http://localhost:8090");
-		tasksNotification.start();
+		//tasksNotification.start();
 	}
 
 	public void contextDestroyed(ServletContextEvent event){
 		logger.addSingleLog("Server shutdown.", true);
 		hello.stop();
-		dailyTalk.stop();
+		//dailyTalk.stop();
 		updateTrelloBoardActions.stop();
-		tasksNotification.stop();
+		//tasksNotification.stop();
 	}
 }

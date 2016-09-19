@@ -29,29 +29,30 @@ public class UpdateTrelloBoardActions implements Runnable{
 		return scheduler;
 	}
 
-	private int updateBoardActions(String boardId, Date since){
-		BoardActionFetcher fetcher = new BoardActionFetcher(
-			TasksTrelloClientBuilder.createApiClient(), boardId);
-
+	private int updateBoardActions(MongoClient client, String boardId, Date since){
 		logger.log("fetch board actions");
 		logger.log("boardId: " + boardId);
 		logger.log("since: " + (since != null ? since.toString() : "null"));
+
+		//fetching
+		BoardActionFetcher fetcher = new BoardActionFetcher(
+			TasksTrelloClientBuilder.createApiClient(), boardId);
 		fetcher.fetch(since);
 
+		//convertData
 		JSONArray data = fetcher.getJSONArrayData();
-		logger.log("-- received " + data.size() + "record(s)");
-
 		List<Document> docs = new ArrayList<Document>();
 		for(int i=data.size()-1; i>=0; i--){
 			JSONObject obj = (JSONObject)data.get(i);
 			docs.add(Document.parse(obj.toJSONString()));
 		}
 
-		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(
-			TasksMongoClientBuilder.createClient());
+		//apply database
+		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(client);
 		int uc = updater.upsertDatabase(docs, boardId);
-		logger.log("-- upserted " + uc + "record(s)");
 
+		logger.log("-- received " + data.size() + "record(s)");
+		logger.log("-- upserted " + uc + "record(s)");
 		return uc;
 	}
 
@@ -65,7 +66,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 			logger.log(DebugLog.LS_INFO, "update board : " + board.getId());
 			logger.log(DebugLog.LS_INFO, "board last updated : " + board.getLastUpdate());
 			Calendar cal = Calendar.getInstance();
-			updateBoardActions(board.getId(), board.getLastUpdate());
+			updateBoardActions(client, board.getId(), board.getLastUpdate());
 			bdb.updateLastUpdateDate(board.getId(), cal.getTime());
 		}
 
