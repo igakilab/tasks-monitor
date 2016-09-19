@@ -84,32 +84,32 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">メンバー追加 or メンバー編集</h4>
+				<h4 class="modal-title" id="memberFormModalTitle">メンバー追加 or メンバー編集</h4>
 			</div>
 			<div class="modal-body">
 				<div class="alert alert-danger" id="memberFormAlertArea">ここアラート</div>
 
 				<!-- 編集フォーム -->
-				<form>
+				<form id="memberForm">
 				<div class="form-group">
 					<label for="memberFormInputId">メンバーID</label>
-					<input type="text" class="form-control"
+					<input type="text" class="form-control" name="id"
 						id="memberFormInputId" placeholder="ID">
 				</div>
 				<div class="form-group">
 					<label for="memberFormInputName">メンバー名</label>
-					<input type="text" class="form-control"
+					<input type="text" class="form-control" name="name"
 						id="memberFormInputName" placeholder="名前">
 				</div>
 				<div class="form-group">
 					<label for="memberFormInputTrelloId">Trello ID</label>
-					<input type="text" class="form-control"
+					<input type="text" class="form-control" name="trelloId"
 						id="memberFormInputTrelloId" placeholder="Trello ID">
 					<p class="help-block">help message.</p>
 				</div>
 				<div class="form-group">
 					<label for="memberFormInputSlackId">Slack ID</label>
-					<input type="text" class="form-control"
+					<input type="text" class="form-control" name="slackId"
 						id="memberFormInputSlackId" placeholder="Slack ID">
 				</div>
 				<div class="form-group">
@@ -123,14 +123,16 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary"
-					id="memberFormModalSaveBtn">Save changes</button>
+				<span id="memberFormModalApplyBtnArea"></span>
+				<!-- <button type="button" class="btn btn-primary"
+					id="memberFormModalSaveBtn">Save changes</button> -->
 			</div>
 		</div><!-- /.modal-content -->
 		</div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
 
 		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/jquery.serialize.js"></script>
 		<script src="../js/bootstrap.min.js"></script>
 		<script src="../js/util.js"></script>
 
@@ -162,6 +164,8 @@
 					inf = MEMBERS_BUFFER[rowindex].id;
 				}
 				alert("action:" + action + " index:" + rowindex + "\ninf:" + inf);
+
+				setupMemberFormModal(action, MEMBERS_BUFFER[rowindex]);
 			});
 
 			loadMembersList();
