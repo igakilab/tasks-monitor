@@ -25,6 +25,15 @@ Util.showAlert = function(msg){
 	}
 }
 
+//成功メッセージを表示します
+Util.showSuccessAlert = function(msg){
+	if( Util.isNull(msg) ){
+		$(".alert-success-area").addClass("hidden");
+	}else{
+		$(".alert-success-area").text(msg).removeClass("hidden");
+	}
+}
+
 //bootstrapのGlyphiconを示すjqueryオブジェクトを返します。
 //もじglyphicon-chevron-rightのオブジェクトを取得したいならば
 //Util.bsGlyphicon("chevron-right")を指定します。

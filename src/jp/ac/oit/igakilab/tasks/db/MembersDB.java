@@ -40,7 +40,7 @@ public class MembersDB {
 		if( doc.containsKey("id") ){
 			String mid = doc.getString("id");
 			if( memberIdExists(mid) ){
-				throw new DBEditException(ID_ALSO_REGISTED, "idが登録されていません");
+				throw new DBEditException(ID_ALSO_REGISTED, "idがすでに登録されています");
 			}
 		}else{
 			throw new DBEditException(ID_NOTDEFINED, "idが指定されていません");
@@ -67,6 +67,19 @@ public class MembersDB {
 		//更新操作
 		Bson filter = Filters.eq("id", doc.getString("id"));
 		getCollection().replaceOne(filter, doc);
+	}
+
+	public void deleteMemberById(String mid)
+	throws DBEditException{
+		if( mid == null ) throw new DBEditException(ID_NOTDEFINED, "idが指定されていません");
+
+		//データチェックと削除動作
+		if( memberIdExists(mid) ){
+			Bson filter = Filters.eq("id", mid);
+			getCollection().deleteOne(filter);
+		}else{
+			throw new DBEditException(ID_NOT_REGISTED, "idが登録されていません");
+		}
 	}
 
 	public <T> List<T> getAllMemberList(DocumentConverter<T> converter){

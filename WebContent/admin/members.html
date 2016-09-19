@@ -115,7 +115,7 @@
 				<div class="form-group">
 					<label>Admin Permission</label>
 					<div class="checkbox">
-						<label><input type="checkbox" id="memberFormCheckboxAdmin">
+						<label><input type="checkbox" name="admin" id="memberFormCheckboxAdmin">
 						 admin</label>
 					</div>
 				</div>
@@ -159,11 +159,13 @@
 				var action = button.data("action");
 				var rowindex = button.data("rowindex");
 
+				/*
 				var inf = "none";
 				if( rowindex >= 0 ){
 					inf = MEMBERS_BUFFER[rowindex].id;
 				}
 				alert("action:" + action + " index:" + rowindex + "\ninf:" + inf);
+				*/
 
 				setupMemberFormModal(action, MEMBERS_BUFFER[rowindex]);
 			});

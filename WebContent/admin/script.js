@@ -94,6 +94,7 @@ function showMemberFormAlert(msg){
 
 function generateMemberFormApplyButton(action){
 	var button = $("<button></button>");
+	//button.attr("data-dismiss", "modal");
 	if( action == "add" ){
 		button.addClass("btn btn-primary")
 			.text("Save changes")
@@ -149,6 +150,32 @@ function memberFormApplyButtonPressed(action){
 	var member = $("#memberForm").serializeJson();
 	member.admin = $("#memberFormCheckboxAdmin").prop("checked");
 
-	console.log("action = " + action);
-	console.log(member);
+	if( action == "add" ){
+		AdminMemberEditor.canAddMemberId(member.id, function(canAdd){
+			if( canAdd ){
+				AdminMemberEditor.addMember(member, {
+					callback: function(ret){
+						$("#memberFormModal").modal("hide");
+					},
+					errorHandler: Util.showAlert
+				});
+			}else{
+				showMemberFormAlert("このメンバーidは使用できません");
+			}
+		});
+	}else if( action == "edit" ){
+		AdminMemberEditor.updateMember(member, {
+			callback: function(ret){
+				$("#memberFormModal").modal("hide");
+			},
+			errorHandler: Util.showAlert
+		});
+	}else if( action == "remove" ){
+		AdminMemberEditor.deleteMemberById(member.id, {
+			callback: function(ret){
+				$("#memberFormModal").modal("hide");
+			},
+			errorHandler: Util.showAlert
+		});
+	}
 }

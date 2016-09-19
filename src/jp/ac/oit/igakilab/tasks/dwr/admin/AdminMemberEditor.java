@@ -83,8 +83,35 @@ public class AdminMemberEditor {
 			MembersDB mdb = new MembersDB(client);
 
 			//更新動作
+			System.out.println("UPDATE MEMBER: " + member.getId());
 			try{
-				mdb.addMember(member, new MemberDocumentConverter());
+				mdb.updateMember(member, new MemberDocumentConverter());
+			}catch(DBEditException e0){
+				if( e0.getType() == DBEditException.ID_NOTDEFINED ){
+					throw new ExcuteFailedException(ERR_INVALID_DATA);
+				}else if( e0.getType() == DBEditException.ID_NOT_REGISTED ){
+					throw new ExcuteFailedException(ERR_INVALID_MEMBERID);
+				}else{
+					throw new ExcuteFailedException(e0.getMessage());
+				}
+			}finally{
+				client.close();
+			}
+		}else{
+			throw new ExcuteFailedException(ERR_INVALID_DATA);
+		}
+	}
+
+	public void deleteMemberById(String mid)
+	throws ExcuteFailedException{
+		if( mid != null ){
+			//DBオープン
+			MongoClient client = TasksMongoClientBuilder.createClient();
+			MembersDB mdb = new MembersDB(client);
+
+			//削除動作
+			try{
+				mdb.deleteMemberById(mid);
 			}catch(DBEditException e0){
 				if( e0.getType() == DBEditException.ID_NOTDEFINED ){
 					throw new ExcuteFailedException(ERR_INVALID_DATA);
