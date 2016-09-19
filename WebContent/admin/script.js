@@ -55,7 +55,7 @@ function setMemberFormValues(action, data){
 		values.name = "";
 		values.trelloId = "";
 		values.slackId = "";
-		values.isAdmin = false;
+		values.admin = false;
 	}else if( action == "edit" || action == "remove" ){
 		values.id = data.id;
 		values.name = Util.isNull(data.name) ? "" : data.name;
@@ -64,7 +64,7 @@ function setMemberFormValues(action, data){
 		values.slackId =
 			Util.isNull(data.slackId) ? "" : data.slackId;
 		values.isAdmin =
-			Util.isNull(data.isAdmin) ? false : data.isAdmin;
+			Util.isNull(data.admin) ? false : data.admin;
 	}
 	var isRemoveOrEdit = (action == "edit" || action == "remove");
 	var isRemove = (action == "remove");
@@ -156,8 +156,9 @@ function memberFormApplyButtonPressed(action){
 				AdminMemberEditor.addMember(member, {
 					callback: function(ret){
 						$("#memberFormModal").modal("hide");
+						Util.showAlertToDiv(member.id + "を追加しました", "success");
 					},
-					errorHandler: Util.showAlert
+					errorHandler: Util.showAlertToDiv
 				});
 			}else{
 				showMemberFormAlert("このメンバーidは使用できません");
@@ -167,15 +168,17 @@ function memberFormApplyButtonPressed(action){
 		AdminMemberEditor.updateMember(member, {
 			callback: function(ret){
 				$("#memberFormModal").modal("hide");
+				Util.showAlertToDiv(member.id + "を更新しました", "success");
 			},
-			errorHandler: Util.showAlert
+			errorHandler: Util.showAlertToDiv
 		});
 	}else if( action == "remove" ){
 		AdminMemberEditor.deleteMemberById(member.id, {
 			callback: function(ret){
 				$("#memberFormModal").modal("hide");
+				Util.showAlertToDiv(member.id + "を削除しました", "warning");
 			},
-			errorHandler: Util.showAlert
+			errorHandler: Util.showAlertToDiv
 		});
 	}
 }
