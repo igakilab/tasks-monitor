@@ -24,11 +24,11 @@ public class CronTasks implements ServletContextListener{
 		logger.addSingleLog("Cron Initialization.", true);
 		hello = cron.schedule("* * * * *", null);
 		hello.start();
-		dailyTalk = HubotDailyTalk.createSchedule("0 12 * * *", "http://igakilabot.herokuapp.com", "botbot");
+		dailyTalk = HubotDailyTalk.createSchedule("0 9 * * *", "http://igakilabot.herokuapp.com", "botbot");
 		dailyTalk.start();
 		updateTrelloBoardActions = UpdateTrelloBoardActions.createScheduler("*/10 * * * *");
 		updateTrelloBoardActions.start();
-		tasksNotification = HubotTasksNotification.createScheduler("0 12 * * *", "http://igakilabot.herokuapp.com");
+		tasksNotification = HubotTasksNotification.createScheduler("0 9,12,18 * * *", "http://igakilabot.herokuapp.com");
 		tasksNotification.start();
 	}
 
