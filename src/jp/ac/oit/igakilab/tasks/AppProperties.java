@@ -42,6 +42,14 @@ public class AppProperties {
 		properties.clear();
 	}
 
+	public boolean containsKey(String key){
+		return properties.containsKey(key);
+	}
+
+	public boolean hasValue(String key){
+		return containsKey(key) && get(key).length() > 0;
+	}
+
 	public String get(String key, String defaultValue){
 		String value = properties.get(key);
 		return value != null ? value : defaultValue;
@@ -53,6 +61,15 @@ public class AppProperties {
 
 	public void set(String key, String value){
 		properties.put(key, value);
+	}
+
+	public boolean setIfNotHasValue(String key, String value){
+		if( !hasValue(key) ){
+			set(key, value);
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	public Map<String,String> getChildProperties(String parentKey){
