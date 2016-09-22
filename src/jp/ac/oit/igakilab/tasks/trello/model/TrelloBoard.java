@@ -10,6 +10,7 @@ public class TrelloBoard {
 	protected String id;
 	protected String name;
 	protected String desc;
+	protected String shortLink;
 	protected Set<String> memberIds;
 	protected boolean isClosed;
 
@@ -24,6 +25,7 @@ public class TrelloBoard {
 		id = null;
 		name = null;
 		desc = null;
+		shortLink = null;
 		memberIds = new HashSet<String>();
 		isClosed = false;
 		cards = new ArrayList<TrelloCard>();
@@ -34,6 +36,7 @@ public class TrelloBoard {
 		id = null;
 		name = null;
 		desc = null;
+		shortLink = null;
 		memberIds.clear();
 		isClosed = false;
 		cards.clear();
@@ -62,6 +65,14 @@ public class TrelloBoard {
 
 	public void setDesc(String desc) {
 		this.desc = desc;
+	}
+
+	public String getShortLink() {
+		return shortLink;
+	}
+
+	public void setShortLink(String shortLink) {
+		this.shortLink = shortLink;
 	}
 
 	public Set<String> getMemberIds() {
