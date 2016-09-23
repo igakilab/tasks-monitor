@@ -9,8 +9,13 @@ import java.util.Map;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.AppProperties;
+import jp.ac.oit.igakilab.tasks.cron.HubotTasksNotification;
+import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
+import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
+import jp.ac.oit.igakilab.tasks.cron.samples.SampleCron;
 
 public class AppInitializer implements ServletContextListener{
 	private DebugLog logger;
@@ -48,37 +53,63 @@ public class AppInitializer implements ServletContextListener{
 		}
 	}
 
+	private void initAppProperties(){
+		//importPropertyFiles
+		loadPropertyFile("tasks.properties");
+
+		Map<String,String> systemProperties = new HashMap<String,String>();
+		System.getProperties().forEach((key, value) ->
+			systemProperties.put((String)key, (String)value));
+
+		AppProperties.global.importPropertiesMap(systemProperties, "tasks");
+
+		AppProperties.global.setIfNotHasValue("tasks.trello.key",
+			"67ad72d3feb45f7a0a0b3c8e1467ac0b");
+		AppProperties.global.setIfNotHasValue("tasks.trello.token",
+			"268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
+	}
+
+	private Scheduler hello, boardUpdater, hubotDailyTalk, tasksNotifer;
+	private void initCronTasks(){
+		SampleCron cron = new SampleCron();
+		hello = cron.schedule("* * * * *", null);
+		hello.start();
+
+		boardUpdater = UpdateTrelloBoardActions.createScheduler("* * * * *");
+		boardUpdater.start();
+
+		String hubotUrl = AppProperties.global.get("tasks.hubot.url");
+		if( hubotUrl != null ){
+			hubotDailyTalk = HubotDailyTalk.createSchedule("* * * * *", hubotUrl, "botbot");
+			hubotDailyTalk.start();
+			tasksNotifer = HubotTasksNotification.createScheduler("* * * * *", hubotUrl);
+			tasksNotifer.start();
+		}
+	}
+
+	private void destroyCronTasks(){
+		hello.stop();
+		boardUpdater.stop();
+		if( hubotDailyTalk != null ) hubotDailyTalk.stop();
+		if( tasksNotifer != null ) tasksNotifer.stop();
+	}
+
 	@Override
 	public void contextInitialized(ServletContextEvent event){
 		logger.log(DebugLog.LS_INFO, "Server Started");
 
-		//AppProperties init
-		loadPropertyFile("test.properties");
-		loadPropertyFile("tasks.properties");
-
-		Map<String,String> systemProperties = new HashMap<String,String>();
-		for(Object key : System.getProperties().keySet()){
-			systemProperties.put((String)key, System.getProperty((String)key));
-		}
-		AppProperties.global.importPropertiesMap(systemProperties, "test");
-		AppProperties.global.importPropertiesMap(systemProperties, "tasks");
-
-		if(
-			AppProperties.global.get("tasks.trello.key") == null ||
-			AppProperties.global.get("tasks.trello.token") == null
-		){
-			AppProperties.global.set("tasks.trello.key", "67ad72d3feb45f7a0a0b3c8e1467ac0b");
-			AppProperties.global.set("tasks.trello.token",
-				"268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
-		}
-
+		initAppProperties();
 		logger.log(DebugLog.LS_INFO, "AppProperties configured");
+
+		initCronTasks();
+		logger.log(DebugLog.LS_INFO, "Cron initialized.");
 
 		logger.log(DebugLog.LS_INFO, "App Initialized!");
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
+		destroyCronTasks();
 		logger.log(DebugLog.LS_INFO, "Server shutdown");
 	}
 }
