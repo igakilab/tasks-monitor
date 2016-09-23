@@ -14,6 +14,7 @@ import com.mongodb.client.model.Updates;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
+import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
 
@@ -86,5 +87,20 @@ public class Configs {
 	public void updateTrelloActionsCache(){
 		UpdateTrelloBoardActions updater = new UpdateTrelloBoardActions();
 		updater.run();
+	}
+
+	public String hubotSendMessageTest(String dest){
+		if( !AppProperties.global.hasValue("tasks.hubot.url") ){
+			return "test: hubotのurlが設定されていません";
+		}
+
+		String url = AppProperties.global.get("tasks.hubot.url");
+		HubotDailyTalk hdt = new HubotDailyTalk(url, dest);
+		if( dest != null ){
+			hdt.sendMessage(dest, "このメッセージはテストです");
+			return "送信しました";
+		}else{
+			return "宛先を指定してください";
+		}
 	}
 }
