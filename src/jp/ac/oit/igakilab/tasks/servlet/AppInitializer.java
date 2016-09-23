@@ -80,9 +80,9 @@ public class AppInitializer implements ServletContextListener{
 
 		String hubotUrl = AppProperties.global.get("tasks.hubot.url");
 		if( hubotUrl != null ){
-			hubotDailyTalk = HubotDailyTalk.createSchedule("* * * * *", hubotUrl, "botbot");
+			hubotDailyTalk = HubotDailyTalk.createSchedule("0 9 * * *", hubotUrl, "botbot");
 			hubotDailyTalk.start();
-			tasksNotifer = HubotTasksNotification.createScheduler("* * * * *", hubotUrl);
+			tasksNotifer = HubotTasksNotification.createScheduler("0 9,12,18 * * *", hubotUrl);
 			tasksNotifer.start();
 		}
 	}
