@@ -25,6 +25,9 @@
     <create creator="new" javascript="AdminMemberEditor">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.admin.AdminMemberEditor"/>
     </create>
+    <create creator="new" javascript="DashBoard">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.DashBoard"/>
+    </create>
 
 
 	<!-- tasks-monitor-tests -->
