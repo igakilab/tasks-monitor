@@ -54,7 +54,7 @@ public class TrelloActionsBoard extends TrelloBoard{
 						setName(value);
 					}else if( key.equals("desc") ){
 						setDesc(value);
-					}else if( key.equals("isClosed") ){
+					}else if( key.equals("closed") ){
 						setClosed(value.equals("true"));
 					}
 				}
