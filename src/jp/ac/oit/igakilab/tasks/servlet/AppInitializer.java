@@ -75,7 +75,7 @@ public class AppInitializer implements ServletContextListener{
 		hello = cron.schedule("* * * * *", null);
 		hello.start();
 
-		boardUpdater = UpdateTrelloBoardActions.createScheduler("* * * * *");
+		boardUpdater = UpdateTrelloBoardActions.createScheduler("*/10 * * * *");
 		boardUpdater.start();
 
 		String hubotUrl = AppProperties.global.get("tasks.hubot.url");
