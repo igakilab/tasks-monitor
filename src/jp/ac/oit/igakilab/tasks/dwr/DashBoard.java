@@ -50,6 +50,23 @@ public class DashBoard {
 			}
 		}
 
+		//念のために、取得できなかったリストは空リストをいれておく
+		if( !dTodo ){
+			TrelloList empty = new TrelloList(null);
+			empty.setName("todo");
+			board.addList(empty);
+		}
+		if( !dDoing ){
+			TrelloList empty = new TrelloList(null);
+			empty.setName("doing");
+			board.addList(empty);
+		}
+		if( !dDone ){
+			TrelloList empty = new TrelloList(null);
+			empty.setName("done");
+			board.addList(empty);
+		}
+
 		//フォームに変換
 		TrelloBoardTreeForm form = TrelloBoardTreeForm.getInstance(board);
 
