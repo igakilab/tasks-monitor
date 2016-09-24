@@ -15,13 +15,37 @@ public class Sprint {
 		return ncal;
 	}
 
-
+	private String id;
+	private String boardId;
 	private Date beginDate;
 	private Date finishDate;
 
 	public Sprint(){
+		id = null;
+		boardId = null;
 		beginDate = null;
 		finishDate = null;
+	}
+
+	public Sprint(String id){
+		this();
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getBoardId() {
+		return boardId;
+	}
+
+	public void setBoardId(String boardId) {
+		this.boardId = boardId;
 	}
 
 	public Date getBeginDate() {
