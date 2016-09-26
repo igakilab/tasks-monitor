@@ -6,15 +6,15 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardTreeForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardTreeForm.TrelloListTreeForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class DashBoard {
-	public TrelloBoardTreeForm getKanban(String boardId)
+	public KanbanForm getKanban(String boardId)
 	throws ExcuteFailedException{
 		//クライアントの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -33,42 +33,9 @@ public class DashBoard {
 		board.addActions(actions);
 		board.build();
 
-		//ボードから余計なリストを排除「todo,doing,done」のみのボードに成型する
-		//dTodo, dDoing, dDoneはリストが重複して残されないように発見されたらtrueにしておく変数
-		//toArrayで配列をコピーして置くことで、リストをfor文中で削除しても順序が変更されないようにする
-		List<TrelloList> lists = board.getLists();
-		boolean dTodo = false, dDoing = false, dDone = false;
-		for(TrelloList list : lists.toArray(new TrelloList[lists.size()])){
-			if( list.getName().matches("(?i)to\\s*do") && !dTodo ){
-				dTodo = true;
-			}else if( list.getName().matches("(?i)doing") && !dDoing ){
-				dDoing = true;
-			}else if( list.getName().matches("(?i)done") && !dDone ){
-				dDone = true;
-			}else{
-				board.removeList(list.getId());
-			}
-		}
-
-		//念のために、取得できなかったリストは空リストをいれておく
-		if( !dTodo ){
-			TrelloList empty = new TrelloList(null);
-			empty.setName("todo");
-			board.addList(empty);
-		}
-		if( !dDoing ){
-			TrelloList empty = new TrelloList(null);
-			empty.setName("doing");
-			board.addList(empty);
-		}
-		if( !dDone ){
-			TrelloList empty = new TrelloList(null);
-			empty.setName("done");
-			board.addList(empty);
-		}
-
 		//フォームに変換
-		TrelloBoardTreeForm form = TrelloBoardTreeForm.getInstance(board);
+		//ここでボードをtodo,doing,doneのみのボードに成型する
+		KanbanForm form = KanbanForm.getInstance(board);
 
 		return form;
 	}
