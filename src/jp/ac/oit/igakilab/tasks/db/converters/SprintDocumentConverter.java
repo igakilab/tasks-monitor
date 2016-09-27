@@ -14,6 +14,7 @@ implements DocumentConverter<Sprint>{
 		sprint.setBoardId(doc.getString("boardId"));
 		sprint.setBeginDate(doc.getDate("beginDate"));
 		sprint.setFinishDate(doc.getDate("finishDate"));
+		sprint.setClosed(doc.getBoolean("isClosed", false));
 
 		return sprint;
 	}
@@ -25,6 +26,7 @@ implements DocumentConverter<Sprint>{
 		doc.append("boardId", data.getBoardId());
 		doc.append("beginDate", data.getBeginDate());
 		doc.append("finishDate", data.getFinishDate());
+		doc.append("isClosed", data.isClosed());
 
 		return doc;
 	}

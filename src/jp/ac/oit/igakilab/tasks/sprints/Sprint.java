@@ -19,6 +19,7 @@ public class Sprint {
 	private String boardId;
 	private Date beginDate;
 	private Date finishDate;
+	private boolean isClosed;
 
 	public Sprint(){
 		id = null;
@@ -62,5 +63,13 @@ public class Sprint {
 
 	public void setFinishDate(Date finishDate) {
 		this.finishDate = roundDate(finishDate).getTime();
+	}
+
+	public boolean isClosed() {
+		return isClosed;
+	}
+
+	public void setClosed(boolean isClosed) {
+		this.isClosed = isClosed;
 	}
 }

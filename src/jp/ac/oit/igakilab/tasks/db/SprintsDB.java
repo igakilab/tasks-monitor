@@ -139,6 +139,18 @@ public class SprintsDB {
 		}
 	}
 
+	public <T> List<T> getSprintsByBoardId(String boardId, DocumentConverter<T> converter){
+		Bson filter = Filters.eq("boardId", boardId);
+		List<T> result = new ArrayList<T>();
+
+		for(Document doc : getCollection().find(filter)){
+			T tmp = converter.parse(doc);
+			result.add(tmp);
+		}
+
+		return result;
+	}
+
 	public <T> List<T> getAllSprints(DocumentConverter<T> converter){
 		List<T> list = new ArrayList<T>();
 
