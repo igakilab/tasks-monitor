@@ -59,6 +59,7 @@ public class DashBoard {
 		//フォームに変換
 		TrelloBoardTreeForm form = TrelloBoardTreeForm.getInstance(board);
 
+		client.close();
 		return form;
 	}
 
@@ -75,6 +76,7 @@ public class DashBoard {
 		if( sprint == null ) return null;
 
 		//formに変換してreturn
+		client.close();
 		return SprintForm.getInstance(sprint);
 	}
 
