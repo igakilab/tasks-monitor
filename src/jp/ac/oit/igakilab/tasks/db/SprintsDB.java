@@ -86,7 +86,9 @@ public class SprintsDB {
 		}
 
 		List<Bson> query = Arrays.asList(
-			Aggregates.match(Filters.eq("boardId", boardId)),
+			Aggregates.match(Filters.and(
+				Filters.eq("boardId", boardId),
+				Filters.eq("isClosed", false))),
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();
