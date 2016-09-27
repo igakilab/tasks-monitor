@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.bson.Document;
@@ -41,17 +43,26 @@ public class SprintsManageDB extends SprintsDB{
 	public <T> T getCurrentSprint(String boardId, Date point, DocumentConverter<T> converter){
 		Bson filter = Filters.and(
 			Filters.eq("boardId", boardId),
-			Filters.and(
-				Filters.gte("beginDate", point),
-				Filters.lte("finishDate", point)
-			),
-			Filters.eq("isClosed", true)
+			Filters.lte("beginDate", point),
+			Filters.gte("finishDate", point),
+			Filters.eq("isClosed", false)
 		);
 		Bson sorting = Sorts.ascending("beginDate");
 
+		System.out.println(new SimpleDateFormat("yyyy/MM/dd").format(point));
+		for(Document doc : getCollection().find(filter)){
+			System.out.println(doc.toJson());
+		}
+
 		Document doc = getCollection().find(filter).sort(sorting).first();
+		if( doc == null ) return null;
 
 		return converter.parse(doc);
+	}
+
+	public <T> T getCurrentSprint(String boardId, DocumentConverter<T> converter){
+		Date rounded = Sprint.roundDate(Calendar.getInstance().getTime()).getTime();
+		return getCurrentSprint(boardId, rounded, converter);
 	}
 
 	public boolean closeSprint(String sprintId){
