@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>admin - members</title>
+
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse" data-target="#navbar"
+						aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<span class="navbar-brand">Tasks Monitor</span>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<p class="navbar-text">adminメニュー</p>
+					<ul class="nav navbar-nav">
+						<li class="active"><a>メンバー編集</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+
+			<h1>メンバー編集画面</h1>
+
+			<div class="alert-div hidden"></div>
+
+			<div>
+				<button class="btn btn-primary"
+					data-toggle="modal" data-target="#memberFormModal"
+					data-action="add" data-rowindex="-1">
+					<span class="glyphicon glyphicon-plus" aria-hidden="true">
+					</span> 追加
+				</button>
+				<button class="btn btn-default reload-btn">
+					<span class="glyphicon glyphicon-refresh" aria-hidden="true">
+					</span> 更新
+				</button>
+			</div>
+
+			<table class="table">
+				<thead><tr>
+					<th>メンバーID</th>
+					<th>メンバー名</th>
+					<th>Trello ID</th>
+					<th>Slack ID</th>
+					<th>管理者権限</th>
+					<th>操作</th>
+				</tr></thead>
+
+				<tbody class="members-tbody">
+					<!-- <tr>
+						<td>taro</td>
+						<td>メンバー太郎</td>
+						<td>1fe34taro5cb</td>
+						<td>mrtarotaro</td>
+						<td>なし</td>
+						<td>
+							<button class="btn btn-success">編集</button>
+							<button class="btn btn-danger">削除</button>
+						</td>
+					</tr> -->
+				</tbody>
+			</table>
+		</div>
+
+		<!-- 編集画面ダイアログ -->
+		<div class="modal fade" id="memberFormModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="memberFormModalTitle">メンバー追加 or メンバー編集</h4>
+			</div>
+			<div class="modal-body">
+				<div class="alert alert-danger" id="memberFormAlertArea">ここアラート</div>
+
+				<!-- 編集フォーム -->
+				<form id="memberForm">
+				<div class="form-group">
+					<label for="memberFormInputId">メンバーID</label>
+					<input type="text" class="form-control" name="id"
+						id="memberFormInputId" placeholder="ID">
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputName">メンバー名</label>
+					<input type="text" class="form-control" name="name"
+						id="memberFormInputName" placeholder="名前">
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputTrelloId">Trello ID</label>
+					<input type="text" class="form-control" name="trelloId"
+						id="memberFormInputTrelloId" placeholder="Trello ID">
+					<p class="help-block" id="memberFormInputTrelloIdHelp"></p>
+				</div>
+				<div class="form-group">
+					<label for="memberFormInputSlackId">Slack ID</label>
+					<input type="text" class="form-control" name="slackId"
+						id="memberFormInputSlackId" placeholder="Slack ID">
+				</div>
+				<div class="form-group">
+					<label>Admin Permission</label>
+					<div class="checkbox">
+						<label><input type="checkbox" name="admin" id="memberFormCheckboxAdmin">
+						 admin</label>
+					</div>
+				</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<span id="memberFormModalApplyBtnArea"></span>
+				<!-- <button type="button" class="btn btn-primary"
+					id="memberFormModalSaveBtn">Save changes</button> -->
+			</div>
+		</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/jquery.serialize.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"></script>
+		<script src="../dwr/interface/AdminMemberEditor.js"></script>
+
+		<script src="script.js"></script>
+		<script>
+		var MEMBERS_BUFFER = null;
+
+		function loadMembersList(){
+			AdminMemberEditor.getAllMembersList(function(data){
+				MEMBERS_BUFFER = data;
+				setMembers(data);
+			});
+		}
+
+		$(document).ready(function(){
+			$(".reload-btn").on('click', loadMembersList);
+
+			$("#memberFormModal").on("show.bs.modal", function(event){
+				var button = $(event.relatedTarget);
+				var action = button.data("action");
+				var rowindex = button.data("rowindex");
+
+				setupMemberFormModal(action, MEMBERS_BUFFER[rowindex]);
+			}).on("hide.bs.modal", function(event){
+				loadMembersList();
+			})
+
+			loadMembersList();
+		});
+		</script>
+	</body>
+</html>

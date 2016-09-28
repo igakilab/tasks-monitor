@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 
 import org.bson.Document;
 
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloDateFormat;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloApiDateFormat;
 
-public class DocumentTrelloActionParser {
+public class DocumentTrelloActionParser implements TrelloActionParser<Document>{
 	public static void main(String[] args){
 		Document doc = Document.parse("{ \"textData\" : { \"emoji\" : {  } }, \"dateLastEdited\" : \"2016-09-16T02:24:57.069Z\", \"text\" : \"こうどくとったで コメント変えた\", \"list\" : { \"name\" : \"list3-1\", \"id\" : \"57d3f5ebdda362ae59793c0c\" }, \"card\" : { \"idShort\" : 9, \"name\" : \"task9\", \"id\" : \"57d8c403148aadf180a707d7\", \"shortLink\" : \"OcHflP2B\" }, \"board\" : { \"name\" : \"actions-test\", \"id\" : \"57d3f5cac2c3720549a9b8c1\", \"shortLink\" : \"4GHyumBA\" } }");
 		Map<String,String> data = new HashMap<String,String>();
@@ -53,8 +53,11 @@ public class DocumentTrelloActionParser {
 		}
 	}
 
-	public static TrelloAction parse(Document doc){
-		DateFormat df = new TrelloDateFormat();
+	public static TrelloAction parseAction(Document doc){
+		return parseAction(doc, new TrelloApiDateFormat());
+	}
+
+	public static TrelloAction parseAction(Document doc, DateFormat df){
 		TrelloAction action = new TrelloAction();
 
 		//parse id
@@ -84,5 +87,15 @@ public class DocumentTrelloActionParser {
 		action.setRawText(doc.toJson());
 
 		return action;
+	}
+
+	private DateFormat df;
+
+	public DocumentTrelloActionParser(){
+		df = new TrelloApiDateFormat();
+	}
+
+	public TrelloAction parse(Document doc){
+		return parseAction(doc, df);
 	}
 }

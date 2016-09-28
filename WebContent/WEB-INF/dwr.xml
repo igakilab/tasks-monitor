@@ -17,7 +17,20 @@
     <convert converter="exception" match="java.lang.Exception" />
     <convert converter="bean" match="java.lang.StackTraceElement"/>
 
+
 	<!-- tasks-monitor -->
+    <create creator="new" javascript="TrelloBoardViewer">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.TrelloBoardViewer"/>
+    </create>
+    <create creator="new" javascript="AdminMemberEditor">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.admin.AdminMemberEditor"/>
+    </create>
+    <create creator="new" javascript="DashBoard">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.DashBoard"/>
+    </create>
+
+
+	<!-- tasks-monitor-tests -->
     <create creator="new" javascript="TestDbConnection">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.test.TestDbConnection"/>
     </create>

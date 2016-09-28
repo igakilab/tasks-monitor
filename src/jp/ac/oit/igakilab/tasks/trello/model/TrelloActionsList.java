@@ -44,7 +44,7 @@ public class TrelloActionsList extends TrelloList {
 			for(Entry<String,String> entry : dataList.entrySet()){
 				if( entry.getKey().equals("name") ){
 					setName(entry.getValue());
-				}else if( entry.getKey().equals("isClosed") ){
+				}else if( entry.getKey().equals("closed") ){
 					setClosed(entry.getValue().equals("true"));
 				}
 			}

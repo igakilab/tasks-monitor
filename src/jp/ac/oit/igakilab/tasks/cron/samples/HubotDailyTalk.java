@@ -1,10 +1,11 @@
-package jp.ac.oit.igakilab.tasks.cron;
+package jp.ac.oit.igakilab.tasks.cron.samples;
 
 import java.util.Calendar;
 
 import org.bson.Document;
 
 import it.sauronsoftware.cron4j.Scheduler;
+import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.http.HttpRequest;
 import jp.ac.oit.igakilab.tasks.http.HttpRequest.ConnectionErrorHandler;
 import jp.ac.oit.igakilab.tasks.http.HttpResponse;
@@ -23,6 +24,10 @@ public class HubotDailyTalk implements Runnable{
 		"今日も一日気合を入れろ!"
 	};
 	static String[] WEEKS = {"null", "日", "月", "火", "水", "木", "金", "土"};
+
+	static boolean SWITCH = true; //falseでテストモード リクエストを送信しない
+
+	static DebugLog logger = new DebugLog("cron_HubotDailyTalk");
 
 	public static Scheduler createSchedule(String schedule, String u0, String r0){
 		Scheduler scheduler = new Scheduler();
@@ -60,13 +65,32 @@ public class HubotDailyTalk implements Runnable{
 		return (res != null) ? res.getResponseText() : "null";
 	}
 
+	public String toggleDajareMessage(String room){
+		HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/dajare");
+		request.setErrorHandler(e0 -> e0.printStackTrace());
+
+		Document json = new Document();
+		json.append("room", room);
+		request.setRequestProperty("Content-type", "application/json");
+
+		HttpResponse res = request.sendRequest(json.toJson());
+		return (res != null) ? res.getResponseText() : "null";
+	}
+
 	public void run(){
 		Calendar cal = Calendar.getInstance();
 		String date = String.format("今日は%d年%d月%d日(%s）です",
-			cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE),
+			cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DATE),
 			WEEKS[cal.get(Calendar.DAY_OF_WEEK)]);
 		String talk = messages[(int)(Math.random() * messages.length)];
 
-		sendMessage(room, date + "\n" + talk);
+		if( SWITCH ){
+			logger.log(DebugLog.LS_INFO, "run",
+				sendMessage(room, date + "\n" + talk));
+			/*logger.log(DebugLog.LS_INFO, "run",
+				toggleDajareMessage(room));*/
+		}else{
+			System.out.println("HubotDailyTalk: room:" + room + ", msg:" + date + "\n" + talk);
+		}
 	}
 }
