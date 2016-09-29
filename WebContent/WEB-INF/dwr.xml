@@ -37,6 +37,9 @@
     <create creator="new" javascript="Configs">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.Configs"/>
     </create>
+    <create creator="new" javascript="TrelloSimpleTools">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.TrelloSimpleTools"/>
+    </create>
     <convert converter="bean" match="jp.ac.oit.igakilab.tasks.dwr.forms.*"/>
   </allow>
 </dwr>
