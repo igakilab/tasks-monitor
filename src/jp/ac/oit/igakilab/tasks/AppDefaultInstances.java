@@ -3,7 +3,7 @@ package jp.ac.oit.igakilab.tasks;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
 
 public class AppDefaultInstances {
 	public static MongoClient createMongoClient(){

@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardDataFetcher;
 
