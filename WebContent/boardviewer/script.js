@@ -51,9 +51,15 @@ function setBoardData(board){
 	console.log("init");
 
 	//set board title
+	var boardUrl = (board.shortLink != null ?
+		"http://trello.com/b/" + board.shortLink : null);
 	$(".board-title")
 		.append(board.name + " ")
-		.append($("<small></small>").text(board.id));
+		.append($("<small></small>").append(
+			board.id + " ",
+			(boardUrl != null ?
+				$("<a></a>").attr("href", boardUrl).text(boardUrl)
+				: "")));
 
 	//generate list divs
 	var listDivs = [];
