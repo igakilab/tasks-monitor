@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.cron;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class UpdateTrelloBoardActions implements Runnable{
 	public UpdateResult updateBoardActions(TrelloApi api, MongoClient client, String boardId, Date since){
 		//取得モジュールの初期化
 		BoardActionFetcher fetcher = new BoardActionFetcher(api, boardId);
+		//更新日時の記録
+		Calendar cal = Calendar.getInstance();
+
 		//データ取得
 		fetcher.fetch(since);
 		JSONArray records = fetcher.getJSONArrayData();
@@ -63,6 +67,9 @@ public class UpdateTrelloBoardActions implements Runnable{
 		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(client);
 		//データベースを更新
 		int uc = updater.upsertDatabase(docs, boardId);
+		//ボードデータベースに更新日時を記録
+		BoardDBDriver bdb = new BoardDBDriver(client);
+		bdb.updateLastUpdateDate(boardId, cal.getTime());
 
 		return new UpdateResult(boardId, records.size(), uc);
 	}
