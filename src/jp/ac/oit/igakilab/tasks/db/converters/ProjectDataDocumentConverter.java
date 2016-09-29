@@ -6,7 +6,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.ProjectDataDocumentConverter.Proje
 import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
 public class ProjectDataDocumentConverter
-implements DocumentConverter<ProjectData>{
+implements DocumentConverter<ProjectData>, DocumentParser<ProjectData>{
 	public static class ProjectData{
 		private String id;
 		private String name;
