@@ -6,7 +6,6 @@ import org.json.simple.JSONObject;
 import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.http.TrelloApi;
 import jp.ac.oit.igakilab.tasks.http.TrelloApi.Parameters;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 
 public class TrelloBoardDataFetcher {
 	static String FIELDS = "name,desc,closed,shortLink";
@@ -19,8 +18,8 @@ public class TrelloBoardDataFetcher {
 		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
 		String shortLink = "4GHyumBA";
 		TrelloBoardDataFetcher f = new TrelloBoardDataFetcher(api);
-		TrelloBoard board = f.getTrelloBoard(shortLink);
-		System.out.println(shortLink + " -> " + board.getId() + ": " + board.getName());
+		TrelloBoardData board = f.getTrelloBoardData(shortLink);
+		System.out.println(shortLink + " -> " + board.toString());
 		System.out.println("members: " + board.getMemberIds());
 	}
 
@@ -30,10 +29,10 @@ public class TrelloBoardDataFetcher {
 		client = api;
 	}
 
-	private TrelloBoard toTrelloBoard(Object jsonObject){
+	private TrelloBoardData toTrelloBoardData(Object jsonObject){
 		try{
 			JSONObject data = (JSONObject)jsonObject;
-			TrelloBoard board = new TrelloBoard();
+			TrelloBoardData board = new TrelloBoardData();
 			board.setId((String)data.get("id"));
 			board.setName((String)data.get("name"));
 			board.setDesc((String)data.get("desc"));
@@ -52,12 +51,12 @@ public class TrelloBoardDataFetcher {
 		}
 	}
 
-	public TrelloBoard getTrelloBoard(String boardId){
+	public TrelloBoardData getTrelloBoardData(String boardId){
 		Parameters params = new Parameters();
 		params.setParameter("fields", FIELDS);
 		params.setParameter("members", "all");
 
 		Object res = client.get("/1/boards/" + boardId, params);
-		return toTrelloBoard(res);
+		return toTrelloBoardData(res);
 	}
 }
