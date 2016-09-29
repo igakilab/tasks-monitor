@@ -2,9 +2,8 @@ package jp.ac.oit.igakilab.tasks.db.converters;
 
 import org.bson.Document;
 
-import jp.ac.oit.igakilab.tasks.db.DocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.DocumentValuePicker;
 import jp.ac.oit.igakilab.tasks.db.converters.ProjectDataDocumentConverter.ProjectData;
+import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
 public class ProjectDataDocumentConverter
 implements DocumentConverter<ProjectData>{

@@ -12,6 +12,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
+
 public class ProjectsDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "projects";

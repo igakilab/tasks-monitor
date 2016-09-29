@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.db;
+package jp.ac.oit.igakilab.tasks.db.converters;
 
 import org.bson.Document;
 
