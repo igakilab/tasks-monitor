@@ -1,7 +1,8 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi.SimpleJsonResponseTextParser;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi.SimpleJsonResponseTextParser;
 
 public class TasksTrelloClientBuilder {
 	private static String apiKey(){

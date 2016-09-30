@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.trello;
+package jp.ac.oit.igakilab.tasks.trello.api;
 
 public class TrelloApiConnectionFailedException extends Exception{
 	private int statusCode;

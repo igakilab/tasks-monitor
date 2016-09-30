@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import org.json.simple.JSONArray;
 
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class BoardActionFetcher {
 	public static DebugLog logger = new DebugLog("BoardActionFetcher");

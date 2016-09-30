@@ -10,7 +10,7 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TestMembersDB {
 	public static void main(String[] args){

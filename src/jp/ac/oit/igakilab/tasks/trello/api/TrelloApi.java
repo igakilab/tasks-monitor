@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.trello;
+package jp.ac.oit.igakilab.tasks.trello.api;
 
 import java.io.IOException;
 import java.util.Map;
