@@ -13,6 +13,7 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
@@ -40,7 +41,7 @@ public class SprintsManageDB extends SprintsDB{
 		return newId;
 	}
 
-	public <T> T getCurrentSprint(String boardId, Date point, DocumentConverter<T> converter){
+	public <T> T getCurrentSprint(String boardId, Date point, DocumentParser<T> converter){
 		Bson filter = Filters.and(
 			Filters.eq("boardId", boardId),
 			Filters.lte("beginDate", point),
@@ -60,7 +61,7 @@ public class SprintsManageDB extends SprintsDB{
 		return converter.parse(doc);
 	}
 
-	public <T> T getCurrentSprint(String boardId, DocumentConverter<T> converter){
+	public <T> T getCurrentSprint(String boardId, DocumentParser<T> converter){
 		Date rounded = Sprint.roundDate(Calendar.getInstance().getTime()).getTime();
 		return getCurrentSprint(boardId, rounded, converter);
 	}

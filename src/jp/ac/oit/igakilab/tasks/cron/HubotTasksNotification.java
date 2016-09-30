@@ -3,7 +3,7 @@ package jp.ac.oit.igakilab.tasks.cron;
 import org.bson.Document;
 
 import it.sauronsoftware.cron4j.Scheduler;
-import jp.ac.oit.igakilab.tasks.http.HttpRequest;
+import jp.ac.oit.igakilab.tasks.util.HttpRequest;
 
 public class HubotTasksNotification implements Runnable{public static Scheduler createScheduler(String schedule, String url){
 		Scheduler scheduler = new Scheduler();
@@ -69,11 +69,10 @@ public class HubotTasksNotification implements Runnable{public static Scheduler 
 		for(String room : rooms){
 			if( hubotUrl != null ){
 				HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/task_notify");
-				request.setErrorHandler((e0) -> e0.printStackTrace());
 
 				Document json = new Document("room", room);
 				request.setRequestProperty("Content-type", "application/json");
-				/*HttpResponse res = */request.sendRequest(json.toJson());
+				request.sendRequest(json.toJson(), HttpRequest.DEFAULT_HANDLER);
 			}else{
 				System.out.println("send request " + room);
 			}

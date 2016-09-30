@@ -16,6 +16,8 @@ import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.util.RandomIdGenerator;
@@ -129,7 +131,7 @@ public class SprintsDB {
 		return newId;
 	}
 
-	public <T> T getSprintById(String id, DocumentConverter<T> converter){
+	public <T> T getSprintById(String id, DocumentParser<T> converter){
 		Bson filter = Filters.eq("id", id);
 		Document doc = getCollection().find(filter).first();
 
@@ -141,7 +143,7 @@ public class SprintsDB {
 		}
 	}
 
-	public <T> List<T> getSprintsByBoardId(String boardId, DocumentConverter<T> converter){
+	public <T> List<T> getSprintsByBoardId(String boardId, DocumentParser<T> converter){
 		Bson filter = Filters.eq("boardId", boardId);
 		List<T> result = new ArrayList<T>();
 
@@ -153,7 +155,7 @@ public class SprintsDB {
 		return result;
 	}
 
-	public <T> List<T> getAllSprints(DocumentConverter<T> converter){
+	public <T> List<T> getAllSprints(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 
 		getCollection().find().forEach(new Block<Document>(){

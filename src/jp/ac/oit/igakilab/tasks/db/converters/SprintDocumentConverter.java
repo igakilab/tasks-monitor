@@ -2,11 +2,10 @@ package jp.ac.oit.igakilab.tasks.db.converters;
 
 import org.bson.Document;
 
-import jp.ac.oit.igakilab.tasks.db.DocumentConverter;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
 public class SprintDocumentConverter
-implements DocumentConverter<Sprint>{
+implements DocumentConverter<Sprint>, DocumentParser<Sprint>{
 
 	@Override
 	public Sprint parse(Document doc) {

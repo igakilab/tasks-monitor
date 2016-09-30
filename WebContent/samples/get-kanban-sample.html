@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>top page</title>
+
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collabpsed"
+					data-toggle="collapse" data-target="#navbar"
+					aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Project name</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#">home</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<div style="padding: 40px 15px;">
+
+				<p>実行の方法</p>
+				<pre>
+DashBoard.getKanban(&lt;boardId&gt;, function(data){
+	//dataにタスクボードのデータが取得されます
+});
+				</pre>
+
+
+				<!-- ボードID入力フォーム -->
+				<form class="form-inline">
+					<div class="form-group">
+						<label for="boardIdInput">boardId:</label>
+						<input type="text" class="form-control" id="boardIdInput" placeholder="">
+					</div>
+					<button type="button" id="loadBtn" class="btn btn-default">Load</button>
+				</form>
+
+				<!-- JSONデータ表示エリア -->
+				<p>受信データ</p>
+				<textarea id="outputArea" class="form-control" rows="10"></textarea>
+			</div>
+		</div>
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"></script>
+		<script src="../dwr/interface/DashBoard.js"></script>
+		<script>
+		$(document).ready(function(){
+			$("#loadBtn").on('click', function(){
+				var boardId = $("#boardIdInput").val();
+				DashBoard.getKanban(boardId, function(data){
+					if( data == null ) alert("タスクボードを受信できませんでした");
+					$("#outputArea").val(JSON.stringify(data));
+				});
+			});
+		});
+		</script>
+	</body>
+</html>

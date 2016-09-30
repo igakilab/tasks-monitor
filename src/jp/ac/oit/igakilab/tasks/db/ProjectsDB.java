@@ -12,6 +12,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
+
 public class ProjectsDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "projects";
@@ -38,7 +41,7 @@ public class ProjectsDB {
 		return false;
 	}
 
-	public <T> List<T> getAllProjects(DocumentConverter<T> converter){
+	public <T> List<T> getAllProjects(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 		getCollection().find().forEach(new Block<Document>(){
 			@Override

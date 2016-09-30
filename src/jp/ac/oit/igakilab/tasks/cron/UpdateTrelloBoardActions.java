@@ -19,8 +19,25 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class UpdateTrelloBoardActions implements Runnable{
+	public static class UpdateResult{
+		private String boardId;
+		private int receivedCount;
+		private int upsertedCount;
+
+		public UpdateResult(String bid, int rc, int uc){
+			boardId = bid;
+			receivedCount = rc;
+			upsertedCount = uc;
+		}
+
+		public String getBoardId(){return boardId;}
+		public int getReceivedCount(){return receivedCount;}
+		public int getUpsertedCount(){return upsertedCount;}
+	}
+
 	private DebugLog logger = new DebugLog("cron_UpdateTrelloBoardActions");
 
 	public static Scheduler createScheduler(String schedule){
@@ -29,48 +46,77 @@ public class UpdateTrelloBoardActions implements Runnable{
 		return scheduler;
 	}
 
-	private int updateBoardActions(MongoClient client, String boardId, Date since){
-		logger.log("fetch board actions");
-		logger.log("boardId: " + boardId);
-		logger.log("since: " + (since != null ? since.toString() : "null"));
+	public UpdateResult updateBoardActions(TrelloApi<Object> api, MongoClient client, String boardId, Date since){
+		//取得モジュールの初期化
+		BoardActionFetcher fetcher = new BoardActionFetcher(api, boardId);
+		//更新日時の記録
+		Calendar cal = Calendar.getInstance();
 
-		//fetching
-		BoardActionFetcher fetcher = new BoardActionFetcher(
-			TasksTrelloClientBuilder.createApiClient(), boardId);
+		//データ取得
 		fetcher.fetch(since);
+		JSONArray records = fetcher.getJSONArrayData();
 
-		//convertData
-		JSONArray data = fetcher.getJSONArrayData();
+		//データ変換と並び順をリバース
 		List<Document> docs = new ArrayList<Document>();
-		for(int i=data.size()-1; i>=0; i--){
-			JSONObject obj = (JSONObject)data.get(i);
-			docs.add(Document.parse(obj.toJSONString()));
+		for(int i=records.size()-1; i>=0; i--){
+			JSONObject tmp = (JSONObject)records.get(i);
+			docs.add(Document.parse(tmp.toJSONString()));
 		}
 
-		//apply database
+		//データベースクライアントの初期化
 		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(client);
+		//データベースを更新
 		int uc = updater.upsertDatabase(docs, boardId);
+		//ボードデータベースに更新日時を記録
+		BoardDBDriver bdb = new BoardDBDriver(client);
+		bdb.updateLastUpdateDate(boardId, cal.getTime());
 
-		logger.log("-- received " + data.size() + "record(s)");
-		logger.log("-- upserted " + uc + "record(s)");
-		return uc;
+		return new UpdateResult(boardId, records.size(), uc);
+	}
+
+	public UpdateResult updateBoardActions(TrelloApi<Object> api, MongoClient client, String boardId){
+		return updateBoardActions(api, client, boardId, null);
+	}
+
+	public List<UpdateResult> updateAllBoardActions(TrelloApi<Object> api, MongoClient client){
+		//ボードリストを取得
+		BoardDBDriver bdb = new BoardDBDriver(client);
+		List<Board> boards = bdb.getBoardList();
+
+		//各ボードを更新
+		List<UpdateResult> results = new ArrayList<UpdateResult>();
+		for(Board board : boards){
+			results.add(
+				updateBoardActions(
+					api, client,
+					board.getId(), board.getLastUpdate()));
+		}
+
+		//結果を返却
+		return results;
 	}
 
 	public void run(){
 		logger.log(DebugLog.LS_INFO, "CRONTASK TRIGGERED");
 
+		//クライアントの初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
-		for(Board board : bdb.getBoardList()){
-			logger.log(DebugLog.LS_INFO, "update board : " + board.getId());
-			logger.log(DebugLog.LS_INFO, "board last updated : " + board.getLastUpdate());
-			Calendar cal = Calendar.getInstance();
-			updateBoardActions(client, board.getId(), board.getLastUpdate());
-			bdb.updateLastUpdateDate(board.getId(), cal.getTime());
-		}
+		//更新の実行
+		List<UpdateResult> results = updateAllBoardActions(api, client);
+
+		//結果の記録
+		results.forEach((result ->
+			logger.log(DebugLog.LS_INFO, String.format(
+				"result: id:%s, received:%d, upserted:%d",
+				result.getBoardId(), result.getReceivedCount(),
+				result.getUpsertedCount()))
+		));
+
+		//クライアントのクローズ
+		client.close();
 
 		logger.log(DebugLog.LS_INFO, "CRONTASK FINISHED");
-		client.close();
 	}
 }

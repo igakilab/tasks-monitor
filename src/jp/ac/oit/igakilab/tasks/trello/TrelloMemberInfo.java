@@ -2,17 +2,17 @@ package jp.ac.oit.igakilab.tasks.trello;
 
 import org.json.simple.JSONObject;
 
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TrelloMemberInfo {
-	private TrelloApi client;
+	private TrelloApi<Object> client;
 
-	public TrelloMemberInfo(TrelloApi api){
+	public TrelloMemberInfo(TrelloApi<Object> api){
 		client = api;
 	}
 
 	public String getUserIdByUserName(String username){
-		Object reply = client.get("/1/members/" + username);
+		Object reply = client.rget("/1/members/" + username).getData();
 
 		if( reply != null ){
 			JSONObject obj = (JSONObject)reply;
