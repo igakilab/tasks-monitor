@@ -38,7 +38,39 @@ public class HttpRequest {
 		response.printResponse(System.out);
 	}
 
-	public static int HTTP_OK = HttpURLConnection.HTTP_OK;
+	interface ErrorCatcher<T>{
+		public T execute(SendRequestWrapper req);
+	}
+
+	public class SendRequestWrapper{
+		private HttpRequest req;
+		private String body;
+
+		SendRequestWrapper(HttpRequest req, String body){
+			this.req = req;
+			this.body = body;
+		}
+
+		public HttpResponse sendRequest()
+		throws MalformedURLException, ProtocolException, IOException{
+			return req.sendRequest(body);
+		}
+	}
+
+	public static final int HTTP_OK = HttpURLConnection.HTTP_OK;
+
+	public static boolean DEFAULT_HANDLER_STACKTRACE_ENABLED = true;
+	public static ErrorCatcher<HttpResponse> DEFAULT_HANDLER = (req) -> {
+		HttpResponse res;
+		try{
+			res = req.sendRequest();
+		}catch(IOException e0){
+			if( DEFAULT_HANDLER_STACKTRACE_ENABLED )
+				e0.printStackTrace();
+			return null;
+		}
+		return res;
+	};
 
 	private String url;
 	private String method;
@@ -164,7 +196,7 @@ public class HttpRequest {
 
 	public HttpResponse sendRequest()
 	throws ProtocolException, MalformedURLException, IOException{
-		return sendRequest(null);
+		return sendRequest((String)null);
 	}
 
 	public HttpResponse sendRequest(String bodyText)
@@ -250,83 +282,11 @@ public class HttpRequest {
 		return response;
 	}
 
-	/*
-	public HttpResponse sendRequest(String bodyText){
-		HttpURLConnection connection = null;
-		int statusCode;
-		boolean redirect = false;
-
-		try{
-			URL objUrl = new URL(generateUrl());
-			do {
-				connection = createConnection(objUrl, method);
-
-				for(String key : properties.keySet()){
-					connection.setRequestProperty(key, properties.get(key));
-				}
-
-				if( bodyText != null ){
-					BufferedWriter writer = new BufferedWriter(
-							new OutputStreamWriter(
-									connection.getOutputStream(), StandardCharsets.UTF_8
-					));
-					writer.write(bodyText);
-					writer.flush();
-				}
-
-				statusCode = connection.getResponseCode();
-
-				if(
-					statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
-					statusCode == HttpURLConnection.HTTP_MOVED_TEMP
-				){
-					String loc = connection.getHeaderField("Location");
-					if( loc != null ){
-						objUrl = new URL(loc);
-						redirect = true;
-					}else{
-						redirect = false;
-					}
-				}else{
-					redirect = false;
-				}
-			} while( redirect && followRedirects );
-		}catch(Exception e0){
-			if( errorHandler != null ){
-				errorHandler.onError(e0);
-			}
-			if( connection != null ){
-				connection.disconnect();
-			}
-			return null;
-		}
-
-		HttpResponse response = new HttpResponse(statusCode);
-		response.setUrl(generateUrl());
-		response.setMethod(method);
-		for(String key : connection.getHeaderFields().keySet()){
-			if( key != null ){
-				String value = connection.getHeaderField(key);
-				if( value != null ){
-					response.getHeaders().put(key, value);
-				}
-			}
-		}
-		if( statusCode == HttpURLConnection.HTTP_OK ){
-			try{
-				String text = receiveResponseText(connection);
-				response.setResponseText(text);
-			}catch(IOException e0){
-				if( errorHandler != null ){
-					errorHandler.onError(e0);
-				}
-			}
-		}
-
-		connection.disconnect();
-		return response;
+	public <T> T sendRequest(String body, ErrorCatcher<T> catcher){
+		return catcher.execute(new SendRequestWrapper(this, body));
 	}
-	*/
 
-
+	public <T> T sendRequest(ErrorCatcher<T> catcher){
+		return sendRequest(null, catcher);
+	}
 }
