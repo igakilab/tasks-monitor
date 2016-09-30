@@ -8,9 +8,9 @@ import java.util.List;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
-import jp.ac.oit.igakilab.tasks.db.MembersDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
@@ -29,7 +29,6 @@ public class SprintManager {
 	{
 		BoardDBDriver bdb = new BoardDBDriver(dbClient);
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
-		MembersDB mdb = new MembersDB(dbClient);
 
 		//ボードの存在チェック
 		if( !bdb.boardIdExists(boardId) ){
@@ -55,6 +54,7 @@ public class SprintManager {
 
 		//Trelloの担当者と期限を設定
 		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
 		Calendar dueDate = Calendar.getInstance();
 		dueDate.setTime(finishDate);
 		dueDate.set(Calendar.HOUR, 18);
@@ -64,7 +64,7 @@ public class SprintManager {
 
 			//担当者設定、mdbからtrelloIdを取得し設定
 			for(String memberId : cm.getMemberIds()){
-				String trelloId = mdb.getTrelloIdByMemberId(memberId);
+				String trelloId = mtable.get(memberId);
 				if( trelloId != null ){
 					tceditor.addMember(cm.getCardId(), trelloId);
 				}

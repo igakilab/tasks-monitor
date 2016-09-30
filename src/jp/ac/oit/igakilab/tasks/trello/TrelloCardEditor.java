@@ -14,10 +14,10 @@ public class TrelloCardEditor {
 		this.client = api;
 	}
 
-	public boolean addMember(String cardId, String memberId){
+	public boolean addMember(String cardId, String trelloMemberId){
 		String url = "/1/cards/" + cardId + "/idMembers";
 		Map<String,String> params = new HashMap<String,String>();
-		params.put("value", memberId);
+		params.put("value", trelloMemberId);
 
 		try{
 			client.post(url, params);
