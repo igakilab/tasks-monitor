@@ -10,8 +10,8 @@ import java.util.Set;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi.Parameters;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi.Parameters;
 
 public class TestTrelloActions {
 	public static String TRELLO_API_KEY = "67ad72d3feb45f7a0a0b3c8e1467ac0b";

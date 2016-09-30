@@ -9,10 +9,9 @@ import java.util.TimeZone;
 import org.json.simple.JSONArray;
 
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.http.HttpResponse;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi.Parameters;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi.TrelloApiErrorHandler;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi.Parameters;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi.TrelloApiErrorHandler;
+import jp.ac.oit.igakilab.tasks.util.HttpResponse;
 
 public class BoardActionFetcher {
 	public static DebugLog logger = new DebugLog("BoardActionFetcher");

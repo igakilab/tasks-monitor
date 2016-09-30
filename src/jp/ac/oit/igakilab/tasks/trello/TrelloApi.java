@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.http;
+package jp.ac.oit.igakilab.tasks.trello;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +9,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import jp.ac.oit.igakilab.tasks.util.HttpRequest;
+import jp.ac.oit.igakilab.tasks.util.HttpResponse;
 
 
 public class TrelloApi {

@@ -4,8 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi.Parameters;
+import jp.ac.oit.igakilab.tasks.trello.TrelloApi.Parameters;
 
 public class TrelloBoardDataFetcher {
 	static String FIELDS = "name,desc,closed,shortLink";

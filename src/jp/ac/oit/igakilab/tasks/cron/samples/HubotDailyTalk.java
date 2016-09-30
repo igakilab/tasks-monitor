@@ -6,9 +6,9 @@ import org.bson.Document;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.http.HttpRequest;
-import jp.ac.oit.igakilab.tasks.http.HttpRequest.ConnectionErrorHandler;
-import jp.ac.oit.igakilab.tasks.http.HttpResponse;
+import jp.ac.oit.igakilab.tasks.util.HttpRequest;
+import jp.ac.oit.igakilab.tasks.util.HttpResponse;
+import jp.ac.oit.igakilab.tasks.util.HttpRequest.ConnectionErrorHandler;
 
 public class HubotDailyTalk implements Runnable{
 	public static void main(String[] args){

@@ -2,8 +2,6 @@ package jp.ac.oit.igakilab.tasks.trello;
 
 import org.json.simple.JSONObject;
 
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
-
 public class TrelloMemberInfo {
 	private TrelloApi client;
 

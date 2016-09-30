@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.http;
+package jp.ac.oit.igakilab.tasks.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

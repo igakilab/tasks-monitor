@@ -1,7 +1,6 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
 
 public class TasksTrelloClientBuilder {
 	private static String apiKey(){
