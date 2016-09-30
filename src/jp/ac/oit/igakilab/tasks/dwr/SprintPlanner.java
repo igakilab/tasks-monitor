@@ -1,7 +1,9 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import com.mongodb.MongoClient;
 
@@ -35,7 +37,7 @@ public class SprintPlanner {
 
 	//スプリントを新しく生成
 	//現在進行中のスプリントがあった場合、自動的にクローズされる
-	public String createSprint(String boardId, Date finishDate)
+	public String createSprint(String boardId, Date finishDate, List<String> cardIds)
 	throws ExcuteFailedException{
 		//DBのクライアントと操作クラスの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -58,7 +60,8 @@ public class SprintPlanner {
 		//DB登録
 		String newId = null;
 		try{
-			newId = smdb.createSprint(boardId, today, finishDate);
+			newId = smdb.createSprint(boardId, today, finishDate,
+				(cardIds != null ? cardIds : new ArrayList<String>()));
 		}catch(SprintsDBEditException e0){
 			client.close();
 			throw new ExcuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());

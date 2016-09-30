@@ -15,6 +15,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
@@ -25,6 +27,7 @@ import jp.ac.oit.igakilab.tasks.util.RandomIdGenerator;
 public class SprintsDB {
 	public class SprintsDBEditException extends DBEditException{
 		public static final int INVALID_PERIOD = 2001;
+		public static final int CARDID_REGISTED = 2002;
 
 		public SprintsDBEditException(int code, String msg){
 			super(code, msg);
@@ -167,5 +170,31 @@ public class SprintsDB {
 		});
 
 		return list;
+	}
+
+	public boolean addTrelloCardId(String id, String cardId){
+		if( !sprintIdExists(id) ) return false;
+
+		MongoCollection<Document> col = getCollection();
+
+		Bson checkRegistedFilter = Filters.and(
+			Filters.eq("id", id),
+			Filters.eq("trelloCardIds", cardId));
+		if( col.count(checkRegistedFilter) > 0 ) return false;
+
+		Bson filter = Filters.eq("id", id);
+		Bson updates = Updates.push("trelloCardIds", cardId);
+		UpdateResult result = col.updateOne(filter, updates);
+
+		return result.getModifiedCount() == 1;
+	}
+
+	public boolean removeTrelloCardId(String id, String cardId){
+		Bson filter = Filters.eq("id", id);
+		Bson updates = Updates.pull("trelloCardIds", cardId);
+
+		UpdateResult result = getCollection().updateOne(filter, updates);
+
+		return result.getModifiedCount() == 1;
 	}
 }

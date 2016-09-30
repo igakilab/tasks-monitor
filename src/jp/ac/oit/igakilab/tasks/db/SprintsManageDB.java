@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -21,7 +22,7 @@ public class SprintsManageDB extends SprintsDB{
 		super(client);
 	}
 
-	public String createSprint(String boardId, Date beginDate, Date finishDate)
+	public String createSprint(String boardId, Date beginDate, Date finishDate, List<String> cardIds)
 	throws SprintsDBEditException{
 		String newId = null;
 
@@ -30,6 +31,7 @@ public class SprintsManageDB extends SprintsDB{
 			sprint.setBoardId(boardId);
 			sprint.setBeginDate(beginDate);
 			sprint.setFinishDate(finishDate);
+			cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
 			newId = addSprint(sprint, new SprintDocumentConverter());
 		}else{

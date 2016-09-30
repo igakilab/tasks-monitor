@@ -17,7 +17,7 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
 public class SprintRegister {
-	public String testCreateSprint(String boardId, String bDateStr, String fDateStr)
+	public String testCreateSprint(String boardId, String bDateStr, String fDateStr, List<String> cardIds)
 	throws SprintsDBEditException, ExcuteFailedException, ParseException{
 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 		Date beginDate = df.parse(bDateStr);
@@ -31,6 +31,7 @@ public class SprintRegister {
 		sprint.setBeginDate(beginDate);
 		sprint.setFinishDate(finishDate);
 		sprint.setClosed(false);
+		if( cardIds != null ) cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsDB sdb = new SprintsDB(client);

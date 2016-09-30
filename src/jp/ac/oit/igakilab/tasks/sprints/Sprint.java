@@ -1,10 +1,13 @@
 package jp.ac.oit.igakilab.tasks.sprints;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Sprint {
 	public static Calendar roundDate(Date d0){
+		if( d0 == null ) return null;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(d0);
 		Calendar ncal = Calendar.getInstance();
@@ -21,12 +24,16 @@ public class Sprint {
 	private Date finishDate;
 	private boolean isClosed;
 	private Date closedDate;
+	private List<String> trelloCardIds;
 
 	public Sprint(){
 		id = null;
 		boardId = null;
 		beginDate = null;
 		finishDate = null;
+		isClosed = false;
+		closedDate = null;
+		trelloCardIds = new ArrayList<String>();
 	}
 
 	public Sprint(String id){
@@ -55,7 +62,8 @@ public class Sprint {
 	}
 
 	public void setBeginDate(Date beginDate) {
-		this.beginDate = roundDate(beginDate).getTime();
+		this.beginDate = (beginDate == null ?
+			null : roundDate(beginDate).getTime());
 	}
 
 	public Date getFinishDate() {
@@ -63,7 +71,8 @@ public class Sprint {
 	}
 
 	public void setFinishDate(Date finishDate) {
-		this.finishDate = roundDate(finishDate).getTime();
+		this.finishDate = (finishDate == null ?
+				null : roundDate(finishDate).getTime());
 	}
 
 	public boolean isClosed() {
@@ -79,6 +88,21 @@ public class Sprint {
 	}
 
 	public void setClosedDate(Date closedDate) {
-		this.closedDate = closedDate;
+		this.closedDate = (closedDate == null ?
+				null : roundDate(closedDate).getTime());
+	}
+
+	public List<String> getTrelloCardIds(){
+		return trelloCardIds;
+	}
+
+	public void clearTrelloCardId(){
+		trelloCardIds.clear();
+	}
+
+	public void addTrelloCardId(String cardId){
+		if( !trelloCardIds.contains(cardId) ){
+			trelloCardIds.add(cardId);
+		}
 	}
 }

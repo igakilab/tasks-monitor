@@ -1,6 +1,8 @@
 package jp.ac.oit.igakilab.tasks.util;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.bson.Document;
 
@@ -49,5 +51,36 @@ public class DocumentValuePicker {
 			}
 		}
 		return val;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Object> getArray(String key){
+		if( doc.containsKey(key) ){
+			Object obj = doc.get(key);
+			try{
+				List<Object> list = (List<Object>)obj;
+
+				return list;
+			}catch(ClassCastException e0){
+				if( stackTraceEnabled ) e0.printStackTrace();
+				return new ArrayList<Object>();
+			}
+		}
+		return new ArrayList<Object>();
+	}
+
+	public List<String> getStringArray(String key){
+		List<String> array = new ArrayList<String>();
+
+		for(Object obj : getArray(key)){
+			try{
+				String tmp = (String)obj;
+				array.add(tmp);
+			}catch(ClassCastException e0){
+				if( stackTraceEnabled ) e0.printStackTrace();
+			}
+		}
+
+		return array;
 	}
 }
