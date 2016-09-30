@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.util;
 
+import java.util.Date;
+
 import org.bson.Document;
 
 public class DocumentValuePicker {
@@ -30,6 +32,18 @@ public class DocumentValuePicker {
 		if( doc.containsKey(key) ){
 			try{
 				val = doc.getString(key);
+			}catch(ClassCastException e0){
+				if( stackTraceEnabled ) e0.printStackTrace();
+			}
+		}
+		return val;
+	}
+
+	public Date getDate(String key, Date defaultValue){
+		Date val = defaultValue;
+		if( doc.containsKey(key) ){
+			try{
+				val = doc.getDate(key);
 			}catch(ClassCastException e0){
 				if( stackTraceEnabled ) e0.printStackTrace();
 			}

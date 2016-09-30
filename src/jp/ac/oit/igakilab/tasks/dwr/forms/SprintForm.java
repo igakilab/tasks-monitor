@@ -14,6 +14,7 @@ public class SprintForm {
 		form.setBeginDate(sprint.getBeginDate());
 		form.setFinishDate(sprint.getFinishDate());
 		form.setClosed(sprint.isClosed());
+		form.setClosedDate(sprint.getClosedDate());
 
 		return form;
 	}
@@ -24,6 +25,7 @@ public class SprintForm {
 	private Date beginDate;
 	private Date finishDate;
 	private boolean isClosed;
+	private Date closedDate;
 
 	public SprintForm(){
 		id = null;
@@ -71,5 +73,13 @@ public class SprintForm {
 
 	public void setClosed(boolean isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public Date getClosedDate() {
+		return closedDate;
+	}
+
+	public void setClosedDate(Date closedDate) {
+		this.closedDate = closedDate;
 	}
 }

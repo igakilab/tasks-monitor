@@ -20,6 +20,7 @@ public class Sprint {
 	private Date beginDate;
 	private Date finishDate;
 	private boolean isClosed;
+	private Date closedDate;
 
 	public Sprint(){
 		id = null;
@@ -71,5 +72,13 @@ public class Sprint {
 
 	public void setClosed(boolean isClosed) {
 		this.isClosed = isClosed;
+	}
+
+	public Date getClosedDate() {
+		return closedDate;
+	}
+
+	public void setClosedDate(Date closedDate) {
+		this.closedDate = closedDate;
 	}
 }

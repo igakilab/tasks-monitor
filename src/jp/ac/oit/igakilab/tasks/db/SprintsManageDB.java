@@ -1,6 +1,5 @@
 package jp.ac.oit.igakilab.tasks.db;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -50,7 +49,7 @@ public class SprintsManageDB extends SprintsDB{
 		);
 		Bson sorting = Sorts.ascending("beginDate");
 
-		System.out.println(new SimpleDateFormat("yyyy/MM/dd").format(point));
+		//System.out.println(new SimpleDateFormat("yyyy/MM/dd").format(point));
 		for(Document doc : getCollection().find(filter)){
 			System.out.println(doc.toJson());
 		}
@@ -67,8 +66,11 @@ public class SprintsManageDB extends SprintsDB{
 	}
 
 	public boolean closeSprint(String sprintId){
+		Date nowTime = Calendar.getInstance().getTime();
 		Bson filter = Filters.eq("id", sprintId);
-		Bson updates = Updates.set("isClosed", true);
+		Bson updates = Updates.combine(
+			Updates.set("isClosed", true),
+			Updates.set("closedDate", Sprint.roundDate(nowTime).getTime()));
 
 		UpdateResult result = getCollection().updateOne(filter, updates);
 
