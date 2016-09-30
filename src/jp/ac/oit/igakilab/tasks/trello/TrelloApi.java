@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -107,13 +108,6 @@ public class TrelloApi {
 				request.setParameter(key, params.getParameter(key));
 			}
 		}
-		if( errorHandler != null ){
-			request.setErrorHandler(new HttpRequest.ConnectionErrorHandler(){
-				public void onError(Exception e0){
-					errorHandler.onException(e0);
-				}
-			});
-		}
 		return request;
 	}
 
@@ -132,7 +126,16 @@ public class TrelloApi {
 					key + "=" + params.getParameter(key));
 			}
 		}
-		HttpResponse response = request.sendRequest();
+
+		HttpResponse response = null;
+		try{
+			response = request.sendRequest();
+		}catch(IOException e0){
+			if( errorHandler != null ){
+				errorHandler.onException(e0);
+			}
+		}
+
 		if( response != null ){
 			if( DEBUG ){
 				System.out.println("TrelloApi[debug]: receive:" + response.getStatus());

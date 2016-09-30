@@ -38,7 +38,7 @@ public class HttpRequest {
 		response.printResponse(System.out);
 	}
 
-	interface ErrorCatcher<T>{
+	public interface ErrorCatcher<T>{
 		public T execute(SendRequestWrapper req);
 	}
 
