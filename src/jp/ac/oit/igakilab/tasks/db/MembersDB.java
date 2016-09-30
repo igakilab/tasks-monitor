@@ -85,6 +85,17 @@ public class MembersDB {
 		}
 	}
 
+	public String getTrelloIdByMemberId(String mid){
+		Bson filter = Filters.eq("id", mid);
+		Document doc = getCollection().find(filter).first();
+		if( doc != null ){
+			String trelloId = doc.getString("trelloId");
+			return trelloId;
+		}else{
+			return null;
+		}
+	}
+
 	public <T> List<T> getAllMemberList(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 		for(Document doc : getCollection().find()){
