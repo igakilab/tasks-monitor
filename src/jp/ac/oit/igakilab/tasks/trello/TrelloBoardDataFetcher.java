@@ -1,10 +1,12 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi.Parameters;
 
 public class TrelloBoardDataFetcher {
 	static String FIELDS = "name,desc,closed,shortLink";
@@ -14,7 +16,7 @@ public class TrelloBoardDataFetcher {
 				"67ad72d3feb45f7a0a0b3c8e1467ac0b");
 		AppProperties.global.setIfNotHasValue("tasks.trello.token",
 				"268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		String shortLink = "4GHyumBA";
 		TrelloBoardDataFetcher f = new TrelloBoardDataFetcher(api);
 		TrelloBoardData board = f.getTrelloBoardData(shortLink);
@@ -22,9 +24,9 @@ public class TrelloBoardDataFetcher {
 		System.out.println("members: " + board.getMemberIds());
 	}
 
-	private TrelloApi client;
+	private TrelloApi<Object> client;
 
-	public TrelloBoardDataFetcher(TrelloApi api){
+	public TrelloBoardDataFetcher(TrelloApi<Object> api){
 		client = api;
 	}
 
@@ -51,11 +53,11 @@ public class TrelloBoardDataFetcher {
 	}
 
 	public TrelloBoardData getTrelloBoardData(String boardId){
-		Parameters params = new Parameters();
-		params.setParameter("fields", FIELDS);
-		params.setParameter("members", "all");
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("fields", FIELDS);
+		params.put("members", "all");
 
-		Object res = client.get("/1/boards/" + boardId, params);
+		Object res = client.rget("/1/boards/" + boardId, params).getData();
 		return toTrelloBoardData(res);
 	}
 }

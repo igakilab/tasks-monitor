@@ -38,8 +38,8 @@ public class TestMembersDB {
 
 	public static String getTrelloIdByUserName(String userName){
 		TasksTrelloClientBuilder.setTestApiKey();
-		TrelloApi trello = TasksTrelloClientBuilder.createApiClient();
-		Object reply = trello.get("/1/members/" + userName);
+		TrelloApi<Object> trello = TasksTrelloClientBuilder.createApiClient();
+		Object reply = trello.rget("/1/members/" + userName).getData();
 		if( reply != null ){
 			JSONObject obj = (JSONObject)reply;
 			return (String)obj.get("id");

@@ -12,7 +12,7 @@ import jp.ac.oit.igakilab.tasks.trello.TrelloBoardDataFetcher;
 
 public class TrelloSimpleTools {
 	public String getBoardIdByShortLink(String shortLink){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardDataFetcher tbf = new TrelloBoardDataFetcher(api);
 		TrelloBoardData data = tbf.getTrelloBoardData(shortLink);
 		if( data != null ){
@@ -33,8 +33,8 @@ public class TrelloSimpleTools {
 	}
 
 	public String getMemberIdByUsername(String username){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
-		Object res = api.get("/1/members/" + username);
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		Object res = api.rget("/1/members/" + username).getData();
 		if( res != null ){
 			try{
 				JSONObject json = (JSONObject)res;

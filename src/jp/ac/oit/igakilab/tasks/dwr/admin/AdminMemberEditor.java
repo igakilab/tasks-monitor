@@ -132,7 +132,7 @@ public class AdminMemberEditor {
 	}
 
 	public String getTrelloIdByTrelloUserName(String username){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloMemberInfo trello = new TrelloMemberInfo(api);
 
 		String userId = trello.getUserIdByUserName(username);
