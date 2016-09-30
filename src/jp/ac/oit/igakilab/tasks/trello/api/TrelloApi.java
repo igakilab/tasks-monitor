@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import jp.ac.oit.igakilab.tasks.util.HttpRequest;
 import jp.ac.oit.igakilab.tasks.util.HttpResponse;
@@ -39,20 +37,6 @@ public class TrelloApi<T>{
 
 	public interface ResponseTextParser<T>{
 		public T parse(String responseText);
-	}
-
-	public static class SimpleJsonResponseTextParser implements ResponseTextParser<Object>{
-		@Override
-		public Object parse(String responseText){
-			Object parsed = null;
-			JSONParser parser = new JSONParser();
-			try{
-				parsed = parser.parse(responseText);
-			}catch(ParseException e0){
-				return null;
-			}
-			return parsed;
-		}
 	}
 
 	public static class TrelloResult<T>{
