@@ -13,8 +13,8 @@ import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
 import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.TrelloMemberInfo;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class AdminMemberEditor {
 	public static String ERR_INVALID_DATA = "データが不正です";
@@ -132,7 +132,7 @@ public class AdminMemberEditor {
 	}
 
 	public String getTrelloIdByTrelloUserName(String username){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloMemberInfo trello = new TrelloMemberInfo(api);
 
 		String userId = trello.getUserIdByUserName(username);

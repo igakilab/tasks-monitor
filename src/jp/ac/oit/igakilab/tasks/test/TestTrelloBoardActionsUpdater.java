@@ -21,7 +21,7 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TestTrelloBoardActionsUpdater {
 	static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");

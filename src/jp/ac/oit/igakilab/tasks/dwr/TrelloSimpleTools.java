@@ -6,13 +6,13 @@ import java.util.regex.Pattern;
 import org.json.simple.JSONObject;
 
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardDataFetcher;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TrelloSimpleTools {
 	public String getBoardIdByShortLink(String shortLink){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardDataFetcher tbf = new TrelloBoardDataFetcher(api);
 		TrelloBoardData data = tbf.getTrelloBoardData(shortLink);
 		if( data != null ){
@@ -33,8 +33,8 @@ public class TrelloSimpleTools {
 	}
 
 	public String getMemberIdByUsername(String username){
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
-		Object res = api.get("/1/members/" + username);
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		Object res = api.rget("/1/members/" + username).getData();
 		if( res != null ){
 			try{
 				JSONObject json = (JSONObject)res;

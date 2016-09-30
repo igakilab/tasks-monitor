@@ -19,7 +19,7 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class UpdateTrelloBoardActions implements Runnable{
 	public static class UpdateResult{
@@ -46,7 +46,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 		return scheduler;
 	}
 
-	public UpdateResult updateBoardActions(TrelloApi api, MongoClient client, String boardId, Date since){
+	public UpdateResult updateBoardActions(TrelloApi<Object> api, MongoClient client, String boardId, Date since){
 		//取得モジュールの初期化
 		BoardActionFetcher fetcher = new BoardActionFetcher(api, boardId);
 		//更新日時の記録
@@ -74,11 +74,11 @@ public class UpdateTrelloBoardActions implements Runnable{
 		return new UpdateResult(boardId, records.size(), uc);
 	}
 
-	public UpdateResult updateBoardActions(TrelloApi api, MongoClient client, String boardId){
+	public UpdateResult updateBoardActions(TrelloApi<Object> api, MongoClient client, String boardId){
 		return updateBoardActions(api, client, boardId, null);
 	}
 
-	public List<UpdateResult> updateAllBoardActions(TrelloApi api, MongoClient client){
+	public List<UpdateResult> updateAllBoardActions(TrelloApi<Object> api, MongoClient client){
 		//ボードリストを取得
 		BoardDBDriver bdb = new BoardDBDriver(client);
 		List<Board> boards = bdb.getBoardList();
@@ -101,7 +101,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 
 		//クライアントの初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		TrelloApi api = TasksTrelloClientBuilder.createApiClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
 		//更新の実行
 		List<UpdateResult> results = updateAllBoardActions(api, client);

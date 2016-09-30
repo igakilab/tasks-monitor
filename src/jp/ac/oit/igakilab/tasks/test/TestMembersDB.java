@@ -10,7 +10,7 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TestMembersDB {
 	public static void main(String[] args){
@@ -38,8 +38,8 @@ public class TestMembersDB {
 
 	public static String getTrelloIdByUserName(String userName){
 		TasksTrelloClientBuilder.setTestApiKey();
-		TrelloApi trello = TasksTrelloClientBuilder.createApiClient();
-		Object reply = trello.get("/1/members/" + userName);
+		TrelloApi<Object> trello = TasksTrelloClientBuilder.createApiClient();
+		Object reply = trello.rget("/1/members/" + userName).getData();
 		if( reply != null ){
 			JSONObject obj = (JSONObject)reply;
 			return (String)obj.get("id");

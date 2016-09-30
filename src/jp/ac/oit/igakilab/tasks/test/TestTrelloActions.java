@@ -4,14 +4,16 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi;
-import jp.ac.oit.igakilab.tasks.trello.TrelloApi.Parameters;
+import jp.ac.oit.igakilab.tasks.trello.api.SimpleJsonResponseTextParser;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TestTrelloActions {
 	public static String TRELLO_API_KEY = "67ad72d3feb45f7a0a0b3c8e1467ac0b";
@@ -21,11 +23,12 @@ public class TestTrelloActions {
 	static String board_actions_test = "57d3f5cac2c3720549a9b8c1";
 
 	public static void main(String[] args){
-		TrelloApi trello = new TrelloApi(TRELLO_API_KEY, TRELLO_API_TOKEN);
+		TrelloApi<Object> trello = new TrelloApi<Object>(TRELLO_API_KEY, TRELLO_API_TOKEN
+			, new SimpleJsonResponseTextParser());
 
-		Parameters params = new Parameters();
-		params.setParameter("display", "true");
-		Object reply = trello.get("/1/boards/57d3f5cac2c3720549a9b8c1/actions", params);
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("display", "true");
+		Object reply = trello.rget("/1/boards/57d3f5cac2c3720549a9b8c1/actions", params).getData();
 
 		JSONArray actions = (JSONArray)reply;
 		Set<String> types = new HashSet<String>();
