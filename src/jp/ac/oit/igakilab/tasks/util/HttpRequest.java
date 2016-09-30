@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -16,15 +17,10 @@ import java.util.Map.Entry;
 
 public class HttpRequest {
 	public static void main(String[] args){
-		HttpRequest request = new HttpRequest("GET", "http://api.trello.com/1/members/me");
+		/*HttpRequest request = new HttpRequest("GET", "http://api.trello.com/1/members/me");
 		request.setParameter("key", "67ad72d3feb45f7a0a0b3c8e1467ac0b")
-			.setParameter("token", "268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
-		request.setErrorHandler(new ConnectionErrorHandler(){
-			public void onError(Exception e0){
-				System.err.println(e0.getMessage());
-				e0.printStackTrace();
-			}
-		});
+			.setParameter("token", "268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");*/
+		HttpRequest request = new HttpRequest("GET", "http://192.168.1.193/80");
 
 		System.out.println("Request start");
 		HttpResponse response = new HttpResponse(0);
@@ -36,14 +32,10 @@ public class HttpRequest {
 			System.err.println("ProtocolException: " + e1.getMessage());
 		}catch(IOException e2){
 			System.err.println("IOException: " + e2.getMessage());
+			e2.printStackTrace();
 		}
 
 		response.printResponse(System.out);
-	}
-
-
-	public interface ConnectionErrorHandler{
-		public void onError(Exception e0);
 	}
 
 	public static int HTTP_OK = HttpURLConnection.HTTP_OK;
@@ -52,7 +44,6 @@ public class HttpRequest {
 	private String method;
 	private Map<String,String> params;
 	private Map<String, String> properties;
-	private ConnectionErrorHandler errorHandler;
 	private boolean followRedirects = true;
 
 	public HttpRequest(){
@@ -117,11 +108,6 @@ public class HttpRequest {
 		return params;
 	}
 
-	public HttpRequest setErrorHandler(ConnectionErrorHandler handler){
-		errorHandler = handler;
-		return this;
-	}
-
 	public HttpRequest setFollowRedirects(boolean a0){
 		followRedirects = a0;
 		return this;
@@ -160,7 +146,13 @@ public class HttpRequest {
 
 	private String receiveResponseText(HttpURLConnection conn)
 	throws IOException{
-		InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+		InputStreamReader isr;
+		try{
+			isr = new InputStreamReader(conn.getInputStream());
+		}catch(FileNotFoundException e0){
+			return null;
+		}
+
 		BufferedReader reader = new BufferedReader(isr);
 		String tmp;
 		StringBuffer response = new StringBuffer();
@@ -194,7 +186,8 @@ public class HttpRequest {
 		//このdo-whileではfollowRedirectがtrue時に
 		//リダイレクションに従ってコネクションを再接続する
 		do{
-			System.out.println("send req: " + tmpUrl);
+			//デバッグ用
+			//System.out.println("send req: " + tmpUrl);
 
 			//コネクションを生成
 			connection = createConnection(urlObj, method);
