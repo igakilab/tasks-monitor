@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class HttpRequest {
 	public static void main(String[] args){
@@ -25,7 +27,17 @@ public class HttpRequest {
 		});
 
 		System.out.println("Request start");
-		HttpResponse response = request.sendRequest();
+		HttpResponse response = new HttpResponse(0);
+		try{
+			response = request.sendRequest();
+		}catch(MalformedURLException e0){
+			System.err.println("MalformedURLException: " + e0.getMessage());
+		}catch(ProtocolException e1){
+			System.err.println("ProtocolException: " + e1.getMessage());
+		}catch(IOException e2){
+			System.err.println("IOException: " + e2.getMessage());
+		}
+
 		response.printResponse(System.out);
 	}
 
@@ -158,10 +170,94 @@ public class HttpRequest {
 		return response.toString();
 	}
 
-	public HttpResponse sendRequest(){
+	public HttpResponse sendRequest()
+	throws ProtocolException, MalformedURLException, IOException{
 		return sendRequest(null);
 	}
 
+	public HttpResponse sendRequest(String bodyText)
+	throws ProtocolException, MalformedURLException, IOException{
+		//コネクションオブジェクト、ステータスコード、
+		//リダイレクトかどうか 変数を初期化
+		HttpURLConnection connection = null;
+		int statusCode;
+
+		//〇リクエスト送信
+
+		//コネクション動作用に初期値を設定
+		//urlオブジェクトの生成とリダイレクトフラグの初期化
+		String tmpUrl = generateUrl();
+		URL urlObj = new URL(tmpUrl);
+		boolean redirect = false;
+
+		//httpコネクションを行い、データを取得する
+		//このdo-whileではfollowRedirectがtrue時に
+		//リダイレクションに従ってコネクションを再接続する
+		do{
+			System.out.println("send req: " + tmpUrl);
+
+			//コネクションを生成
+			connection = createConnection(urlObj, method);
+
+			//プロパティ(ヘッダ)を設定
+			for(Entry<String,String> entry : properties.entrySet()){
+				connection.setRequestProperty(entry.getKey(), entry.getValue());
+			}
+
+			//bodyを設定
+			if( bodyText != null ){
+				BufferedWriter writer = new BufferedWriter(
+					new OutputStreamWriter(
+						connection.getOutputStream(), StandardCharsets.UTF_8));
+
+				writer.write(bodyText);
+				writer.flush();
+			}
+
+			//コネクションを実行？ ステータスコードを取得
+			statusCode = connection.getResponseCode();
+
+			//リダイレクションのチェック
+			if(
+				statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
+				statusCode == HttpURLConnection.HTTP_MOVED_TEMP
+			){
+				//リダイレクト時: 次のurlオブジェクトを生成
+				tmpUrl = connection.getHeaderField("Location");
+				urlObj = new URL(tmpUrl);
+
+				//リダイレクト時: リダイレクトフラグの設定
+				redirect = true;
+			}else{
+				//非リダイレクト: リダイレクトフラグの解除
+				redirect = false;
+			}
+		} while( redirect && followRedirects );
+
+		//〇通信結果の生成
+
+		//HttpResponseオブジェクトを生成
+		HttpResponse response = new HttpResponse(statusCode);
+
+		//設定値を記録
+		response.setMethod(method);
+		response.setUrl(tmpUrl);
+
+		//ヘッダーを記録
+		for(String key : connection.getHeaderFields().keySet()){
+			String val = connection.getHeaderField(key);
+			response.getHeaders().put(key, val);
+		}
+
+		//レスポンスボディを記録
+		response.setResponseText(receiveResponseText(connection));
+
+		//コネクションを切断 結果の返却
+		connection.disconnect();
+		return response;
+	}
+
+	/*
 	public HttpResponse sendRequest(String bodyText){
 		HttpURLConnection connection = null;
 		int statusCode;
@@ -237,6 +333,7 @@ public class HttpRequest {
 		connection.disconnect();
 		return response;
 	}
+	*/
 
 
 }
