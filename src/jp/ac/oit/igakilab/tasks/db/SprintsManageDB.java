@@ -51,9 +51,9 @@ public class SprintsManageDB extends SprintsDB{
 		Bson sorting = Sorts.ascending("beginDate");
 
 		//System.out.println(new SimpleDateFormat("yyyy/MM/dd").format(point));
-		for(Document doc : getCollection().find(filter)){
-			System.out.println(doc.toJson());
-		}
+		//for(Document doc : getCollection().find(filter)){
+		//	System.out.println(doc.toJson());
+		//}
 
 		Document doc = getCollection().find(filter).sort(sorting).first();
 		if( doc == null ) return null;

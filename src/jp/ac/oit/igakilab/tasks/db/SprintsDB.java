@@ -106,8 +106,6 @@ public class SprintsDB {
 			return last.compareTo(begin) <= 0;
 		}
 
-		System.out.println(doc);
-
 		return true;
 	}
 
