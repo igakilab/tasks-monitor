@@ -28,9 +28,15 @@
     <create creator="new" javascript="DashBoard">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.DashBoard"/>
     </create>
+    <create creator="new" javascript="SprintPlanner">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintPlanner"/>
+    </create>
 
 
 	<!-- tasks-monitor-tests -->
+    <create creator="new" javascript="SprintRegister">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintRegister"/>
+    </create>
     <create creator="new" javascript="TestDbConnection">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.test.TestDbConnection"/>
     </create>

@@ -46,6 +46,11 @@ public class BoardDBDriver {
 		return this.client.getDatabase(DB_NAME).getCollection(COL_NAME);
 	}
 
+	public boolean boardIdExists(String boardId){
+		Bson filter = Filters.eq("id", boardId);
+		return getCollection().count(filter) > 0;
+	}
+
 	public Document getBoardById(String boardId){
 		Bson filter = Filters.eq("id", boardId);
 		return getCollection().find(filter).first();
