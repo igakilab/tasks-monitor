@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SPRINT TESTS</title>
+		<meta charset="utf-8"/>
+	</head>
+	<body>
+		<h1>SPRINT PLANNER TEST</h1>
+
+		<h2>初期化</h2>
+		<p>ボードを指定してください</p>
+		<input id="boardIdInput" type="text"/>
+		<button type="button" id="initBtn">ボード情報取得</button>
+
+		<hr/>
+
+		<h2>現在のスプリント</h2>
+		<p id="currentSprintView"></p>
+		<button id="sprintCloseBtn" disabled="disabled">現在のスプリントをクローズ</button>
+
+		<h2>タスク選択</h2>
+		<p>割り当てるタスクを選択してください</p>
+		<button id="reloadCardListBtn" type="button">更新</button>
+		<table border="1">
+			<thead><tr>
+				<th>ID</th><th>タスク名</th><th>担当者</th><th>操作</th>
+			</tr></thead>
+			<tbody id="cardList"></tbody>
+		</table>
+
+		<h2>目標日登録</h2>
+		<p>目標日を入力してください。(yyyy/mm/dd)形式</p>
+		<input id="finishDateInput" type="text"/>
+
+		<h2>スプリント登録</h2>
+		<p>上記の内容でスプリントを登録します</p>
+		<button id="sprintCreateBtn" type="button">登録</button>
+
+
+
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/interface/SprintPlanner.js"></script>
+
+		<script>
+		var BOARD_ID = null;
+		var CARD_LIST = null;
+
+		function loadCurrentSprint(){
+			if( BOARD_ID == null ) return;
+
+			SprintPlanner.getCurrentSprint(BOARD_ID, function(data){
+				if( data != null ){
+					$("#currentSprintView").text(
+						"id:" + data.id +
+						" 目標日:" + data.finishDate);
+					$("#sprintCloseBtn").prop("disabled", false);
+				}else{
+					$("#currentSprintView").text(
+						"現在進行中のスプリントはありません");
+					$("#sprintCloseBtn").prop("disabled", true);
+				}
+			});
+		}
+
+		function addMemberBtnPressed(index){
+			if( CARD_LIST != null ){
+				var mid = prompt("[" + index + "]メンバーIDを入力してください");
+				if( mid != null ){
+					CARD_LIST[index].newMembers.push(mid);
+				}
+				reloadCardList();
+			}
+		}
+
+		function clearMemberBtnPressed(index){
+			if( CARD_LIST != null ){
+				if( confirm("[" + index + "]メンバーをクリアしてもよろしいですか？") ){
+					CARD_LIST[index].newMembers = [];
+				}
+				reloadCardList();
+			}
+		}
+
+		function reloadCardList(){
+			$("#cardList").empty();
+			if( CARD_LIST != null ){
+				for(var i=0; i<CARD_LIST.length; i++){
+					var tmpCard = CARD_LIST[i];
+					if( Util.isNull(tmpCard.newMembers) ) tmpCard.newMembers = [];
+					$("#cardList").append(
+						$("<tr></tr>").append(
+							$("<td></td>").text(tmpCard.id),
+							$("<td></td>").text(tmpCard.name),
+							$("<td></td>").text(tmpCard.newMembers.length),
+							$("<td></td>").append(
+								$("<button></button>")
+									.attr("onclick", "addMemberBtnPressed(" + i + ")")
+									.text("メンバー追加"),
+								$("<button></button>")
+									.attr("onclick", "clearMemberBtnPressed(" + i + ")")
+									.text("メンバークリア"))));
+				}
+			}
+		}
+
+		$(document).ready(function(){
+			$("#initBtn").on('click', function(){
+				var boardId = $("#boardIdInput").val();
+				SprintPlanner.getTodoTrelloCards(boardId, function(data){
+					BOARD_ID = boardId;
+					CARD_LIST = data;
+					loadCurrentSprint();
+					reloadCardList();
+				});
+			});
+
+			$("#sprintCloseBtn").on('click', function(){
+				if( BOARD_ID != null && confirm("現在進行中のスプリントをクローズします") ){
+					SprintPlanner.closeCurrentSprint(BOARD_ID, function(res){
+						if( !res ) alert("クローズに失敗しました");
+						loadCurrentSprint();
+					});
+				}
+			});
+
+			$("#reloadCardListBtn").on('click', reloadCardList);
+
+			$("#sprintCreateBtn").on('click', function(){
+				if( BOARD_ID == null ){
+					alert("ボードが読み込まれていません");
+					return;
+				}
+
+				//日付のパーズ
+				var finishDate = new Date($("#finishDateInput").val());
+				if( isNaN(finishDate) ){
+					alert("無効な日付指定です");
+					return;
+				}
+
+				//カード担当者オブジェクト生成
+				var cards = [];
+				for(var i=0; i<CARD_LIST.length; i++){
+					var tmpCard = CARD_LIST[i];
+					if( tmpCard.newMembers.length > 0 ){
+						cards.push({
+							trelloCardId: tmpCard.id,
+							memberIds: tmpCard.newMembers
+						});
+					}
+				}
+
+				//トリマ表示
+				console.log("boardId: " + BOARD_ID);
+				console.log("finish: " + finishDate);
+				console.log(cards);
+			});
+		});
+
+
+
+		</script>
+	</body>
+</html>

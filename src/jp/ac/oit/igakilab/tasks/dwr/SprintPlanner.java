@@ -95,7 +95,7 @@ public class SprintPlanner {
 
 	//ボードにあるtodoのカードリストを返却する
 	//ボードやリストがない場合は空のリストが返却される
-	public List<TrelloCardForm> getTodoTrelloCardList(String boardId){
+	public List<TrelloCardForm> getTodoTrelloCards(String boardId){
 		//dbのクライアントを生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
