@@ -46,7 +46,6 @@ public class SprintsManageDB extends SprintsDB{
 		Bson filter = Filters.and(
 			Filters.eq("boardId", boardId),
 			Filters.lte("beginDate", point),
-			Filters.gte("finishDate", point),
 			FILTER_NOT_CLOSED
 		);
 		Bson sorting = Sorts.ascending("beginDate");

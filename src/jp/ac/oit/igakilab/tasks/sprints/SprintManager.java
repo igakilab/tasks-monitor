@@ -67,7 +67,7 @@ public class SprintManager {
 
 			//担当者設定、mdbからtrelloIdを取得し設定
 			for(String memberId : cm.getMemberIds()){
-				String trelloId = mtable.get(memberId);
+				String trelloId = mtable.getTrelloId(memberId);
 				if( trelloId != null ){
 					if( DEBUG )
 						System.out.format("TCEDIT: addMember %s(%s) to %s\n",
