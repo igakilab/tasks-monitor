@@ -70,7 +70,7 @@ public class SprintsManageDB extends SprintsDB{
 		Date nowTime = Calendar.getInstance().getTime();
 		Bson filter = Filters.eq("id", sprintId);
 		Bson updates =
-			Updates.set("closedDate", Sprint.roundDate(nowTime).getTime());
+			Updates.set("closedDate", nowTime);
 
 		UpdateResult result = getCollection().updateOne(filter, updates);
 
