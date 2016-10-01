@@ -6,6 +6,8 @@ public class DBEditException extends Exception{
 	public static final int ID_NOTDEFINED = 101;
 	public static final int ID_ALSO_REGISTED = 102;
 	public static final int ID_NOT_REGISTED = 103;
+	public static final int INVALID_DATA  = 201;
+	public static final int ID_GEN_OVERFLOW = 202;
 
 	private int type;
 

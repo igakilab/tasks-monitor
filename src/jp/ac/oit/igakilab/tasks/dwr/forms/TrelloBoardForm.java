@@ -11,6 +11,7 @@ public class TrelloBoardForm {
 		form.setId(board.getId());
 		form.setName(board.getName());
 		form.setDesc(board.getDesc());
+		form.setShortLink(board.getShortLink());
 		form.setMemberIds(board.getMemberIds().toArray(new String[0]));
 
 		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
@@ -29,6 +30,7 @@ public class TrelloBoardForm {
 	private String id;
 	private String name;
 	private String desc;
+	private String shortLink;
 	private String[] memberIds;
 	private boolean isClosed;
 	private TrelloCardForm[] cards;
@@ -66,6 +68,14 @@ public class TrelloBoardForm {
 
 	public void setDesc(String desc) {
 		this.desc = desc;
+	}
+
+	public String getShortLink() {
+		return shortLink;
+	}
+
+	public void setShortLink(String shortLink) {
+		this.shortLink = shortLink;
 	}
 
 	public String[] getMemberIds() {
