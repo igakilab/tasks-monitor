@@ -22,7 +22,6 @@ public class Sprint {
 	private String boardId;
 	private Date beginDate;
 	private Date finishDate;
-	private boolean isClosed;
 	private Date closedDate;
 	private List<String> trelloCardIds;
 
@@ -31,7 +30,6 @@ public class Sprint {
 		boardId = null;
 		beginDate = null;
 		finishDate = null;
-		isClosed = false;
 		closedDate = null;
 		trelloCardIds = new ArrayList<String>();
 	}
@@ -76,11 +74,7 @@ public class Sprint {
 	}
 
 	public boolean isClosed() {
-		return isClosed;
-	}
-
-	public void setClosed(boolean isClosed) {
-		this.isClosed = isClosed;
+		return closedDate != null;
 	}
 
 	public Date getClosedDate() {

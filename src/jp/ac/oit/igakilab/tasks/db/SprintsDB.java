@@ -66,6 +66,10 @@ public class SprintsDB {
 	public static int ID_LENGTH = 14;
 	public static int OVERFLOW = 10;
 
+	protected static Bson FILTER_NOT_CLOSED = Filters.or(
+		Filters.exists("closedDate", false),
+		Filters.eq("closedDate", null));
+
 	private MongoClient client;
 
 	public SprintsDB(MongoClient client){
@@ -93,7 +97,7 @@ public class SprintsDB {
 		List<Bson> query = Arrays.asList(
 			Aggregates.match(Filters.and(
 				Filters.eq("boardId", boardId),
-				Filters.eq("isClosed", false))),
+				FILTER_NOT_CLOSED)),
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();

@@ -30,7 +30,6 @@ public class SprintRegister {
 		sprint.setBoardId(boardId);
 		sprint.setBeginDate(beginDate);
 		sprint.setFinishDate(finishDate);
-		sprint.setClosed(false);
 		if( cardIds != null ) cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
 		MongoClient client = TasksMongoClientBuilder.createClient();

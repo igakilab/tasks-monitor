@@ -47,7 +47,7 @@ public class SprintsManageDB extends SprintsDB{
 			Filters.eq("boardId", boardId),
 			Filters.lte("beginDate", point),
 			Filters.gte("finishDate", point),
-			Filters.eq("isClosed", false)
+			FILTER_NOT_CLOSED
 		);
 		Bson sorting = Sorts.ascending("beginDate");
 
@@ -70,9 +70,8 @@ public class SprintsManageDB extends SprintsDB{
 	public boolean closeSprint(String sprintId){
 		Date nowTime = Calendar.getInstance().getTime();
 		Bson filter = Filters.eq("id", sprintId);
-		Bson updates = Updates.combine(
-			Updates.set("isClosed", true),
-			Updates.set("closedDate", Sprint.roundDate(nowTime).getTime()));
+		Bson updates =
+			Updates.set("closedDate", Sprint.roundDate(nowTime).getTime());
 
 		UpdateResult result = getCollection().updateOne(filter, updates);
 
