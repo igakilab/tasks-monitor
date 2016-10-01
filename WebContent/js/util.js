@@ -81,3 +81,17 @@ Util.formatDate = function (date, format) {
 	}
 	return format;
 };
+
+//配列の値をカンマ(,)で区切って一つの文字列に変換します
+Util.arrayToString = function(array){
+	var str = "";
+	if( !Util.isNull(array) ){
+		for(var i=0; i<array.length; i++){
+			str += array[i];
+			if( i != array.length-1 ){
+				str += ", ";
+			}
+		}
+	}
+	return str;
+}

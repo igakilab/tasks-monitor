@@ -16,6 +16,8 @@ import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class SprintManager {
+	public static boolean DEBUG = false;
+
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
 
@@ -67,17 +69,20 @@ public class SprintManager {
 			for(String memberId : cm.getMemberIds()){
 				String trelloId = mtable.get(memberId);
 				if( trelloId != null ){
-					System.out.format("TCEDIT: addMember %s(%s) to %s\n",
-						memberId, trelloId, cardId);
+					if( DEBUG )
+						System.out.format("TCEDIT: addMember %s(%s) to %s\n",
+								memberId, trelloId, cardId);
 					tceditor.addMember(cardId, trelloId);
 				}else{
-					System.out.format("TCEDIT: addMember FAILED {memberId:%s} to %s\n",
-						memberId, cardId);
+					if( DEBUG )
+						System.out.format("TCEDIT: addMember FAILED {memberId:%s} to %s\n",
+								memberId, cardId);
 				}
 			}
 
 			//期限を設定
-			System.out.format("TCEDIT: addDue %s to %s",
+			if( DEBUG )
+				System.out.format("TCEDIT: addDue %s to %s",
 					new TrelloDateFormat().format(dueDate.getTime()), cardId);
 			tceditor.setDueDate(cardId, dueDate.getTime());
 		}

@@ -97,7 +97,7 @@
 						$("<tr></tr>").append(
 							$("<td></td>").text(tmpCard.id),
 							$("<td></td>").text(tmpCard.name),
-							$("<td></td>").text(tmpCard.newMembers.length),
+							$("<td></td>").text(Util.arrayToString(tmpCard.newMembers)),
 							$("<td></td>").append(
 								$("<button></button>")
 									.attr("onclick", "addMemberBtnPressed(" + i + ")")
