@@ -8,7 +8,7 @@ public class TrelloDateFormat extends SimpleDateFormat{
 
 	public TrelloDateFormat(){
 		super(PATTERN);
-		setTimeZone(TimeZone.getTimeZone("UTC"));
+		super.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
 	public void setTimeZone(TimeZone zone)
