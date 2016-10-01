@@ -36,7 +36,7 @@ public class SprintPlanner {
 	}
 
 	//スプリントを新しく生成
-	//現在進行中のスプリントがあった場合、自動的にクローズされる
+	//現在進行中のスプリントがあった場合、エラーを投げる
 	public String createSprint(String boardId, Date finishDate, List<String> cardIds)
 	throws ExcuteFailedException{
 		//DBのクライアントと操作クラスの生成
@@ -47,12 +47,7 @@ public class SprintPlanner {
 		Sprint current = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		//進行中スプリントがあった場合、クローズする
 		if( current != null ){
-			boolean closeRes = smdb.closeSprint(current.getId());
-			//もしクローズに失敗したら、例外をスロー
-			if( !closeRes ){
-				client.close();
-				throw new ExcuteFailedException("スプリントのクローズに失敗しました");
-			}
+			throw new ExcuteFailedException("現在進行中のスプリントがあります");
 		}
 
 		//日付の取得
@@ -92,4 +87,6 @@ public class SprintPlanner {
 		client.close();
 		return res;
 	}
+
+
 }
