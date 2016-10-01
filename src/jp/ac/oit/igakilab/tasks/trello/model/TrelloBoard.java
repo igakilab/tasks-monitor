@@ -112,6 +112,19 @@ public class TrelloBoard extends TrelloBoardData{
 		return new ArrayList<TrelloCard>();
 	}
 
+	public List<TrelloCard> getCardsByListNameMatches(String regex){
+		List<TrelloCard> cards = new ArrayList<TrelloCard>();
+
+		lists.stream()
+			.filter((li) -> li.getName().matches(regex))
+			.forEach((li) -> {
+				getCardsByListId(li.getId()).forEach(
+					(card -> cards.add(card)));
+			});
+
+		return cards;
+	}
+
 	public boolean containsListById(String lid){
 		return getListById(lid) != null;
 	}

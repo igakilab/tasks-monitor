@@ -10,9 +10,14 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintPlanner {
 	//ボードに設定された現在のスプリントの情報が返却される
@@ -88,5 +93,34 @@ public class SprintPlanner {
 		return res;
 	}
 
+	//ボードにあるtodoのカードリストを返却する
+	//ボードやリストがない場合は空のリストが返却される
+	public List<TrelloCardForm> getTodoTrelloCardList(String boardId){
+		//dbのクライアントを生成
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
+		//アクションを取得
+		List<TrelloAction> actions =
+			adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+
+		//カードリストの初期化
+		List<TrelloCardForm> forms = new ArrayList<TrelloCardForm>();
+
+		//ボードの解析
+		if( actions.size() > 0 ){
+			//ボードを生成・ビルド
+			TrelloActionsBoard board = new TrelloActionsBoard();
+			board.addActions(actions);
+			board.build();
+
+			//正規表現でマッチするリストのカードを取得
+			board.getCardsByListNameMatches("(?i)to\\s*do").forEach(
+				(card -> forms.add(TrelloCardForm.getInstance(card))));
+		}
+
+		//結果を返却
+		client.close();
+		return forms;
+	}
 }
