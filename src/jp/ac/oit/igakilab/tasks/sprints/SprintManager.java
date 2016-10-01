@@ -12,6 +12,7 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
+import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class SprintManager {
@@ -66,11 +67,18 @@ public class SprintManager {
 			for(String memberId : cm.getMemberIds()){
 				String trelloId = mtable.get(memberId);
 				if( trelloId != null ){
-					tceditor.addMember(cm.getCardId(), trelloId);
+					System.out.format("TCEDIT: addMember %s(%s) to %s\n",
+						memberId, trelloId, cardId);
+					tceditor.addMember(cardId, trelloId);
+				}else{
+					System.out.format("TCEDIT: addMember FAILED {memberId:%s} to %s\n",
+						memberId, cardId);
 				}
 			}
 
 			//期限を設定
+			System.out.format("TCEDIT: addDue %s to %s",
+					new TrelloDateFormat().format(dueDate.getTime()), cardId);
 			tceditor.setDueDate(cardId, dueDate.getTime());
 		}
 

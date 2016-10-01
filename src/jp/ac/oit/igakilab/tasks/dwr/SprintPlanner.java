@@ -7,14 +7,19 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
+import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
+import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
@@ -42,27 +47,35 @@ public class SprintPlanner {
 
 	//スプリントを新しく生成
 	//現在進行中のスプリントがあった場合、エラーを投げる
-	public String createSprint(String boardId, Date finishDate, List<String> cardIds)
+	public String createSprint(String boardId, Date finishDate, List<TrelloCardMembersForm> cardsForm)
 	throws ExcuteFailedException{
 		//DBのクライアントと操作クラスの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
+		SprintManager smanager = new SprintManager(client, api);
 
 		//進行中スプリントの取得
 		Sprint current = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		//進行中スプリントがあった場合、クローズする
 		if( current != null ){
+			client.close();
 			throw new ExcuteFailedException("現在進行中のスプリントがあります");
 		}
 
 		//日付の取得
 		Date today = Sprint.roundDate(Calendar.getInstance().getTime()).getTime();
+		//formをオブジェクトに変換
+		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
+		if( cardsForm != null ){
+			cardsForm.forEach(
+				(card -> cards.add(TrelloCardMembersForm.convertToTrelloCardMembers(card))));
+		}
 		//DB登録
 		String newId = null;
 		try{
-			newId = smdb.createSprint(boardId, today, finishDate,
-				(cardIds != null ? cardIds : new ArrayList<String>()));
-		}catch(SprintsDBEditException e0){
+			newId = smanager.createSprint(boardId, today, finishDate, cards);
+		}catch(SprintManagementException e0){
 			client.close();
 			throw new ExcuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
 		}
