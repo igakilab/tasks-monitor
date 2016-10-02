@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.bson.Document;
 
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloApiDateFormat;
+import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionData;
 import jp.ac.oit.igakilab.tasks.util.DocumentToMapConverter;
@@ -16,7 +16,7 @@ implements DocumentParser<TrelloAction>{
 	private DateFormat df;
 
 	public DocumentTrelloActionParser(){
-		df = new TrelloApiDateFormat();
+		df = new TrelloDateFormat();
 	}
 
 	public TrelloAction parse(Document doc){

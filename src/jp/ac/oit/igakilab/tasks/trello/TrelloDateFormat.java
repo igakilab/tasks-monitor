@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 public class TrelloDateFormat extends SimpleDateFormat{
-	public static String PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+	public static String PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
 	public TrelloDateFormat(){
 		super(PATTERN);
