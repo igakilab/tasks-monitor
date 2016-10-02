@@ -68,6 +68,10 @@ public class TrelloCardNotifyList {
 		this.notifyCards = new ArrayList<NotifyCard>();
 	}
 
+	private TrelloCardNotifyList(List<NotifyCard> root){
+		this.notifyCards = root;
+	}
+
 	public boolean add(String memberId, TrelloCard card, TrelloList list, TrelloBoard board){
 		NotifyCard nc = new NotifyCard(memberId, card, list, board);
 
@@ -91,7 +95,7 @@ public class TrelloCardNotifyList {
 		return members;
 	}
 
-	public List<NotifyCard> getNotifyCardsByMemberId(String memberId){
+	public TrelloCardNotifyList filterByMemberId(String memberId){
 		List<NotifyCard> result = new ArrayList<NotifyCard>();
 
 		notifyCards.forEach((nc) -> {
@@ -100,7 +104,11 @@ public class TrelloCardNotifyList {
 			}
 		});
 
-		return result;
+		return new TrelloCardNotifyList(result);
+	}
+
+	public List<NotifyCard> list(){
+		return notifyCards;
 	}
 
 	public int size(){

@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.scripts;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,12 +9,39 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.mongodb.MongoClient;
+
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloCardNotifyList.NotifyCard;
+import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloCardDeadlineNotification {
 	public static void main(String[] args){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(client);
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
+
+		List<TrelloAction> actions = adb.getTrelloActions(
+			"57ab33677fd33ec535cc4f28", new DocumentTrelloActionParser());
+		TrelloActionsBoard board = new TrelloActionsBoard();
+		board.addActions(actions);
+		board.build();
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 3);
+
+		TrelloCardDeadlineNotification notif = new TrelloCardDeadlineNotification(cal.getTime(), mtable);
+		notif.apply(board);
+		notif.execute();
+
+		client.close();
 	}
 
 	private Date notifyLine;
@@ -36,7 +64,10 @@ public class TrelloCardDeadlineNotification {
 
 		//closeされておらず、期限の近いカードを選択し、cardsに登録する
 		tmp.forEach((card) -> {
-			if( !card.isClosed() && (notifyLine.compareTo(card.getDue()) >= 0 ) ){
+			if( !card.isClosed()
+				&& (card.getDue() != null)
+				&& (notifyLine.compareTo(card.getDue()) >= 0 )
+			){
 				cards.add(card);
 			}
 		});
@@ -83,5 +114,24 @@ public class TrelloCardDeadlineNotification {
 		}
 
 		return addedCount;
+	}
+
+	public TrelloCardNotifyList getNotifyList(){
+		return notifyList;
+	}
+
+	public void execute(){
+		TrelloDateFormat df = new TrelloDateFormat();
+		List<String> members = notifyList.getNotifyMemberList();
+
+		for(String mid : members){
+			List<NotifyCard> cards = notifyList.filterByMemberId(mid).list();
+			System.out.println("Notify to " + mid);
+			for(NotifyCard ncard : cards){
+				TrelloCard card = ncard.getCard();
+				System.out.format("\t%s %s %s\n",
+					card.getId(), card.getName(), df.format(card.getDue()));
+			}
+		}
 	}
 }
