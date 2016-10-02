@@ -130,14 +130,15 @@ public class TrelloCardDeadlineNotification {
 
 	private String buildNotifyMessage(String memberId){
 		StringBuffer buffer = new StringBuffer();
-		DateFormat df = new SimpleDateFormat("M月dd日");
+		DateFormat df = new SimpleDateFormat("M/d");
 
 		buffer.append("期限が近づいているタスクがあります");
 
 		List<NotifyCard> cards = notifyList.filterByMemberId(memberId).list();
 		for(NotifyCard card : cards){
-			buffer.append(String.format("\n> [%s] %s (%sまで)",
+			buffer.append(String.format("\n> [%s:%s] %s (%sまで)",
 				card.getBoard().getName(),
+				card.getList().getName(),
 				card.getCard().getName(),
 				df.format(card.getCard().getDue())));
 		}
