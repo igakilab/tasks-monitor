@@ -11,35 +11,93 @@ import org.json.simple.JSONObject;
 
 import com.mongodb.MongoClient;
 
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDBUpdater;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB.Board;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TrelloBoardActionsUpdater {
+	public static void main(String[] args){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TasksTrelloClientBuilder.setTestApiKey();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+
+		TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
+
+		updater.setPrintResult(true);
+		updater.clearAllTrelloBoardActionsCache();
+		updater.updateAllBoardActions();
+
+		client.close();
+	}
+
 	public static class UpdateResult{
 		private String boardId;
+		private Date since;
 		private int receivedCount;
 		private int upsertedCount;
 
-		public UpdateResult(String bid, int rc, int uc){
+		public UpdateResult(String bid, Date sd, int rc, int uc){
 			boardId = bid;
+			since = sd;
 			receivedCount = rc;
 			upsertedCount = uc;
 		}
 
 		public String getBoardId(){return boardId;}
+		public Date getSince(){return since;}
 		public int getReceivedCount(){return receivedCount;}
 		public int getUpsertedCount(){return upsertedCount;}
 	}
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
+	private boolean printResult;
 
 	public TrelloBoardActionsUpdater(MongoClient dbc, TrelloApi<Object> tapi){
 		this.dbClient = dbc;
 		this.trelloApi = tapi;
+		this.printResult = false;
+	}
+
+	public void setPrintResult(boolean b0){
+		printResult = b0;
+	}
+
+	public void clearLastUpdateDate(String boardId){
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
+		bdb.clearLastUpdateDate(boardId);
+	}
+
+	public void clearAllLastUpdateDate(){
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
+		bdb.clearAllLastUpdateDate();
+	}
+
+	public void clearTrelloBoardActionsCache(String boardId){
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
+		int removed = adb.removeTrelloActions(boardId);
+		clearLastUpdateDate(boardId);
+		if( printResult ){
+			System.out.println("[BOARD ACTIONS CACHE CLEAR]");
+			System.out.println("\ttarget: " + boardId);
+			System.out.println("\tremoved record(s): " + removed);
+		}
+	}
+
+	public void clearAllTrelloBoardActionsCache(){
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
+		int removed = adb.removeAllTrelloActions();
+		clearAllLastUpdateDate();
+		if( printResult ){
+			System.out.println("[BOARD ACTIONS CACHE CLEAR]");
+			System.out.println("\ttarget: <ALL BOARD DATA>");
+			System.out.println("\tremoved record(s): " + removed);
+		}
 	}
 
 	public UpdateResult updateBoardActions(String boardId, Date since){
@@ -67,7 +125,16 @@ public class TrelloBoardActionsUpdater {
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
 		bdb.updateLastUpdateDate(boardId, cal.getTime());
 
-		return new UpdateResult(boardId, records.size(), uc);
+		//Resultの書き出し
+		UpdateResult result = new UpdateResult(boardId, since, records.size(), uc);
+		if( printResult ){
+			System.out.println("[BOARD ACTIONS UPDATE]");
+			System.out.format("\ttarget: %s\n\tsince: %s\n", result.getBoardId(), result.getSince());
+			System.out.println("\treceived record(s): " + result.getReceivedCount());
+			System.out.println("\tupserted record(s): " + result.getUpsertedCount());
+		}
+
+		return result;
 	}
 
 	public UpdateResult updateBoardActions(String boardId){

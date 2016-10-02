@@ -71,4 +71,20 @@ public class TrelloBoardsDB {
 		UpdateResult result = getCollection().updateOne(filter, update);
 		return (int)result.getModifiedCount();
 	}
+
+	public boolean clearLastUpdateDate(String boardId){
+		Bson filter = Filters.eq("id", boardId);
+		Bson update = Updates.unset("lastUpdate");
+
+		UpdateResult result = getCollection().updateOne(filter, update);
+		return result.getModifiedCount() > 0;
+	}
+
+	public int clearAllLastUpdateDate(){
+		Bson filter = Filters.exists("lastUpdate");
+		Bson update = Updates.unset("lastUpdate");
+
+		UpdateResult result = getCollection().updateMany(filter,  update);
+		return (int)result.getModifiedCount();
+	}
 }

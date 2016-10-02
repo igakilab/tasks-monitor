@@ -30,6 +30,16 @@ public class TrelloBoardActionsDB {
 		return this.client.getDatabase(DB_NAME).getCollection(COL_NAME);
 	}
 
+	public int removeTrelloActions(String boardId){
+		Bson filter = Filters.eq("boardId", boardId);
+		return (int)getCollection().deleteMany(filter).getDeletedCount();
+	}
+
+	public int removeAllTrelloActions(){
+		Bson filter = new Document();
+		return (int)getCollection().deleteMany(filter).getDeletedCount();
+	}
+
 	public List<Document> getActionDocuments(String boardId){
 		Bson filter = Filters.eq("boardId", boardId);
 		List<Document> result = new ArrayList<Document>();
