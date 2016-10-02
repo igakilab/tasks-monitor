@@ -1,5 +1,8 @@
 package jp.ac.oit.igakilab.tasks.hubot;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,8 +17,8 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.hubot.TrelloCardNotifyList.NotifyCard;
+import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
-import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -26,6 +29,7 @@ public class TrelloCardDeadlineNotification {
 	public static void main(String[] args){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		MemberTrelloIdTable mtable = new MemberTrelloIdTable(client);
+		MemberSlackIdTable stable = new MemberSlackIdTable(client);
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		List<TrelloAction> actions = adb.getTrelloActions(
@@ -39,7 +43,11 @@ public class TrelloCardDeadlineNotification {
 
 		TrelloCardDeadlineNotification notif = new TrelloCardDeadlineNotification(cal.getTime(), mtable);
 		notif.apply(board);
-		notif.execute();
+		try{
+			notif.execute("http://igakilabot.herokuapp.com", stable);
+		}catch(IOException e0){
+			e0.printStackTrace();
+		}
 
 		client.close();
 	}
@@ -120,17 +128,37 @@ public class TrelloCardDeadlineNotification {
 		return notifyList;
 	}
 
-	public void execute(){
-		TrelloDateFormat df = new TrelloDateFormat();
+	private String buildNotifyMessage(String memberId){
+		StringBuffer buffer = new StringBuffer();
+		DateFormat df = new SimpleDateFormat("M月dd日");
+
+		buffer.append("期限が近づいているタスクがあります");
+
+		List<NotifyCard> cards = notifyList.filterByMemberId(memberId).list();
+		for(NotifyCard card : cards){
+			buffer.append(String.format("\n> [%s] %s (%sまで)",
+				card.getBoard().getName(),
+				card.getCard().getName(),
+				df.format(card.getCard().getDue())));
+		}
+
+		return buffer.toString();
+	}
+
+	public void execute(String hubotUrl, MemberSlackIdTable stable)
+	throws IOException{
+		//hubotメッセンジャーの初期化
+		HubotSendMessage msg = new HubotSendMessage(hubotUrl);
+
+		//対象メンバーをリストアップ
 		List<String> members = notifyList.getNotifyMemberList();
 
-		for(String mid : members){
-			List<NotifyCard> cards = notifyList.filterByMemberId(mid).list();
-			System.out.println("Notify to " + mid);
-			for(NotifyCard ncard : cards){
-				TrelloCard card = ncard.getCard();
-				System.out.format("\t%s %s %s\n",
-					card.getId(), card.getName(), df.format(card.getDue()));
+		//メンバーごとに送信
+		for(String memberId : members){
+			String slackId = stable.getSlackId(memberId);
+			if( slackId != null ){
+				String message = buildNotifyMessage(memberId);
+				msg.send(slackId, message);
 			}
 		}
 	}
