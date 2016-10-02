@@ -22,6 +22,11 @@ import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class HubotTasksNotification implements Runnable{
+	public static void main(String[] args){
+		HubotTasksNotification cronTask = new HubotTasksNotification("http://igakilabot.herokuapp.com");
+		cronTask.run();
+	}
+
 	public static Scheduler createScheduler(String schedule, String url){
 		Scheduler scheduler = new Scheduler();
 		scheduler.schedule(schedule, new HubotTasksNotification(url));
