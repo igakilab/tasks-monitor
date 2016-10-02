@@ -1,11 +1,28 @@
 package jp.ac.oit.igakilab.tasks.cron;
 
-import org.bson.Document;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
-import jp.ac.oit.igakilab.tasks.util.HttpRequest;
+import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
+import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.hubot.TrelloCardDeadlineNotification;
+import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
-public class HubotTasksNotification implements Runnable{public static Scheduler createScheduler(String schedule, String url){
+public class HubotTasksNotification implements Runnable{
+	public static Scheduler createScheduler(String schedule, String url){
 		Scheduler scheduler = new Scheduler();
 		scheduler.schedule(schedule, new HubotTasksNotification(url));
 		return scheduler;
@@ -17,65 +34,60 @@ public class HubotTasksNotification implements Runnable{public static Scheduler 
 		this.hubotUrl = hubotUrl;
 	}
 
-	/*
-	public String sendMessage(String room, String message){
-		HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/send_message");
-		request.setErrorHandler(new ConnectionErrorHandler(){
-			public void onError(Exception e0){
-				e0.printStackTrace();
-			}
-		});
-		Document json = new Document();
-		json.append("room", room).append("message", message);
-		String body = json.toJson();
-		//System.out.println(body);
-		request.setRequestProperty("Content-type", "application/json");
-		HttpResponse res = request.sendRequest(body);
-		return (res != null) ? res.getResponseText() : "null";
-	}
+	private boolean sendBoardNotification(List<TrelloBoard> boards, Date notifyLine,
+	MemberTrelloIdTable mtable, MemberSlackIdTable stable){
+		TrelloCardDeadlineNotification notifer = new TrelloCardDeadlineNotification(notifyLine, mtable);
 
-	public void notify(String room, String message){
-		if( hubotUrl != null ){
-			sendMessage(room, message);
-		}else{
-			System.out.format("TASKS NOTIFICATION\nroom: %s\nmessage:%s\n",
-				room, message);
+		for(TrelloBoard board : boards){
+			notifer.apply(board);
 		}
+
+		try{
+			notifer.execute(hubotUrl, stable);
+		}catch(IOException e0){
+			e0.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
-	public void run(){
-		MongoClient client = TasksMongoClientBuilder.createClient();
-		BoardDBDriver bdb = new BoardDBDriver(client);
-		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
-
-		List<Board> boards = bdb.getBoardList();
-		if( boards.size() > 0 ){
-			Board dbBoard = boards.get(0);
-			List<TrelloAction> actions = adb.getTrelloActions(
-				dbBoard.getId(), new DocumentTrelloActionParser());
-
+	private TrelloActionsBoard buildTrelloActionsBoard(TrelloBoardActionsDB adb, String boardId){
+		if( adb.boardIdExists(boardId) ){
+			List<TrelloAction> actions = adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
 			TrelloActionsBoard board = new TrelloActionsBoard();
 			board.addActions(actions);
 			board.build();
-
-			notify("shell", board.getName());
+			return board;
+		}else{
+			return null;
 		}
 	}
-	*/
 
 	public void run(){
-		String[] rooms = {"koike"};
+		//クライアントを生成
+		MongoClient dbClient = TasksMongoClientBuilder.createClient();
 
-		for(String room : rooms){
-			if( hubotUrl != null ){
-				HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/task_notify");
+		//ボード一覧の取得
+		BoardDBDriver bdb = new BoardDBDriver(dbClient);
+		List<Board> boardIds = bdb.getBoardList();
 
-				Document json = new Document("room", room);
-				request.setRequestProperty("Content-type", "application/json");
-				request.sendRequest(json.toJson(), HttpRequest.DEFAULT_HANDLER);
-			}else{
-				System.out.println("send request " + room);
+		//ボードのビルド
+		List<TrelloBoard> boards = new ArrayList<TrelloBoard>();
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
+		for(Board boardId : boardIds){
+			TrelloActionsBoard tmp = buildTrelloActionsBoard(adb, boardId.getId());
+			if( tmp != null ){
+				boards.add(tmp);
 			}
 		}
+
+		//通知の送信
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 3);
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
+		MemberSlackIdTable stable = new MemberSlackIdTable(dbClient);
+		sendBoardNotification(boards, cal.getTime(), mtable, stable);
+
+		dbClient.close();
 	}
 }
