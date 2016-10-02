@@ -18,7 +18,7 @@ import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDBUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -64,7 +64,7 @@ public class TestTrelloBoardActionsUpdater {
 		}
 		Collections.reverse(actions);
 
-		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(dbclient);
+		TrelloBoardActionsDBUpdater updater = new TrelloBoardActionsDBUpdater(dbclient);
 		return updater.upsertDatabase(actions, boardId);
 	}
 

@@ -16,7 +16,7 @@ import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDBUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -64,7 +64,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 		}
 
 		//データベースクライアントの初期化
-		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(client);
+		TrelloBoardActionsDBUpdater updater = new TrelloBoardActionsDBUpdater(client);
 		//データベースを更新
 		int uc = updater.upsertDatabase(docs, boardId);
 		//ボードデータベースに更新日時を記録

@@ -27,7 +27,7 @@ public class TrelloBoardActionsDB {
 		this.client = new MongoClient(host, port);
 	}
 
-	private MongoCollection<Document> getCollection(){
+	protected MongoCollection<Document> getCollection(){
 		return this.client.getDatabase(DB_NAME).getCollection(COL_NAME);
 	}
 
