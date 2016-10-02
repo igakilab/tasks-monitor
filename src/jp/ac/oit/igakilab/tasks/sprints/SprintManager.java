@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
@@ -30,7 +30,7 @@ public class SprintManager {
 		Date beginDate, Date finishDate, List<TrelloCardMembers> cardAndMembers)
 	throws SprintManagementException
 	{
-		BoardDBDriver bdb = new BoardDBDriver(dbClient);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 
 		//ボードの存在チェック

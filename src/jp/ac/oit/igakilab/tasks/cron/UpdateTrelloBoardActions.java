@@ -13,8 +13,8 @@ import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDBUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
@@ -68,7 +68,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 		//データベースを更新
 		int uc = updater.upsertDatabase(docs, boardId);
 		//ボードデータベースに更新日時を記録
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		bdb.updateLastUpdateDate(boardId, cal.getTime());
 
 		return new UpdateResult(boardId, records.size(), uc);
@@ -80,7 +80,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 
 	public List<UpdateResult> updateAllBoardActions(TrelloApi<Object> api, MongoClient client){
 		//ボードリストを取得
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<Board> boards = bdb.getBoardList();
 
 		//各ボードを更新

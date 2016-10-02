@@ -13,7 +13,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 
-public class BoardDBDriver {
+public class TrelloBoardsDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "trello_boards";
 
@@ -34,11 +34,11 @@ public class BoardDBDriver {
 
 	private MongoClient client;
 
-	public BoardDBDriver(MongoClient client){
+	public TrelloBoardsDB(MongoClient client){
 		this.client = client;
 	}
 
-	public BoardDBDriver(String host, int port){
+	public TrelloBoardsDB(String host, int port){
 		this.client = new MongoClient(host, port);
 	}
 

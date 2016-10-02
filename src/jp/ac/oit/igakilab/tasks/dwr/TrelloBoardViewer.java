@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
@@ -80,7 +80,7 @@ public class TrelloBoardViewer {
 	public List<TrelloBoardInfoForm> getBoardInfoList(){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<TrelloBoardInfoForm> forms = new ArrayList<TrelloBoardInfoForm>();
 		bdb.getBoardList().forEach((board) -> {
 			TrelloBoardInfoForm form = new TrelloBoardInfoForm();
