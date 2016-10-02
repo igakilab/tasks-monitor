@@ -10,8 +10,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
-import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionParser;
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 
 public class TrelloBoardActionsDB {
 	public static String DB_NAME = "tasks-monitor";
@@ -42,9 +41,9 @@ public class TrelloBoardActionsDB {
 		return result;
 	}
 
-	public List<TrelloAction> getTrelloActions(String boardId, TrelloActionParser<Document> parser){
+	public <T> List<T> getTrelloActions(String boardId, DocumentParser<T> parser){
 		Bson filter = Filters.eq("boardId", boardId);
-		List<TrelloAction> result = new ArrayList<TrelloAction>();
+		List<T> result = new ArrayList<T>();
 
 		for(Document doc : getCollection().find(filter)){
 			result.add(parser.parse(doc));
