@@ -68,17 +68,17 @@ public class TrelloBoardActionsUpdater {
 		printResult = b0;
 	}
 
-	public void clearLastUpdateDate(String boardId){
+	public boolean clearLastUpdateDate(String boardId){
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
-		bdb.clearLastUpdateDate(boardId);
+		return bdb.clearLastUpdateDate(boardId);
 	}
 
-	public void clearAllLastUpdateDate(){
+	public int clearAllLastUpdateDate(){
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
-		bdb.clearAllLastUpdateDate();
+		return bdb.clearAllLastUpdateDate();
 	}
 
-	public void clearTrelloBoardActionsCache(String boardId){
+	public int clearTrelloBoardActionsCache(String boardId){
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 		int removed = adb.removeTrelloActions(boardId);
 		clearLastUpdateDate(boardId);
@@ -87,9 +87,10 @@ public class TrelloBoardActionsUpdater {
 			System.out.println("\ttarget: " + boardId);
 			System.out.println("\tremoved record(s): " + removed);
 		}
+		return removed;
 	}
 
-	public void clearAllTrelloBoardActionsCache(){
+	public int clearAllTrelloBoardActionsCache(){
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 		int removed = adb.removeAllTrelloActions();
 		clearAllLastUpdateDate();
@@ -98,6 +99,7 @@ public class TrelloBoardActionsUpdater {
 			System.out.println("\ttarget: <ALL BOARD DATA>");
 			System.out.println("\tremoved record(s): " + removed);
 		}
+		return removed;
 	}
 
 	public UpdateResult updateBoardActions(String boardId, Date since){

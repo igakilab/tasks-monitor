@@ -31,6 +31,9 @@
     <create creator="new" javascript="SprintPlanner">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintPlanner"/>
     </create>
+    <create creator="new" javascript="AdminBoardCacheController">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.admin.AdminBoardCacheController"/>
+    </create>
 
 
 	<!-- tasks-monitor-tests -->
