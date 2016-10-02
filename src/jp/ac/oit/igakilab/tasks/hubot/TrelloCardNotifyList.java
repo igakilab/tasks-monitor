@@ -1,7 +1,8 @@
-package jp.ac.oit.igakilab.tasks.scripts;
+package jp.ac.oit.igakilab.tasks.hubot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -85,7 +86,6 @@ public class TrelloCardNotifyList {
 
 	public List<String> getNotifyMemberList(){
 		List<String> members = new ArrayList<String>();
-
 		notifyCards.forEach((nc) -> {
 			if( !members.contains(nc.getMemberId()) ){
 				members.add(nc.getMemberId());
@@ -96,19 +96,21 @@ public class TrelloCardNotifyList {
 	}
 
 	public TrelloCardNotifyList filterByMemberId(String memberId){
-		List<NotifyCard> result = new ArrayList<NotifyCard>();
-
-		notifyCards.forEach((nc) -> {
-			if( nc.getMemberId().equals(memberId) ){
-				result.add(nc);
-			}
-		});
-
-		return new TrelloCardNotifyList(result);
+		return new TrelloCardNotifyList(
+			notifyCards.stream()
+				.filter((nc) -> nc.getMemberId().equals(memberId))
+				.collect(Collectors.toList())
+		);
 	}
 
 	public List<NotifyCard> list(){
 		return notifyCards;
+	}
+
+	public List<TrelloCard> cardList(){
+		List<TrelloCard> cards = new ArrayList<TrelloCard>();
+		notifyCards.forEach((nc -> cards.add(nc.getCard())));
+		return cards;
 	}
 
 	public int size(){

@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.scripts;
+package jp.ac.oit.igakilab.tasks.hubot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,8 +13,8 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.hubot.TrelloCardNotifyList.NotifyCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
-import jp.ac.oit.igakilab.tasks.scripts.TrelloCardNotifyList.NotifyCard;
 import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
