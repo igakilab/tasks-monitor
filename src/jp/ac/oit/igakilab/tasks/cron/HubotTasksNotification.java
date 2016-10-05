@@ -9,6 +9,7 @@ import java.util.List;
 import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
+import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
@@ -33,7 +34,19 @@ public class HubotTasksNotification implements Runnable{
 		return scheduler;
 	}
 
+	public static Scheduler createScheduler(String schedule, String url, boolean le){
+		Scheduler scheduler = new Scheduler();
+		scheduler.schedule(schedule, new HubotTasksNotification(url, le));
+		return scheduler;
+	}
+
 	private String hubotUrl;
+	private DebugLog logger;
+
+	public HubotTasksNotification(String hubotUrl, boolean logEnabled){
+		this.hubotUrl = hubotUrl;
+		logger = logEnabled ? new DebugLog("cron_hubotTaskNotification") : null;
+	}
 
 	public HubotTasksNotification(String hubotUrl){
 		this.hubotUrl = hubotUrl;
@@ -71,6 +84,7 @@ public class HubotTasksNotification implements Runnable{
 	public void run(){
 		//クライアントを生成
 		MongoClient dbClient = TasksMongoClientBuilder.createClient();
+		if( logger != null )logger.log(DebugLog.LS_INFO, "cron task triggered.");
 
 		//ボード一覧の取得
 		BoardDBDriver bdb = new BoardDBDriver(dbClient);
@@ -80,6 +94,7 @@ public class HubotTasksNotification implements Runnable{
 		List<TrelloBoard> boards = new ArrayList<TrelloBoard>();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 		for(Board boardId : boardIds){
+			if( logger != null )logger.log(DebugLog.LS_INFO, "building board... " + boardId.getId());
 			TrelloActionsBoard tmp = buildTrelloActionsBoard(adb, boardId.getId());
 			if( tmp != null ){
 				boards.add(tmp);
@@ -91,8 +106,10 @@ public class HubotTasksNotification implements Runnable{
 		cal.add(Calendar.DATE, 3);
 		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
 		MemberSlackIdTable stable = new MemberSlackIdTable(dbClient);
+		if( logger != null )logger.log(DebugLog.LS_INFO, "send notification");
 		sendBoardNotification(boards, cal.getTime(), mtable, stable);
 
+		if( logger != null )logger.log(DebugLog.LS_INFO, "cron task finished.");
 		dbClient.close();
 	}
 }
