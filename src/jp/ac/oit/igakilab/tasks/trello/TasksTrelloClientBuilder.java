@@ -1,7 +1,8 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.http.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.api.SimpleJsonResponseTextParser;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TasksTrelloClientBuilder {
 	private static String apiKey(){
@@ -24,12 +25,11 @@ public class TasksTrelloClientBuilder {
 		}
 	}
 
-	public static TrelloApi createApiClient(){
+	public static TrelloApi<Object> createApiClient(){
 		String key = apiKey();
 		String token = apiToken();
 		if( key != null && token != null ){
-			TrelloApi api = new TrelloApi(key, token);
-			api.setErrorHandler(new TrelloApi.SimpleErrorHandler());
+			TrelloApi<Object> api = new TrelloApi<Object>(key, token, new SimpleJsonResponseTextParser());
 			return api;
 		}
 		return null;

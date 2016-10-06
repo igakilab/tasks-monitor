@@ -31,6 +31,11 @@ public class TrelloBoardActionsDB {
 		return this.client.getDatabase(DB_NAME).getCollection(COL_NAME);
 	}
 
+	public boolean boardIdExists(String boardId){
+		Bson filter = Filters.eq("boardId", boardId);
+		return getCollection().count(filter) > 0;
+	}
+
 	public List<Document> getActionDocuments(String boardId){
 		Bson filter = Filters.eq("boardId", boardId);
 		List<Document> result = new ArrayList<Document>();
