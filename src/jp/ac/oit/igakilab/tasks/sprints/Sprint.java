@@ -23,7 +23,7 @@ public class Sprint {
 	private Date beginDate;
 	private Date finishDate;
 	private Date closedDate;
-	private List<String> trelloCardIds;
+	private List<TrelloCardMembers> trelloCards;
 
 	public Sprint(){
 		id = null;
@@ -31,7 +31,7 @@ public class Sprint {
 		beginDate = null;
 		finishDate = null;
 		closedDate = null;
-		trelloCardIds = new ArrayList<String>();
+		trelloCards = new ArrayList<TrelloCardMembers>();
 	}
 
 	public Sprint(String id){
@@ -86,17 +86,21 @@ public class Sprint {
 				null : roundDate(closedDate).getTime());
 	}
 
-	public List<String> getTrelloCardIds(){
-		return trelloCardIds;
+	public List<TrelloCardMembers> getTrelloCards(){
+		return trelloCards;
 	}
 
-	public void clearTrelloCardId(){
-		trelloCardIds.clear();
+	public void clearTrelloCards(){
+		trelloCards.clear();
 	}
 
-	public void addTrelloCardId(String cardId){
-		if( !trelloCardIds.contains(cardId) ){
-			trelloCardIds.add(cardId);
+	public void addTrelloCard(TrelloCardMembers cm){
+		for(int i=0; i<trelloCards.size(); i++){
+			if( trelloCards.get(i).getCardId().equals(cm.getCardId()) ){
+				trelloCards.set(i, cm);
+				return;
+			}
 		}
+		trelloCards.add(cm);
 	}
 }
