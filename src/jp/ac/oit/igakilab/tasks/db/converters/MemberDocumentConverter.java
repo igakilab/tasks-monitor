@@ -2,12 +2,11 @@ package jp.ac.oit.igakilab.tasks.db.converters;
 
 import org.bson.Document;
 
-import jp.ac.oit.igakilab.tasks.db.DocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.DocumentValuePicker;
 import jp.ac.oit.igakilab.tasks.members.Member;
+import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
 public class MemberDocumentConverter
-implements DocumentConverter<Member>{
+implements DocumentConverter<Member>, DocumentParser<Member>{
 	public Member parse(Document doc){
 		if( doc.containsKey("id") ){
 			Member m = new Member(doc.getString("id"));

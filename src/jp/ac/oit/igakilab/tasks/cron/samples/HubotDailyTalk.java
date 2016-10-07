@@ -6,9 +6,8 @@ import org.bson.Document;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.http.HttpRequest;
-import jp.ac.oit.igakilab.tasks.http.HttpRequest.ConnectionErrorHandler;
-import jp.ac.oit.igakilab.tasks.http.HttpResponse;
+import jp.ac.oit.igakilab.tasks.util.HttpRequest;
+import jp.ac.oit.igakilab.tasks.util.HttpResponse;
 
 public class HubotDailyTalk implements Runnable{
 	public static void main(String[] args){
@@ -51,29 +50,23 @@ public class HubotDailyTalk implements Runnable{
 
 	public String sendMessage(String room, String message){
 		HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/send_message");
-		request.setErrorHandler(new ConnectionErrorHandler(){
-			public void onError(Exception e0){
-				e0.printStackTrace();
-			}
-		});
 		Document json = new Document();
 		json.append("room", room).append("message", message);
 		String body = json.toJson();
 		//System.out.println(body);
 		request.setRequestProperty("Content-type", "application/json");
-		HttpResponse res = request.sendRequest(body);
+		HttpResponse res = request.sendRequest(body, HttpRequest.DEFAULT_HANDLER);
 		return (res != null) ? res.getResponseText() : "null";
 	}
 
 	public String toggleDajareMessage(String room){
 		HttpRequest request = new HttpRequest("POST", hubotUrl + "/hubot/dajare");
-		request.setErrorHandler(e0 -> e0.printStackTrace());
 
 		Document json = new Document();
 		json.append("room", room);
 		request.setRequestProperty("Content-type", "application/json");
 
-		HttpResponse res = request.sendRequest(json.toJson());
+		HttpResponse res = request.sendRequest(json.toJson(), HttpRequest.DEFAULT_HANDLER);
 		return (res != null) ? res.getResponseText() : "null";
 	}
 

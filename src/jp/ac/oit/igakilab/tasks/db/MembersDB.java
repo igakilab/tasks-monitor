@@ -12,6 +12,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
+
 
 public class MembersDB {
 	public static String DB_NAME = "tasks-monitor";
@@ -82,7 +85,18 @@ public class MembersDB {
 		}
 	}
 
-	public <T> List<T> getAllMemberList(DocumentConverter<T> converter){
+	public String getTrelloIdByMemberId(String mid){
+		Bson filter = Filters.eq("id", mid);
+		Document doc = getCollection().find(filter).first();
+		if( doc != null ){
+			String trelloId = doc.getString("trelloId");
+			return trelloId;
+		}else{
+			return null;
+		}
+	}
+
+	public <T> List<T> getAllMemberList(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 		for(Document doc : getCollection().find()){
 			list.add(converter.parse(doc));

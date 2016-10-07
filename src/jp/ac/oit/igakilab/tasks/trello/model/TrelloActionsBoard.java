@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionData;
 
@@ -54,6 +55,8 @@ public class TrelloActionsBoard extends TrelloBoard{
 						setName(value);
 					}else if( key.equals("desc") ){
 						setDesc(value);
+					}else if( key.equals("shortLink") ){
+						setShortLink(value);
 					}else if( key.equals("closed") ){
 						setClosed(value.equals("true"));
 					}
@@ -169,6 +172,35 @@ public class TrelloActionsBoard extends TrelloBoard{
 				ignoredActions.add(action);
 			}
 		}
+	}
+
+	public TrelloBoardData buildBoardData(){
+		//sort actions
+		if( !sortActions() ) return null;
+
+		//initialization
+		clear();
+		ignoredActions.clear();
+
+		//iteration
+		for(int i=0; i<actions.size(); i++){
+			TrelloAction action = actions.get(i);
+			boolean result = false;
+
+			switch( action.getTargetType() ){
+			case TrelloAction.TARGET_BOARD:
+				result = applyBoardActionData(
+					action.getActionType(), action.getData());
+				break;
+			}
+
+			if( !result ){
+				ignoredActions.add(action);
+			}
+		}
+
+		//cast
+		return (TrelloBoardData)this;
 	}
 
 	public TrelloActionsList getActionsListById(String lid){
