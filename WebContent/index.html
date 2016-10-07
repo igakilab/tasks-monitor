@@ -34,7 +34,7 @@
 				<div class="row">
 					<div class="col-md-4">
 						<h3>次の目標日</h3>
-						<!--<h1>（日付YYYY-MM-DD）</h1>-->
+						<h1 id="finishDate"></h1>
 					</div>
 					<div class="col-md-8">
 						<h3>現在の進捗</h3>
@@ -48,33 +48,15 @@
 				<div class="row">
 					<div class="col-md-4">
 						<h2>ToDo</h2>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<button class="btn btn-default btn-xs" style="float:right">
-									<span class="glyphon glyphicon-arrow-right"></span>
-								</button>
-							</li>
-						</ul>
+						<ul id="todoList" class="list-group"></ul>
 					</div>
 					<div class="col-md-4">
 						<h2>Doing</h2>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<button class="btn btn-default btn-xs" style="float:right">
-									<span class="glyphon glyphicon-arrow-right"></span>
-								</button>
-							</li>
-						</ul>
+						<ul id="doingList" class="list-group"></ul>
 					</div>
 					<div class="col-md-4">
 						<h2>Done</h2>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<button class="btn btn-default btn-xs" style="float:right">
-									<span class="glyphon glyphicon-arrow-right"></span>
-								</button>
-							</li>
-						</ul>
+						<ul id="doneList" class="list-group"></ul>
 					</div>
 				</div>
 			</div>
@@ -84,11 +66,94 @@
 		<script src="js/bootstrap.min.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
-		<script src="dwr/interface/TrelloBoardViewer.js"></script>
+		<script src="dwr/interface/DashBoard.js"></script>
 
 		<script>
+		/*
+		 * リストグループにカードを追加する
+		 * listGroupには追加する先のリストのjqueryオブジェクトを、
+		 * cardsには追加したいカードの配列を渡します。
+		*/
+		function addCardToListGroup(listGroup, cards){
+			//カードのオブジェクトを生成してlistGroupに追加していく
+			for(var i=0; i<cards.length; i++){
+
+				//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
+				var listItem = $("<li></li>");
+				listItem.addClass("list-group-item");
+
+				//アイテムのタイトルを作成, アイテムに追加
+				var listItemHead = $("<h4></h4>");
+				listItemHead.addClass("list-group-item-heading");
+				listItemHead.text(cards[i].name);
+				listItem.append(listItemHead);
+
+				//listGroupにアイテムを追加
+				listGroup.append(listItem);
+			}
+		}
+
 		$(document).ready(function(){
-			
+			var boardId = "57ab33677fd33ec535cc4f28";
+
+			//かんばんの情報を取得する
+			DashBoard.getKanban(boardId, {
+				//処理が完了したときに呼び出されるコールバック関数
+				//dataにかんばんの情報が返却される
+				callback: function(data){
+					/*
+					 * 返却されるデータ: {
+					 *	boardId: <ボードのID>
+					 *	boardName: <ボードの名前>
+					 *	todo: <カードのリスト(配列)>
+					 *	doing: <カードのリスト(配列)>
+					 *	done: <カードのリスト(配列)>
+					 * }
+					*/
+
+					//それぞれのリストにカードを追加する
+					//empty()でhtmlで表示されるリストのカードをクリア
+					//addCardToListGroupでカードを追加
+					$("#todoList").empty();
+					addCardToListGroup($("#todoList"), data.todo);
+					$("#doingList").empty();
+					addCardToListGroup($("#doingList"), data.doing);
+					$("#doneList").empty();
+					addCardToListGroup($("#doneList"), data.done);
+				},
+
+				//処理が異常終了したときに実行されるコールバック関数
+				//msgにエラーメッセージが返却される
+				errorHandler: function(msg){
+					alert(msg);
+				}
+			});
+
+			//目標日を取得する
+			DashBoard.getCurrentSprint(boardId, {
+				callback: function(data){
+					/*
+					 * 返却されるデータ: {
+					 *	id: <スプリントのID>
+					 *	boardId: <ボードのID>
+					 *	beginDate: <スプリントの開始日>
+					 *	finishDate: <スプリントの目標日>
+					 *	closed: <スプリントが完了しているか(true/false)>
+					 *  closedDate: <スプリントの完了日>
+					 * }
+					*/
+
+					//スプリントの目標日を表示する
+					if( data != null ){
+						$("#finishDate").text(data.finishDate);
+					}else{
+						$("#finishDate").text("現在進行中のスプリントはありません");
+					}
+				},
+				errorHandler: function(msg){
+					alert(msg);
+				}
+			});
 		});
 		</script>
 
