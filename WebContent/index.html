@@ -39,7 +39,7 @@
 					<div class="col-md-8">
 						<h3>現在の進捗</h3>
 						<div class="progress">
-							<div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%">
+							<div id="taskProgress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
 							</div>
 						</div>
 					</div>
@@ -64,6 +64,7 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/DashBoard.js"></script>
@@ -94,7 +95,17 @@
 		}
 
 		$(document).ready(function(){
-			var boardId = "57ab33677fd33ec535cc4f28";
+			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
+			var params = Util.getUrlParameters();
+
+			//ボードIDの値をパラメータから取り出す
+			var boardId = params.boardId;
+
+			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
+			if( typeof boardId === 'undefined' ){
+				alert("ボードIDを指定してください");
+				return;
+			}
 
 			//かんばんの情報を取得する
 			DashBoard.getKanban(boardId, {
@@ -120,6 +131,18 @@
 					addCardToListGroup($("#doingList"), data.doing);
 					$("#doneList").empty();
 					addCardToListGroup($("#doneList"), data.done);
+
+					//プログレスバーの進捗を計算する
+					//残っているタスク数と完了しているタスク数を取得
+					var remain = data.todo.length + data.doing.length;
+					var finish = data.done.length;
+					//パーセンテージを計算
+					var progress = Math.floor(finish / (finish + remain) * 100);
+					console.log("progress: " + progress);
+
+					//プログレスパーに設定
+					$("#taskProgress").attr("aria-valuenow", progress)
+						.css("width", progress + "%");
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数
@@ -145,7 +168,7 @@
 
 					//スプリントの目標日を表示する
 					if( data != null ){
-						$("#finishDate").text(data.finishDate);
+						$("#finishDate").text(Util.formatDate(data.finishDate, "YYYY-MM-DD"));
 					}else{
 						$("#finishDate").text("現在進行中のスプリントはありません");
 					}
