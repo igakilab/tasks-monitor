@@ -9,6 +9,7 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
 import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
+import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
@@ -99,7 +100,7 @@ public class SprintManager {
 		return newId;
 	}
 
-	public boolean closeSprint(String sprintId){
+	public SprintResult closeSprint(String sprintId){
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		SprintResultsDB resdb = new SprintResultsDB(dbClient);
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
@@ -108,11 +109,11 @@ public class SprintManager {
 		Sprint currSpr = smdb.getSprintById(sprintId, new SprintDocumentConverter());
 		if( currSpr == null ){
 			//throw new SprintManagementException("スプリントが見つかりません");
-			return false;
+			return null;
 		}
 		if( currSpr.isClosed() ){
 			//throw new SprintManagementException("スプリントはすでにクローズされています");
-			return false;
+			return null;
 		}
 
 		//TrelloBoardを取得
@@ -122,7 +123,7 @@ public class SprintManager {
 		board.build();
 		if( !currSpr.getBoardId().equals(board.getId()) ){
 			//throw new SprintManagementException("ボードのビルドに失敗しました");
-			return false;
+			return null;
 		}
 
 		//sprintResultを生成
@@ -154,6 +155,18 @@ public class SprintManager {
 		result.setCreatedAt(Calendar.getInstance().getTime());
 		resdb.addSprintResult(result, new SprintResultDocumentConverter());
 
-		return true;
+		return result;
+	}
+
+	public List<SprintResult> getSprintResultsByBoardId(String boardId){
+		SprintsDB sdb = new SprintsDB(dbClient);
+		SprintResultsDB srdb = new SprintResultsDB(dbClient);
+
+		//sprintsDBからボードIDに該当するスプリントIDの一覧を取得し、
+		//sprintResultsDBからSprintResultを取得する
+		List<SprintResult> results = srdb.getSprintResultsBySprintIds(
+			sdb.getSprintIdsByBoardId(boardId), new SprintResultDocumentConverter());
+
+		return results;
 	}
 }
