@@ -13,7 +13,7 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
@@ -117,7 +117,7 @@ public class SprintManager {
 		}
 
 		//TrelloBoardを取得
-		List<TrelloAction> actions = adb.getTrelloActions(currSpr.getBoardId(), new DocumentTrelloActionParser());
+		List<TrelloAction> actions = adb.getTrelloActions(currSpr.getBoardId(), new TrelloActionDocumentParser());
 		TrelloActionsBoard board = new TrelloActionsBoard();
 		board.addActions(actions);
 		board.build();

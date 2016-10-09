@@ -8,7 +8,7 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardInfoForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
@@ -61,7 +61,7 @@ public class TrelloBoardViewer {
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		List<TrelloAction> actions =
-			adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+			adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 
 		if( actions.size() > 0 ){
 			TrelloActionsBoard board = new TrelloActionsBoard();

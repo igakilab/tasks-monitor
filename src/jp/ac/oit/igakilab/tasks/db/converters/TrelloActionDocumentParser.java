@@ -11,11 +11,11 @@ import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionData;
 import jp.ac.oit.igakilab.tasks.util.DocumentToMapConverter;
 
-public class DocumentTrelloActionParser
+public class TrelloActionDocumentParser
 implements DocumentParser<TrelloAction>{
 	private DateFormat df;
 
-	public DocumentTrelloActionParser(){
+	public TrelloActionDocumentParser(){
 		df = new TrelloDateFormat();
 	}
 
