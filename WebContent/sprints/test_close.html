@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SPRINT CLOSE TESTS</title>
+		<meta charset="utf-8"/>
+	</head>
+	<body>
+		<h1>SPRINT FINISHER TEST</h1>
+		<ul>
+			<li><a href="test.html">planner test</a></li>
+		</ul>
+
+		<h2>初期化</h2>
+		<p>ボードを指定してください</p>
+		<input id="boardIdInput" type="text"/>
+		<button type="button" id="initBtn">ボード情報取得</button>
+
+		<hr/>
+
+		<h2>現在のスプリント</h2>
+		<p id="currentSprintView"></p>
+		<button id="sprintCloseBtn" disabled="disabled">現在のスプリントをクローズ</button>
+
+		<h2>スプリントの結果</h2>
+		<p id="resultSprintId"></p>
+
+		<h4>完了したタスク</h4>
+		<table border="1">
+			<thead><tr>
+				<th>ID</th><th>担当者</th>
+			</tr></thead>
+			<tbody id="finishedCardList"></tbody>
+		</table>
+
+		<h4>完了しなかったタスク</h4>
+		<table border="1">
+			<thead><tr>
+				<th>ID</th><th>担当者</th>
+			</tr></thead>
+			<tbody id="remainedCardList"></tbody>
+		</table>
+
+		<h4>メンバー別集計</h4>
+		<table border="1">
+			<thead><tr>
+				<th>メンバーID</th><th>完了数</th><th>全タスク数</th>
+			</tr></thead>
+			<tbody id="taskCountList"></tbody>
+		</table>
+
+
+
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/interface/SprintPlanner.js"></script>
+		<script src="../dwr/interface/SprintFinisher.js"></script>
+
+		<script>
+		var BOARD_ID = null;
+
+		function loadCurrentSprint(){
+			if( BOARD_ID == null ) return;
+
+			SprintPlanner.getCurrentSprint(BOARD_ID, function(data){
+				if( data != null ){
+					$("#currentSprintView").text(
+						"id:" + data.id +
+						" 目標日:" + data.finishDate);
+					$("#sprintCloseBtn").prop("disabled", false);
+				}else{
+					$("#currentSprintView").text(
+						"現在進行中のスプリントはありません");
+					$("#sprintCloseBtn").prop("disabled", true);
+				}
+			});
+		}
+
+		function countMemberTasks(finished, remained){
+			var counts = [];
+
+			for(var i=0; i<finished.length; i++){
+				var card = finished[i];
+				for(var j=0; j<card.memberIds.length; j++){
+					var mid = card.memberIds[j];
+					for(var k=0; k<counts.length; k++){
+						if( counts[k].memberId == mid ){
+							counts[k].finished.push(card.trelloCardId);
+							mid = null;
+							break;
+						}
+					}
+					if( mid != null ){
+						counts.push({memberId: mid, finished:[], remained:[]});
+						counts[counts.length-1].finished.push(card.trelloCardId);
+					}
+				}
+			}
+
+			for(var i=0; i<remained.length; i++){
+				var card = remained[i];
+				for(var j=0; j<card.memberIds.length; j++){
+					var mid = card.memberIds[j];
+					for(var k=0; k<counts.length; k++){
+						if( counts[k].memberId == mid ){
+							counts[k].remained.push(card.trelloCardId);
+							mid = null;
+							break;
+						}
+					}
+					if( mid != null ){
+						counts.push({memberId: mid, finished:[], remained:[]});
+						counts[counts.length-1].remained.push(card.trelloCardId);
+					}
+				}
+			}
+
+			return counts;
+		}
+
+		function setSprintResult(data){
+			$("#resultSprintId").text(data.sprintId);
+
+			$("#finishedCardList").empty();
+			for(var i=0; i<data.finishedCards.length; i++){
+				var card = data.finishedCards[i];
+				$("#finishedCardList").append(
+					$("<tr></tr>").append(
+						$("<td></td>").text(card.trelloCardId),
+						$("<td></td>").text(card.memberIds)
+					)
+				);
+			}
+
+			$("#remainedCardList").empty();
+			for(var i=0; i<data.remainedCards.length; i++){
+				var card = data.remainedCards[i];
+				$("#remainedCardList").append(
+					$("<tr></tr>").append(
+						$("<td></td>").text(card.trelloCardId),
+						$("<td></td>").text(card.memberIds)
+					)
+				);
+			}
+
+			var counts = countMemberTasks(data.finishedCards, data.remainedCards);
+
+			$("#taskCountList").empty();
+			for(var i=0; i<counts.length; i++){
+				$("#taskCountList").append(
+					$("<tr></tr>").append(
+						$("<td></td>").text(counts[i].memberId),
+						$("<td></td>").text(counts[i].finished.length),
+						$("<td></td>").text(
+							counts[i].finished.length + counts[i].remained.length)
+					)
+				);
+			}
+		}
+
+		$(document).ready(function(){
+			$("#initBtn").on('click', function(){
+				var boardId = $("#boardIdInput").val();
+				BOARD_ID = boardId;
+				loadCurrentSprint();
+			});
+
+			$("#sprintCloseBtn").on('click', function(){
+				SprintFinisher.closeCurrentSprint(BOARD_ID, function(data){
+					if( data != null ){
+						setSprintResult(data);
+					}
+				});
+				loadCurrentSprint();
+			});
+		});
+		</script>
+	</body>
+</html>
