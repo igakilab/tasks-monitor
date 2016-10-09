@@ -16,6 +16,10 @@ import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class SprintFinisher {
+	/*
+	 * ボードIDで指定されたボードで、現在進行中のスプリントをクローズします。
+	 * スプリントのクローズに成功したら、SprintResultFormのオブジェクトを返却します。
+	 */
 	public SprintResultForm closeCurrentSprint(String boardId)
 	throws ExcuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -40,6 +44,9 @@ public class SprintFinisher {
 		return SprintResultForm.getInstance(res);
 	}
 
+	/*
+	 * ボードIDで指定されたボードの、SprintResultを一覧取得します。
+	 */
 	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintManager manager = new SprintManager(client, null);
