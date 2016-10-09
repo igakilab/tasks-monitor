@@ -8,12 +8,21 @@ import java.util.List;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
+import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintManager {
 	public static boolean DEBUG = false;
@@ -88,5 +97,63 @@ public class SprintManager {
 		}
 
 		return newId;
+	}
+
+	public boolean closeCurrentSprint(String boardId){
+		BoardDBDriver bdb = new BoardDBDriver(dbClient);
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
+		SprintResultsDB resdb = new SprintResultsDB(dbClient);
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
+
+		//ボードの存在チェック
+		if( !bdb.boardIdExists(boardId) ){
+			//throw new SprintManagementException("ボードが登録されていません");
+			return false;
+		}
+
+		//現在のスプリントの情報を取得
+		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
+		if( currSpr == null ){
+			//throw new SprintManagementException("現在進行中のスプリントはありません");
+			return false;
+		}
+
+
+		//TrelloBoardを取得
+		List<TrelloAction> actions = adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+		TrelloActionsBoard board = new TrelloActionsBoard();
+		board.addActions(actions);
+		board.build();
+
+		//sprintResultを生成
+		SprintResult result = new SprintResult(currSpr.getId());
+
+		//カードをtrelloCardMembersに変換、完了カードとそれ以外に振り分け
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
+		for(String cardId : currSpr.getTrelloCardIds()){
+			TrelloCard c = board.getCardById(cardId);
+			if( c != null ){
+				TrelloList list = board.getListById(c.getListId());
+				if( list != null ){
+					if( list.getName().matches("(?i)done") ){
+						result.addFinishedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+					}else if(
+						list.getName().matches("(?i)doing") ||
+						list.getName().matches("(?i)to\\s*do")
+					){
+						result.addFinishedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+					}
+				}
+			}
+		}
+
+		//スプリントをクローズ
+		smdb.closeSprint(currSpr.getId());
+
+		//SprintResultを記録
+		result.setCreatedAt(Calendar.getInstance().getTime());
+		resdb.addSprintResult(result, new SprintResultDocumentConverter());
+
+		return true;
 	}
 }

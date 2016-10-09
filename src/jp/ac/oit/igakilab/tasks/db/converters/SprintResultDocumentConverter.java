@@ -50,7 +50,7 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 
 		List<Document> finishedCards = new ArrayList<Document>();
 		data.getFinishedCards().forEach(
-			(card -> remainedCards.add(convertTrelloCardMembers(card))));
+			(card -> finishedCards.add(convertTrelloCardMembers(card))));
 
 		return new Document("sprintId", data.getSprintId())
 			.append("createdAt", data.getCreatedAt())
