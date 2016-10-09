@@ -99,31 +99,31 @@ public class SprintManager {
 		return newId;
 	}
 
-	public boolean closeCurrentSprint(String boardId){
-		BoardDBDriver bdb = new BoardDBDriver(dbClient);
+	public boolean closeSprint(String sprintId){
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		SprintResultsDB resdb = new SprintResultsDB(dbClient);
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 
-		//ボードの存在チェック
-		if( !bdb.boardIdExists(boardId) ){
-			//throw new SprintManagementException("ボードが登録されていません");
-			return false;
-		}
-
 		//現在のスプリントの情報を取得
-		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
+		Sprint currSpr = smdb.getSprintById(sprintId, new SprintDocumentConverter());
 		if( currSpr == null ){
-			//throw new SprintManagementException("現在進行中のスプリントはありません");
+			//throw new SprintManagementException("スプリントが見つかりません");
 			return false;
 		}
-
+		if( currSpr.isClosed() ){
+			//throw new SprintManagementException("スプリントはすでにクローズされています");
+			return false;
+		}
 
 		//TrelloBoardを取得
-		List<TrelloAction> actions = adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+		List<TrelloAction> actions = adb.getTrelloActions(currSpr.getBoardId(), new DocumentTrelloActionParser());
 		TrelloActionsBoard board = new TrelloActionsBoard();
 		board.addActions(actions);
 		board.build();
+		if( !currSpr.getBoardId().equals(board.getId()) ){
+			//throw new SprintManagementException("ボードのビルドに失敗しました");
+			return false;
+		}
 
 		//sprintResultを生成
 		SprintResult result = new SprintResult(currSpr.getId());
@@ -141,7 +141,7 @@ public class SprintManager {
 						list.getName().matches("(?i)doing") ||
 						list.getName().matches("(?i)to\\s*do")
 					){
-						result.addFinishedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+						result.addRemainedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
 					}
 				}
 			}

@@ -77,16 +77,28 @@ public class SprintResultsDB{
 		return true;
 	}
 
-	public <T> T getSprintResultBySprintId(String id, DocumentParser<T> converter){
+	public <T> T getSprintResultBySprintId(String id, DocumentParser<T> parser){
 		Bson filter = Filters.eq("sprintId", id);
 		Document doc = getCollection().find(filter).first();
 
 		if( doc != null ){
-			T data = converter.parse(doc);
+			T data = parser.parse(doc);
 			return data;
 		}else{
 			return null;
 		}
+	}
+
+	public <T> List<T> getSprintResultsBySprintIds(List<String> sprintIds, DocumentParser<T> parser){
+		Bson filter = Filters.in("sprintId", sprintIds);
+
+		List<T> result = new ArrayList<T>();
+		for(Document doc : collection.find(filter)){
+			T data = parser.parse(doc);
+			if( data != null ) result.add(data);
+		}
+
+		return result;
 	}
 
 	public <T> List<T> getAllSprintResults(DocumentParser<T> converter){
