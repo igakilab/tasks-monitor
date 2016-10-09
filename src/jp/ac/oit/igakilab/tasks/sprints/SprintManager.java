@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.sprints;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,9 +46,11 @@ public class SprintManager {
 		}
 
 		//Sprintのデータを登録
+		List<String> cardIds = new ArrayList<String>();
+		cardAndMembers.forEach(tcm -> cardIds.add(tcm.getCardId()));
 		String newId;
 		try{
-			newId = smdb.createSprint(boardId, beginDate, finishDate, cardAndMembers);
+			newId = smdb.createSprint(boardId, beginDate, finishDate, cardIds);
 		}catch(SprintsDBEditException e0){
 			throw new SprintManagementException("DB登録エラー: " + e0.getMessage());
 		}

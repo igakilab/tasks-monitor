@@ -16,14 +16,13 @@ import com.mongodb.client.result.UpdateResult;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 
 public class SprintsManageDB extends SprintsDB{
 	public SprintsManageDB(MongoClient client){
 		super(client);
 	}
 
-	public String createSprint(String boardId, Date beginDate, Date finishDate, List<TrelloCardMembers> cards)
+	public String createSprint(String boardId, Date beginDate, Date finishDate, List<String> cardIds)
 	throws SprintsDBEditException{
 		String newId = null;
 
@@ -32,7 +31,7 @@ public class SprintsManageDB extends SprintsDB{
 			sprint.setBoardId(boardId);
 			sprint.setBeginDate(beginDate);
 			sprint.setFinishDate(finishDate);
-			cards.forEach(card -> sprint.addTrelloCard(card));
+			cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
 			newId = addSprint(sprint, new SprintDocumentConverter());
 		}else{

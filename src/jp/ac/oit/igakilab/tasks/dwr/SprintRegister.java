@@ -15,7 +15,6 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 
 public class SprintRegister {
 	public String testCreateSprint(String boardId, String bDateStr, String fDateStr, List<String> cardIds)
@@ -31,8 +30,7 @@ public class SprintRegister {
 		sprint.setBoardId(boardId);
 		sprint.setBeginDate(beginDate);
 		sprint.setFinishDate(finishDate);
-		if( cardIds != null ) cardIds.forEach(cardId -> sprint.addTrelloCard(
-			new TrelloCardMembers(cardId)));
+		if( cardIds != null ) cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsDB sdb = new SprintsDB(client);
