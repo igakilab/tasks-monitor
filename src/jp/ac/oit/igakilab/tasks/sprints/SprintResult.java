@@ -2,10 +2,12 @@ package jp.ac.oit.igakilab.tasks.sprints;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public class SprintResult {
 	private String sprintId;
+	private Date createdAt;
 	private List<TrelloCardMembers> remainedCards;
 	private List<TrelloCardMembers> finishedCards;
 
@@ -23,6 +25,14 @@ public class SprintResult {
 		this.sprintId = sprintId;
 	}
 
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
 	public void addRemainedCard(TrelloCardMembers card){
 		remainedCards.add(card);
 	}
@@ -31,7 +41,7 @@ public class SprintResult {
 		remainedCards.addAll(col);
 	}
 
-	public List<TrelloCardMembers> getReaminedCards(){
+	public List<TrelloCardMembers> getRemainedCards(){
 		return remainedCards;
 	}
 
