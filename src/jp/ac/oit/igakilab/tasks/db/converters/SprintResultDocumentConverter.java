@@ -6,14 +6,26 @@ import java.util.List;
 import org.bson.Document;
 
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
 public class SprintResultDocumentConverter
 implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
-	SprintDocumentConverter cardConverter;
+	public TrelloCardMembers parseTrelloCardMembers(Document doc){
+		DocumentValuePicker picker = new DocumentValuePicker(doc);
+		TrelloCardMembers card = new TrelloCardMembers(picker.getString("cardId", null));
+		picker.getStringArray("memberIds").forEach(
+			(memberId ->card.addMemberId(memberId)));
+		return card;
+	}
 
-	public SprintResultDocumentConverter(){
-		cardConverter = new SprintDocumentConverter();
+	public Document convertTrelloCardMembers(TrelloCardMembers card){
+		Document doc = new Document("cardId", card.getCardId());
+		List<String> memberIds = new ArrayList<String>();
+		card.getMemberIds().forEach((memberId ->
+			memberIds.add(memberId)));
+		doc.append("memberIds", memberIds);
+		return doc;
 	}
 
 	@Override
@@ -23,9 +35,9 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 		data.setCreatedAt(picker.getDate("createdAt", null));
 
 		picker.getArray("remainedCards").forEach(
-			(card -> data.addRemainedCard(cardConverter.parseTrelloCardMembers((Document)card))));
+			(card -> data.addRemainedCard(parseTrelloCardMembers((Document)card))));
 		picker.getArray("finishedCards").forEach(
-			(card -> data.addFinishedCard(cardConverter.parseTrelloCardMembers((Document)card))));
+			(card -> data.addFinishedCard(parseTrelloCardMembers((Document)card))));
 
 		return data;
 	}
@@ -34,11 +46,11 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 	public Document convert(SprintResult data){
 		List<Document> remainedCards = new ArrayList<Document>();
 		data.getRemainedCards().forEach(
-			(card -> remainedCards.add(cardConverter.convertTrelloCardMembers(card))));
+			(card -> remainedCards.add(convertTrelloCardMembers(card))));
 
 		List<Document> finishedCards = new ArrayList<Document>();
 		data.getFinishedCards().forEach(
-			(card -> remainedCards.add(cardConverter.convertTrelloCardMembers(card))));
+			(card -> remainedCards.add(convertTrelloCardMembers(card))));
 
 		return new Document("sprintId", data.getSprintId())
 			.append("createdAt", data.getCreatedAt())
