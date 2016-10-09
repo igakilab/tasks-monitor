@@ -11,8 +11,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.converters.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TestTrelloActionBoard {
@@ -51,8 +51,9 @@ public class TestTrelloActionBoard {
 
 	private static List<TrelloAction> convertToTrelloActions(List<Document> docs){
 		List<TrelloAction> actions = new ArrayList<TrelloAction>();
+		DocumentTrelloActionParser parser = new DocumentTrelloActionParser();
 		for(Document doc : docs){
-			actions.add(DocumentTrelloActionParser.parseAction(doc));
+			actions.add(parser.parse(doc));
 		}
 		return actions;
 	}
