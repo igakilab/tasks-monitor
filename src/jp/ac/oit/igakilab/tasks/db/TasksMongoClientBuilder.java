@@ -8,6 +8,8 @@ public class TasksMongoClientBuilder {
 	private static String DEFAULT_HOST = "localhost";
 	private static int DEFAULT_PORT = 27017;
 
+	private static MongoClient cachedClient = null;
+
 	private static String dbHost(){
 		return AppProperties.globalGet("tasks.db.host", DEFAULT_HOST);
 	}
@@ -38,5 +40,29 @@ public class TasksMongoClientBuilder {
 
 	public static MongoClient createClient(){
 		return createClient(dbHost(), dbPort());
+	}
+
+	public static MongoClient initCachedClient(){
+		if( cachedClient != null ){
+			cachedClient.close();
+		}
+		cachedClient = createClient();
+		return cachedClient;
+	}
+
+	public static MongoClient getCachedClient(){
+		if( cachedClient == null ){
+			initCachedClient();
+		}
+		return cachedClient;
+	}
+
+	public static boolean closeCachedClient(){
+		if( cachedClient != null ){
+			cachedClient.close();
+			return true;
+		}else{
+			return false;
+		}
 	}
 }
