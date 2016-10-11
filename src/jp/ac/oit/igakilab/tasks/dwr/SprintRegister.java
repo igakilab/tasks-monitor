@@ -32,17 +32,16 @@ public class SprintRegister {
 		sprint.setFinishDate(finishDate);
 		if( cardIds != null ) cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
 
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsDB sdb = new SprintsDB(client);
 
 		String newID = sdb.addSprint(sprint, new SprintDocumentConverter());
 
-		client.close();
 		return newID;
 	}
 
 	public List<SprintForm> getSprintListByBoardId(String boardId){
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsDB sdb = new SprintsDB(client);
 
 		List<SprintForm> sprints = new ArrayList<SprintForm>();
@@ -50,7 +49,6 @@ public class SprintRegister {
 			(data -> sprints.add(SprintForm.getInstance(data)))
 		);
 
-		client.close();
 		return sprints;
 	}
 }

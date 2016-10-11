@@ -57,7 +57,7 @@ public class TrelloBoardViewer {
 			throw new ExcuteFailedException("ボードidを指定してください");
 		}
 
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		List<TrelloAction> actions =
@@ -68,17 +68,15 @@ public class TrelloBoardViewer {
 			board.addActions(actions);
 			board.build();
 
-			client.close();
 			return TrelloBoardForm.getInstance(board);
 
 		}else{
-			client.close();
 			throw new ExcuteFailedException("ボードがみつかりません");
 		}
 	}
 
 	public List<TrelloBoardInfoForm> getBoardInfoList(){
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<TrelloBoardInfoForm> forms = new ArrayList<TrelloBoardInfoForm>();
@@ -89,7 +87,6 @@ public class TrelloBoardViewer {
 			forms.add(form);
 		});
 
-		client.close();
 		return forms;
 	}
 }

@@ -69,7 +69,7 @@ public class Configs {
 	}
 
 	public void clearTrelloActionsCache(){
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getCachedClient();
 
 		//clear actions cache
 		MongoCollection<Document> trelloBoardActions =
@@ -80,8 +80,6 @@ public class Configs {
 		MongoCollection<Document> trelloBoard =
 			client.getDatabase("tasks-monitor").getCollection("trello_boards");
 		trelloBoard.updateMany(new Document(), Updates.set("lastUpdate", null));
-
-		client.close();
 	}
 
 	public void updateTrelloActionsCache(){

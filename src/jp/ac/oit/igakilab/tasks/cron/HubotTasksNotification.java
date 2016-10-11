@@ -83,7 +83,7 @@ public class HubotTasksNotification implements Runnable{
 
 	public void run(){
 		//クライアントを生成
-		MongoClient dbClient = TasksMongoClientBuilder.createClient();
+		MongoClient dbClient = TasksMongoClientBuilder.getClient();
 		if( logger != null )logger.log(DebugLog.LS_INFO, "cron task triggered.");
 
 		//ボード一覧の取得
@@ -110,6 +110,5 @@ public class HubotTasksNotification implements Runnable{
 		sendBoardNotification(boards, cal.getTime(), mtable, stable);
 
 		if( logger != null )logger.log(DebugLog.LS_INFO, "cron task finished.");
-		dbClient.close();
 	}
 }

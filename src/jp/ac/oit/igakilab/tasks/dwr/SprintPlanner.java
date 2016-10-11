@@ -10,8 +10,8 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
@@ -29,19 +29,17 @@ public class SprintPlanner {
 	//ボードやスプリントがない場合はnullが返される
 	public SprintForm getCurrentSprint(String boardId){
 		//クライアントとdb操作クラスを生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在日時から期間内のスプリントを取得
 		Sprint sprint = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		//取得できなかった場合はnullを返却
 		if( sprint == null ){
-			client.close();
 			return null;
 		}
 
 		//DBをクローズ、formに変換してreturn
-		client.close();
 		return SprintForm.getInstance(sprint);
 	}
 
@@ -50,16 +48,15 @@ public class SprintPlanner {
 	public String createSprint(String boardId, Date finishDate, List<TrelloCardMembersForm> cardsForm)
 	throws ExcuteFailedException{
 		//DBのクライアントと操作クラスの生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 		SprintManager smanager = new SprintManager(client, api);
 
 		//進行中スプリントの取得
 		Sprint current = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
-		//進行中スプリントがあった場合、クローズする
+		//進行中スプリントがあった場合
 		if( current != null ){
-			client.close();
 			throw new ExcuteFailedException("現在進行中のスプリントがあります");
 		}
 
@@ -76,12 +73,10 @@ public class SprintPlanner {
 		try{
 			newId = smanager.createSprint(boardId, today, finishDate, cards);
 		}catch(SprintManagementException e0){
-			client.close();
 			throw new ExcuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
 		}
 
-		//DBをクローズ、登録されたidを返却
-		client.close();
+		//登録されたidを返却
 		return newId;
 	}
 
@@ -89,7 +84,7 @@ public class SprintPlanner {
 	//スプリントがない場合や、更新に失敗した場合はfalseを返却する
 	public boolean closeCurrentSprint(String boardId){
 		//DBのクライアントと操作クラスの生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//進行中のスプリントを取得
@@ -101,8 +96,7 @@ public class SprintPlanner {
 			res = smdb.closeSprint(current.getId());
 		}
 
-		//DBをクローズ、結果を返却
-		client.close();
+		//結果を返却
 		return res;
 	}
 
@@ -110,7 +104,7 @@ public class SprintPlanner {
 	//ボードやリストがない場合は空のリストが返却される
 	public List<TrelloCardForm> getTodoTrelloCards(String boardId){
 		//dbのクライアントを生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		//アクションを取得
@@ -133,7 +127,6 @@ public class SprintPlanner {
 		}
 
 		//結果を返却
-		client.close();
 		return forms;
 	}
 }

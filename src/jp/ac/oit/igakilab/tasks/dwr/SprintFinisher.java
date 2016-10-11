@@ -22,7 +22,7 @@ public class SprintFinisher {
 	 */
 	public SprintResultForm closeCurrentSprint(String boardId)
 	throws ExcuteFailedException{
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在進行中のスプリントを取得
@@ -39,8 +39,6 @@ public class SprintFinisher {
 		if( res == null ){
 			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
 		}
-
-		client.close();
 		return SprintResultForm.getInstance(res);
 	}
 
@@ -48,7 +46,7 @@ public class SprintFinisher {
 	 * ボードIDで指定されたボードの、SprintResultを一覧取得します。
 	 */
 	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintManager manager = new SprintManager(client, null);
 
 		//返却する配列を初期化
@@ -59,7 +57,6 @@ public class SprintFinisher {
 			forms.add(SprintResultForm.getInstance(result))));
 
 		//結果を返却
-		client.close();
 		return forms;
 	}
 }

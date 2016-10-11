@@ -7,8 +7,8 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardTreeForm;
@@ -23,7 +23,7 @@ public class DashBoard {
 	public KanbanForm getKanban(String boardId)
 	throws ExcuteFailedException{
 		//クライアントの生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		//アクションdbの操作クラスを生成
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
@@ -43,7 +43,6 @@ public class DashBoard {
 		//ここでボードをtodo,doing,doneのみのボードに成型する
 		KanbanForm form = KanbanForm.getInstance(board);
 
-		client.close();
 		return form;
 	}
 
@@ -51,7 +50,7 @@ public class DashBoard {
 	//ボードやスプリントがない場合はnullが返される
 	public SprintForm getCurrentSprint(String boardId){
 		//クライアントとdb操作クラスを生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在日時から期間内のスプリントを取得
@@ -60,7 +59,6 @@ public class DashBoard {
 		if( sprint == null ) return null;
 
 		//formに変換してreturn
-		client.close();
 		return SprintForm.getInstance(sprint);
 	}
 

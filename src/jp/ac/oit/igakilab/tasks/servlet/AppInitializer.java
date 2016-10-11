@@ -16,6 +16,7 @@ import jp.ac.oit.igakilab.tasks.cron.HubotTasksNotification;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
 import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.cron.samples.SampleCron;
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 
 public class AppInitializer implements ServletContextListener{
 	private DebugLog logger;
@@ -87,11 +88,19 @@ public class AppInitializer implements ServletContextListener{
 		}
 	}
 
+	private void initMongoClientBuilder(){
+		TasksMongoClientBuilder.initCachedClient();
+	}
+
 	private void destroyCronTasks(){
 		hello.stop();
 		boardUpdater.stop();
 		if( hubotDailyTalk != null ) hubotDailyTalk.stop();
 		if( tasksNotifer != null ) tasksNotifer.stop();
+	}
+
+	private void destroyMongoClientBuilder(){
+		TasksMongoClientBuilder.closeCachedClient();
 	}
 
 	@Override
@@ -104,11 +113,15 @@ public class AppInitializer implements ServletContextListener{
 		initCronTasks();
 		logger.log(DebugLog.LS_INFO, "Cron initialized.");
 
+		initMongoClientBuilder();
+		logger.log(DebugLog.LS_INFO, "MongoClient initialized.");
+
 		logger.log(DebugLog.LS_INFO, "App Initialized!");
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
+		destroyMongoClientBuilder();
 		destroyCronTasks();
 		logger.log(DebugLog.LS_INFO, "Server shutdown");
 	}

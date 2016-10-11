@@ -51,10 +51,14 @@ public class TasksMongoClientBuilder {
 	}
 
 	public static MongoClient getCachedClient(){
-		if( cachedClient == null ){
+		/*if( cachedClient == null ){
 			initCachedClient();
-		}
+		}*/
 		return cachedClient;
+	}
+
+	public static MongoClient getClient(){
+		return getCachedClient();
 	}
 
 	public static boolean closeCachedClient(){

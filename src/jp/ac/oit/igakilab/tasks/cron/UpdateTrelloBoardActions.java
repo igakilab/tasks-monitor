@@ -25,7 +25,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 		logger.log(DebugLog.LS_INFO, "CRONTASK TRIGGERED");
 
 		//クライアントの初期化
-		MongoClient client = TasksMongoClientBuilder.createClient();
+		MongoClient client = TasksMongoClientBuilder.getClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
 
@@ -39,9 +39,6 @@ public class UpdateTrelloBoardActions implements Runnable{
 				result.getBoardId(), result.getReceivedCount(),
 				result.getUpsertedCount()))
 		));
-
-		//クライアントのクローズ
-		client.close();
 
 		logger.log(DebugLog.LS_INFO, "CRONTASK FINISHED");
 	}
