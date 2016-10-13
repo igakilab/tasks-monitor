@@ -15,10 +15,10 @@ import org.json.simple.JSONObject;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionUpdater;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDBUpdater;
 import jp.ac.oit.igakilab.tasks.trello.BoardActionFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -31,7 +31,7 @@ public class TestTrelloBoardActionsUpdater {
 		TrelloApi.DEBUG = true;
 
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		for(Board board : bdb.getBoardList()){
 			System.out.println("fetching board : " + board.getId());
 			Date lastUpdate = board.getLastUpdate();
@@ -64,7 +64,7 @@ public class TestTrelloBoardActionsUpdater {
 		}
 		Collections.reverse(actions);
 
-		TrelloBoardActionUpdater updater = new TrelloBoardActionUpdater(dbclient);
+		TrelloBoardActionsDBUpdater updater = new TrelloBoardActionsDBUpdater(dbclient);
 		return updater.upsertDatabase(actions, boardId);
 	}
 

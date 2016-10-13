@@ -10,6 +10,7 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
@@ -21,7 +22,6 @@ import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintPlanner {
@@ -115,7 +115,7 @@ public class SprintPlanner {
 
 		//アクションを取得
 		List<TrelloAction> actions =
-			adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+			adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 
 		//カードリストの初期化
 		List<TrelloCardForm> forms = new ArrayList<TrelloCardForm>();

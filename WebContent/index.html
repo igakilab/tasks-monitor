@@ -31,14 +31,155 @@
 
 		<div class="container">
 			<div style="padding: 40px 15px; text-align: center;">
-				<h1>Bootstrap startar template</h1>
-				<p class="lead">Use this document as a way to quickly start any new project.<br/>
-					All you get is this text and a mostly barebones HTML document.
-				</p>
+				<div class="row">
+					<div class="col-md-4">
+						<h3>次の目標日</h3>
+						<h1 id="finishDate"></h1>
+					</div>
+					<div class="col-md-8">
+						<h3>現在の進捗</h3>
+						<div class="progress">
+							<div id="taskProgress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<h2>ToDo</h2>
+						<ul id="todoList" class="list-group"></ul>
+					</div>
+					<div class="col-md-4">
+						<h2>Doing</h2>
+						<ul id="doingList" class="list-group"></ul>
+					</div>
+					<div class="col-md-4">
+						<h2>Done</h2>
+						<ul id="doneList" class="list-group"></ul>
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/util.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/DashBoard.js"></script>
+
+		<script>
+		/*
+		 * リストグループにカードを追加する
+		 * listGroupには追加する先のリストのjqueryオブジェクトを、
+		 * cardsには追加したいカードの配列を渡します。
+		*/
+		function addCardToListGroup(listGroup, cards){
+			//カードのオブジェクトを生成してlistGroupに追加していく
+			for(var i=0; i<cards.length; i++){
+
+				//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
+				var listItem = $("<li></li>");
+				listItem.addClass("list-group-item");
+
+				//アイテムのタイトルを作成, アイテムに追加
+				var listItemHead = $("<h4></h4>");
+				listItemHead.addClass("list-group-item-heading");
+				listItemHead.text(cards[i].name);
+				listItem.append(listItemHead);
+
+				//listGroupにアイテムを追加
+				listGroup.append(listItem);
+			}
+		}
+
+		$(document).ready(function(){
+			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
+			var params = Util.getUrlParameters();
+
+			//ボードIDの値をパラメータから取り出す
+			var boardId = params.boardId;
+
+			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
+			if( typeof boardId === 'undefined' ){
+				alert("ボードIDを指定してください");
+				return;
+			}
+
+			//かんばんの情報を取得する
+			DashBoard.getKanban(boardId, {
+				//処理が完了したときに呼び出されるコールバック関数
+				//dataにかんばんの情報が返却される
+				callback: function(data){
+					/*
+					 * 返却されるデータ: {
+					 *	boardId: <ボードのID>
+					 *	boardName: <ボードの名前>
+					 *	todo: <カードのリスト(配列)>
+					 *	doing: <カードのリスト(配列)>
+					 *	done: <カードのリスト(配列)>
+					 * }
+					*/
+
+					//それぞれのリストにカードを追加する
+					//empty()でhtmlで表示されるリストのカードをクリア
+					//addCardToListGroupでカードを追加
+					$("#todoList").empty();
+					addCardToListGroup($("#todoList"), data.todo);
+					$("#doingList").empty();
+					addCardToListGroup($("#doingList"), data.doing);
+					$("#doneList").empty();
+					addCardToListGroup($("#doneList"), data.done);
+
+					//プログレスバーの進捗を計算する
+					//残っているタスク数と完了しているタスク数を取得
+					var remain = data.todo.length + data.doing.length;
+					var finish = data.done.length;
+					//パーセンテージを計算
+					var progress = Math.floor(finish / (finish + remain) * 100);
+					console.log("progress: " + progress);
+
+					//プログレスパーに設定
+					$("#taskProgress").attr("aria-valuenow", progress)
+						.css("width", progress + "%");
+				},
+
+				//処理が異常終了したときに実行されるコールバック関数
+				//msgにエラーメッセージが返却される
+				errorHandler: function(msg){
+					alert(msg);
+				}
+			});
+
+			//目標日を取得する
+			DashBoard.getCurrentSprint(boardId, {
+				callback: function(data){
+					/*
+					 * 返却されるデータ: {
+					 *	id: <スプリントのID>
+					 *	boardId: <ボードのID>
+					 *	beginDate: <スプリントの開始日>
+					 *	finishDate: <スプリントの目標日>
+					 *	closed: <スプリントが完了しているか(true/false)>
+					 *  closedDate: <スプリントの完了日>
+					 * }
+					*/
+
+					//スプリントの目標日を表示する
+					if( data != null ){
+						$("#finishDate").text(Util.formatDate(data.finishDate, "YYYY-MM-DD"));
+					}else{
+						$("#finishDate").text("現在進行中のスプリントはありません");
+					}
+				},
+				errorHandler: function(msg){
+					alert(msg);
+				}
+			});
+		});
+		</script>
+
+
 	</body>
 </html>
