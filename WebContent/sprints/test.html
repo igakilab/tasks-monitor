@@ -118,6 +118,9 @@
 				SprintPlanner.getTodoTrelloCards(boardId, function(data){
 					BOARD_ID = boardId;
 					CARD_LIST = data;
+					for(var i=0; i<CARD_LIST.length; i++){
+						CARD_LIST[i].newMembers = CARD_LIST[i].memberIds;
+					}
 					loadCurrentSprint();
 					reloadCardList();
 				});
