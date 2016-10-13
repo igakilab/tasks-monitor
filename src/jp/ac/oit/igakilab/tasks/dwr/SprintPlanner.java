@@ -131,7 +131,7 @@ public class SprintPlanner {
 			board.build();
 
 			//正規表現でマッチするリストのカードを取得
-			board.getCardsByListNameMatches("(?i)to\\s*do").forEach(
+			board.getCardsByListNameMatches(TasksTrelloClientBuilder.REGEX_TODO).forEach(
 				(card -> forms.add(SprintPlannerForm.TrelloCardMemberIds.getInstance(card, mtable))));
 		}
 
