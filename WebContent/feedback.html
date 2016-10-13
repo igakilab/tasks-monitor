@@ -80,12 +80,12 @@
 						</table>
 					</div>
 				</div>
-				<div class="row hidden">
+				<!-- <div class="row">
 					<div class="col-md-4">
 						<h2>各タスクの自己評価</h2>
 					</div>
 				</div>
-				<div class="row hidden">
+				<div class="row">
 					<div class="col-md-6">
 						<h2>タスクカード名</h2>
 					</div>
@@ -93,7 +93,7 @@
 						<h2>評価</h2>
 					</div>
 				</div>
-				<div class="row hidden">
+				<div class="row">
 					<div class="col-md-6">
 						<ul class="list-group">
 							<li class="list-group-item">
@@ -150,7 +150,7 @@
 							</li>
 						</ul>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 
@@ -206,11 +206,11 @@
 		 * ページロード時に実行される関数
 		 */
 		$(document).ready(function(){
-			//ボードIDを取得
-			var boardId = prompt("board id:");
+			//urlパラメータからボードIDを取得
+			var boardId = Util.getUrlParameters().boardId;
 
 			//ボードIDが定義されているかチェック
-			if( typeof boardId === 'undefined' ){
+			if( Util.isNull(boardId) ){
 				alert("ボードIDを指定してください");
 				return;
 			}
@@ -219,7 +219,7 @@
 			SprintFinisher.closeCurrentSprint(boardId, {
 				//正常に終了した時の動作
 				callback: function(data) {
-					console.log(data);
+					//console.log(data);
 					setSprintResult(data);
 				},
 				//異常終了した時の動作
