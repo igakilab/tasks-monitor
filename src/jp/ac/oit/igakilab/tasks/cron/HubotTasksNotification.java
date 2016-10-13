@@ -10,16 +10,16 @@ import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver.Board;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB.Board;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.hubot.TrelloCardDeadlineNotification;
 import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class HubotTasksNotification implements Runnable{
@@ -71,7 +71,7 @@ public class HubotTasksNotification implements Runnable{
 
 	private TrelloActionsBoard buildTrelloActionsBoard(TrelloBoardActionsDB adb, String boardId){
 		if( adb.boardIdExists(boardId) ){
-			List<TrelloAction> actions = adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+			List<TrelloAction> actions = adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 			TrelloActionsBoard board = new TrelloActionsBoard();
 			board.addActions(actions);
 			board.build();
@@ -87,7 +87,7 @@ public class HubotTasksNotification implements Runnable{
 		if( logger != null )logger.log(DebugLog.LS_INFO, "cron task triggered.");
 
 		//ボード一覧の取得
-		BoardDBDriver bdb = new BoardDBDriver(dbClient);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
 		List<Board> boardIds = bdb.getBoardList();
 
 		//ボードのビルド
