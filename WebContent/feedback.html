@@ -33,7 +33,7 @@
 			<div style="padding: 40px 15px; text-align: center;">
 				<div class="row">
 					<div class="col-md-4">
-						<h2>先週の振り返り（99/99）</h2>
+						<h2>先週の振り返り（<span class="feedback-date"></span>）</h2>
 					</div>
 				</div>
 				<div class="row">
@@ -80,12 +80,12 @@
 						</table>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row hidden">
 					<div class="col-md-4">
 						<h2>各タスクの自己評価</h2>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row hidden">
 					<div class="col-md-6">
 						<h2>タスクカード名</h2>
 					</div>
@@ -93,7 +93,7 @@
 						<h2>評価</h2>
 					</div>
 				</div>
-				<div class="row">
+				<div class="row hidden">
 					<div class="col-md-6">
 						<ul class="list-group">
 							<li class="list-group-item">
@@ -165,7 +165,63 @@
 		<script>
 		/*
 		 * メンバー別タスク完了表に数値を表示します。
-		 * 引数にはメンバー別タスク数を
+		 * 引数にはメンバー別タスク数をそれぞれ指定します
+		 */
+		function addMemberTaskCount(name, finished, all){
+			$(".member-tasks-table").append(
+				$("<tr></tr>").append(
+					$("<td></td>").text(name),
+					$("<td></td>").text(finished),
+					$("<td></td>").text(all)));
+		}
+
+		/*
+		 * SprintFinisherから渡されるClosedSprintResultをhtml画面上に
+		 * 表示する関数。
+		*/
+		function setSprintResult(result){
+			//振り返り日設定
+			$(".feedback-date").text(
+				Util.formatDate(result.createdAt, "MM/DD"));
+
+			//全体の完了タスク数
+			//保留
+
+			//メンバー別完了タスク数
+			$(".member-tasks-table").empty();
+			for(var i=0; i<result.memberTasks.length; i++){
+				var mt = result.memberTasks[i];
+				addMemberTaskCount(mt.memberId, mt.finishedCards.length,
+					mt.remainedCards.length + mt.finishedCards.length);
+			}
+		}
+
+		/*
+		 * ページロード時に実行される関数
+		 */
+		$(document).ready(function(){
+			//ボードIDを取得
+			var boardId = prompt("board id:");
+
+			//ボードIDが定義されているかチェック
+			if( typeof boardId === 'undefined' ){
+				alert("ボードIDを指定してください");
+				return;
+			}
+
+			//スプリントをクローズ
+			SprintFinisher.closeCurrentSprint(boardId, {
+				//正常に終了した時の動作
+				callback: function(data) {
+					console.log(data);
+					setSprintResult(data);
+				},
+				//異常終了した時の動作
+				errorHandler: function(msg){
+					alert(msg);
+				}
+			});
+		});
 		</script>
 	</body>
 </html>
