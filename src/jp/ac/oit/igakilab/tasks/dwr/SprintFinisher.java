@@ -41,6 +41,7 @@ public class SprintFinisher {
 		}else{
 			mc.addFinishedCards(cardId);
 		}
+		mcs.add(mc);
 	}
 
 	private ClosedSprintResult getClosedSprintResult(SprintResult res, TrelloBoard board){
@@ -50,9 +51,12 @@ public class SprintFinisher {
 
 		List<MemberCards> memberTasks = new ArrayList<MemberCards>();
 		for(TrelloCardMembers tcm : res.getRemainedCards()){
+			System.out.print(tcm.getCardId() + ": ");
 			for(String mid : tcm.getMemberIds()){
+				System.out.print(mid + " ");
 				addCardToMemberCardsList(memberTasks, mid, tcm.getCardId(), true);
 			}
+			System.out.println();
 		}
 
 		for(TrelloCardMembers tcm : res.getFinishedCards()){
