@@ -50,22 +50,25 @@ public class SprintFinisher {
 		result.setCreatedAt(res.getCreatedAt());
 
 		List<MemberCards> memberTasks = new ArrayList<MemberCards>();
+		List<String> remained = new ArrayList<String>();
 		for(TrelloCardMembers tcm : res.getRemainedCards()){
-			System.out.print(tcm.getCardId() + ": ");
 			for(String mid : tcm.getMemberIds()){
-				System.out.print(mid + " ");
 				addCardToMemberCardsList(memberTasks, mid, tcm.getCardId(), true);
 			}
-			System.out.println();
+			remained.add(tcm.getCardId());
 		}
 
+		List<String> finished = new ArrayList<String>();
 		for(TrelloCardMembers tcm : res.getFinishedCards()){
 			for(String mid : tcm.getMemberIds()){
 				addCardToMemberCardsList(memberTasks, mid, tcm.getCardId(), false);
 			}
+			finished.add(tcm.getCardId());
 		}
 
 		result.setMemberTasks(memberTasks);
+		result.setRemainedCards(remained);
+		result.setFinishedCards(finished);
 
 		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
 		res.getAllCards().forEach((ttcm) ->

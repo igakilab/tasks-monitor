@@ -43,7 +43,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-6">
-						<h2>自分</h2>
+						<h2>全タスク</h2>
 					</div>
 					<div class="col-md-6">
 						<h2>メンバー別</h2>
@@ -172,7 +172,7 @@
 				$("<tr></tr>").append(
 					$("<td></td>").text(name),
 					$("<td></td>").text(finished),
-					$("<td></td>").text(all)));
+					$("<td></td>").text(Math.floor(finished / all * 100))));
 		}
 
 		/*
@@ -185,7 +185,13 @@
 				Util.formatDate(result.createdAt, "MM/DD"));
 
 			//全体の完了タスク数
-			//保留
+			var fin = result.finishedCards.length;
+			var all = result.remainedCards.length + fin;
+			var progress = Math.floor((fin / all) * 100);
+			$(".task-count-finished").text(fin);
+			$(".task-count-all").text(" /" + all);
+			$("#taskProgress").attr("aria-valuenow", progress)
+			.css("width", progress + "%");
 
 			//メンバー別完了タスク数
 			$(".member-tasks-table").empty();

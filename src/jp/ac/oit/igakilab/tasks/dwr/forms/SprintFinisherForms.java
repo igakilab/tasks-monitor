@@ -53,12 +53,16 @@ public class SprintFinisherForms {
 		private String sprintId;
 		private Date createdAt;
 		private List<MemberCards> memberTasks;
+		private List<String> remainedCards;
+		private List<String> finishedCards;
 		private List<TrelloCardForm> sprintCards;
 
 		public ClosedSprintResult(){
 			sprintId = null;
 			createdAt = null;
 			memberTasks = null;
+			remainedCards = null;
+			finishedCards = null;
 			sprintCards = null;
 		}
 
@@ -84,6 +88,22 @@ public class SprintFinisherForms {
 
 		public void setMemberTasks(List<MemberCards> memberTasks) {
 			this.memberTasks = memberTasks;
+		}
+
+		public List<String> getRemainedCards() {
+			return remainedCards;
+		}
+
+		public void setRemainedCards(List<String> remainedCards) {
+			this.remainedCards = remainedCards;
+		}
+
+		public List<String> getFinishedCards() {
+			return finishedCards;
+		}
+
+		public void setFinishedCards(List<String> finishedCards) {
+			this.finishedCards = finishedCards;
 		}
 
 		public List<TrelloCardForm> getSprintCards() {
