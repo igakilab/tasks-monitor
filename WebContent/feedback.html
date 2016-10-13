@@ -64,7 +64,7 @@
 					</div>
 					<div class="col-md-6">
 						<table class="table table-bordered" style="text-align: left">
-							<tr>
+							<thead><tr>
 								<th>
 									メンバー名
 								</th>
@@ -74,29 +74,9 @@
 								<th>
 									進捗率(%)
 								</th>
-							</tr>
-							<tr>
-								<td>
-									AAAAA
-								</td>
-								<td>
-									99
-								</td>
-								<td>
-									100
-								</td>
-							</tr>
-							<tr>
-								<td>
-									BBBBB
-								</td>
-								<td>
-									99
-								</td>
-								<td>
-									100
-								</td>
-							</tr>
+							</tr></thead>
+							<tbody class="member-tasks-table">
+							</tbody>
 						</table>
 					</div>
 				</div>
@@ -183,6 +163,9 @@
 		<script src="dwr/interface/SprintFinisher.js"></script>
 
 		<script>
+		/*
+		 * メンバー別タスク完了表に数値を表示します。
+		 * 引数にはメンバー別タスク数を
 		</script>
 	</body>
 </html>

@@ -7,20 +7,76 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.MemberCards;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 
 public class SprintFinisher {
+	private void addCardToMemberCardsList(List<MemberCards> mcs, String mid, String cardId, boolean remained){
+		for(MemberCards mc : mcs){
+			if( mc.getMemberId().equals(mid) ){
+				if( remained ){
+					mc.addReaminedCard(cardId);
+				}else{
+					mc.addFinishedCards(cardId);
+				}
+				return;
+			}
+		}
+		MemberCards mc = new MemberCards(mid);
+		if( remained ){
+			mc.addReaminedCard(cardId);
+		}else{
+			mc.addFinishedCards(cardId);
+		}
+	}
+
+	private ClosedSprintResult getClosedSprintResult(SprintResult res, TrelloBoard board){
+		ClosedSprintResult result = new ClosedSprintResult();
+		result.setSprintId(res.getSprintId());
+		result.setCreatedAt(res.getCreatedAt());
+
+		List<MemberCards> memberTasks = new ArrayList<MemberCards>();
+		for(TrelloCardMembers tcm : res.getRemainedCards()){
+			for(String mid : tcm.getMemberIds()){
+				addCardToMemberCardsList(memberTasks, mid, tcm.getCardId(), true);
+			}
+		}
+
+		for(TrelloCardMembers tcm : res.getFinishedCards()){
+			for(String mid : tcm.getMemberIds()){
+				addCardToMemberCardsList(memberTasks, mid, tcm.getCardId(), false);
+			}
+		}
+
+		result.setMemberTasks(memberTasks);
+
+		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
+		res.getAllCards().forEach((ttcm) ->
+			cards.add(TrelloCardForm.getInstance(
+				board.getCardById(ttcm.getCardId()))));
+		result.setSprintCards(cards);
+
+		return result;
+	}
+
 	/*
 	 * ボードIDで指定されたボードで、現在進行中のスプリントをクローズします。
 	 * スプリントのクローズに成功したら、SprintResultFormのオブジェクトを返却します。
 	 */
-	public SprintResultForm closeCurrentSprint(String boardId)
+	public ClosedSprintResult closeCurrentSprint(String boardId)
 	throws ExcuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
@@ -40,8 +96,16 @@ public class SprintFinisher {
 			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
 		}
 
+		//リザルトの取得
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
+		TrelloActionsBoard board = new TrelloActionsBoard();
+		board.addActions(adb.getTrelloActions(boardId, new TrelloActionDocumentParser()));
+		board.build();
+
+		ClosedSprintResult cres = getClosedSprintResult(res, board);
+
 		client.close();
-		return SprintResultForm.getInstance(res);
+		return cres;
 	}
 
 	/*

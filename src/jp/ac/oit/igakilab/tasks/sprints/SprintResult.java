@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SprintResult {
 	private String sprintId;
@@ -55,5 +56,13 @@ public class SprintResult {
 
 	public List<TrelloCardMembers> getFinishedCards(){
 		return finishedCards;
+	}
+
+	public List<TrelloCardMembers> getAllCards(){
+		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
+		Consumer<TrelloCardMembers> register = (card ->  cards.add(card));
+		getRemainedCards().forEach(register);
+		getFinishedCards().forEach(register);
+		return cards;
 	}
 }
