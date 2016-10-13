@@ -10,11 +10,13 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForm.TrelloCardMemberIds;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
@@ -108,17 +110,18 @@ public class SprintPlanner {
 
 	//ボードにあるtodoのカードリストを返却する
 	//ボードやリストがない場合は空のリストが返却される
-	public List<TrelloCardForm> getTodoTrelloCards(String boardId){
+	public List<TrelloCardMemberIds> getTodoTrelloCards(String boardId){
 		//dbのクライアントを生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(client);
 
 		//アクションを取得
 		List<TrelloAction> actions =
 			adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 
 		//カードリストの初期化
-		List<TrelloCardForm> forms = new ArrayList<TrelloCardForm>();
+		List<TrelloCardMemberIds> forms = new ArrayList<TrelloCardMemberIds>();
 
 		//ボードの解析
 		if( actions.size() > 0 ){
@@ -129,7 +132,7 @@ public class SprintPlanner {
 
 			//正規表現でマッチするリストのカードを取得
 			board.getCardsByListNameMatches("(?i)to\\s*do").forEach(
-				(card -> forms.add(TrelloCardForm.getInstance(card))));
+				(card -> forms.add(SprintPlannerForm.TrelloCardMemberIds.getInstance(card, mtable))));
 		}
 
 		//結果を返却
