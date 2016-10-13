@@ -13,8 +13,8 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForm.TrelloCardMemberIds;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForms;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForms.TrelloCardMemberIds;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
@@ -132,7 +132,7 @@ public class SprintPlanner {
 
 			//正規表現でマッチするリストのカードを取得
 			board.getCardsByListNameMatches(TasksTrelloClientBuilder.REGEX_TODO).forEach(
-				(card -> forms.add(SprintPlannerForm.TrelloCardMemberIds.getInstance(card, mtable))));
+				(card -> forms.add(SprintPlannerForms.TrelloCardMemberIds.getInstance(card, mtable))));
 		}
 
 		//結果を返却

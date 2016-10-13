@@ -4,7 +4,7 @@ import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
-public class SprintPlannerForm {
+public class SprintPlannerForms {
 	public static class TrelloCardMemberIds extends TrelloCardForm{
 		public static TrelloCardMemberIds getInstance(TrelloCard card, MemberTrelloIdTable mtable){
 			TrelloCardForm cform = TrelloCardForm.getInstance(card);
