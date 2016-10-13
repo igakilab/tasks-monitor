@@ -170,6 +170,7 @@
 
 			$("#sprintCloseBtn").on('click', function(){
 				SprintFinisher.closeCurrentSprint(BOARD_ID, function(data){
+					console.log(data);
 					if( data != null ){
 						setSprintResult(data);
 					}
