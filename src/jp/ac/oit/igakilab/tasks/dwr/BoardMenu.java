@@ -13,6 +13,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.BoardMenuForms.BoardInfo;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardDataForm;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
@@ -25,9 +26,13 @@ public class BoardMenu {
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<Board> boardDatas = bdb.getBoardList();
 
-		//ボードリスト作成
+		//trelloidメンバー変換テーブル生成
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(client);
+
+		//アクションdbの初期化
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 		DocumentParser<TrelloAction> parser = new TrelloActionDocumentParser();
+
 		List<BoardInfo> boards = new ArrayList<BoardInfo>();
 		for(Board bd : boardDatas){
 			//ボードデータ取得
@@ -38,9 +43,17 @@ public class BoardMenu {
 				board.addActions(actions);
 				TrelloBoardData data = board.buildBoardData();
 
+				//メンバーidの変換
+				List<String> members = new ArrayList<String>();
+				board.getMemberIds().forEach((tmid) ->{
+					String mid = mtable.getMemberId(tmid);
+					if( mid != null ) members.add(mid);
+				});
+
 				//ボード情報の構築
 				BoardInfo inf = new BoardInfo();
-				inf.setBoard(TrelloBoardDataForm.getInstance(data));
+				inf.setData(TrelloBoardDataForm.getInstance(data));
+				inf.setMembers(members);
 				inf.setLastUpdate(bd.getLastUpdate());
 
 				boards.add(inf);
