@@ -34,6 +34,9 @@
     <create creator="new" javascript="SprintFinisher">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintFinisher"/>
     </create>
+    <create creator="new" javascript="BoardMenu">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.BoardMenu"/>
+    </create>
     <create creator="new" javascript="AdminBoardCacheController">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.admin.AdminBoardCacheController"/>
     </create>
