@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>addboard</title>
+
+		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse" data-target="#navbar"
+						aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<span class="navbar-brand">Tasks Monitor</span>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a>addboard</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+
+			<h1>新しいボードを追加</h1>
+			<p>監視trelloボードを追加します。<br/>
+			該当ボードのページにアクセスし、ShortUrlを入力してください。</p>
+
+			<form>
+				<div class="form-group">
+					<label for="memberFormInputId">ボードのShort Url</label>
+					<input type="text" class="form-control" name="shortUrl"
+						id="shortUrlInput" placeholder="http://trello.com/b/xxxxxxxx">
+				</div>
+
+				<div class="text-right">
+					<button type="button" class="btn btn-primary">ボード取得</button>
+				</div>
+			</form>
+			<hr/>
+
+			<p>Short Urlを入力したら、ボード取得をクリックしてください</p>
+
+			<div class="row">
+				<div class="col-md-4">
+					<p>右記のデータのボードを新規登録します。<br/>
+					よろしければ登録ボタンをクリックしてください。</p>
+					<div class="text-right">
+						<button type="button" class="btn btn-success">登録</button>
+						<a href="boards.html" type="button" class="btn btn-default">取消</a>
+					</div>
+				</div>
+				<div class="col-md-8">
+					<table class="table">
+						<thead>
+							<tr><td>項目名</td><td>値</td></tr>
+						</thead>
+						<tbody>
+							<tr><th>ボードID</th><td>3</td></tr>
+							<tr><th>ボード名</th><td>3</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+
+
+
+		</div>
+
+		<script src="js/jquery-2.1.4.min.js"></script>
+		<script src="js/jquery.serialize.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/util.js"></script>
+
+		<!-- <script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"></script> -->
+
+		<!-- <script src="script.js"></script> -->
+		<script>
+		$(document).ready(function(){
+		});
+		</script>
+	</body>
+</html>
