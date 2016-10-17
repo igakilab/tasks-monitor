@@ -51,16 +51,24 @@
 		<script src="dwr/util.js"><</script>
 		<script src="dwr/interface/BoardMenu.js"></script>
 		<script>
+		function updateButtonPressed(boardId){
+			alert("board: " + boardId + " update.");
+		}
+
 		function addBoardInfo(boardinf){
 			var head_title = boardinf.data.name;
 			var content =
 				"ボードID: " + boardinf.data.id + "<br/>" +
 				"最終更新: " + Util.formatDate(boardinf.lastUpdate, "YYYY/MM/DD hh:mm:ss") + "<br/>" +
 				"参加メンバー: " + Util.arrayToString(boardinf.members);
-			var updateBtn = $("<button></button>").addClass("btn btn-default")
-				.append(Util.bsGlyphicon("refresh"), "更新");
+			var updateBtn = $("<button></button>").addClass("btn btn-default disabled")
+				.append(Util.bsGlyphicon("refresh"), "更新")
+				.on('click', function(){
+					updateButtonPressed(boardinf.data.id);
+				});
 			var openBtn = $("<a></a>").addClass("btn btn-primary")
-				.append("表示", Util.bsGlyphicon("chevron-right"));
+				.append("表示", Util.bsGlyphicon("chevron-right"))
+				.attr("href", "index.html?boardId=" + boardinf.data.id);
 
 			$(".board-list").append(
 				$("<div></div>").append(
