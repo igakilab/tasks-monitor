@@ -66,10 +66,17 @@
 				"ボードID: " + boardinf.data.id + "<br/>" +
 				"最終更新: " + Util.formatDate(boardinf.lastUpdate, "YYYY/MM/DD hh:mm:ss") + "<br/>" +
 				"参加メンバー: " + Util.arrayToString(boardinf.members);
-			var updateBtn = $("<button></button>").addClass("btn btn-default disabled")
+			var updateBtn = $("<button></button>").addClass("btn btn-default")
 				.append(Util.bsGlyphicon("refresh"), "更新")
 				.on('click', function(){
-					updateButtonPressed(boardinf.data.id);
+					BoardMenu.updateTrelloBoardActions(boardinf.data.id, function(res){
+						if( res ){
+							Util.showAlertToDiv(boardinf.data.name + "の更新が完了しました", "success");
+							reloadBoardList(function(){});
+						}else{
+							Util.showAlertToDiv("更新に失敗しました", "warning");
+						}
+					});
 				});
 			var openBtn = $("<a></a>").addClass("btn btn-primary")
 				.append("ダッシュボード", Util.bsGlyphicon("chevron-right"))
@@ -83,19 +90,25 @@
 						$("<p></p>").addClass("list-group-item-text")
 							.html(content)),
 					$("<div></div>").addClass("col-sm-4 text-right").append(
-						updateBtn, openBtn)
+						updateBtn, " ", openBtn)
 				).addClass("list-group-item container")
 			);
 		}
 
-		$(document).ready(function(){
-			Util.showAlertToDiv("読み込み中...", "info");
+		function reloadBoardList(callback){
 			BoardMenu.getBoardList(function(data){
-				Util.showAlertToDiv();
 				$(".board-list").empty();
 				for(var i=0; i<data.length; i++){
 					addBoardInfo(data[i]);
 				}
+				if( !Util.isNull(callback) ) callback();
+			});
+		}
+
+		$(document).ready(function(){
+			Util.showAlertToDiv("読み込み中...", "info");
+			reloadBoardList(function(){
+				Util.showAlertToDiv();
 			});
 		});
 		</script>
