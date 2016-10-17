@@ -12,11 +12,11 @@ import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
 
 public class MemberTrelloIdTable{
 	MongoClient dbClient;
-	Map<String,String> table;
+	Map<String,Member> table;
 
 	public MemberTrelloIdTable(MongoClient dbClient){
 		this.dbClient = dbClient;
-		this.table = new HashMap<String,String>();
+		this.table = new HashMap<String,Member>();
 		build();
 	}
 
@@ -26,20 +26,25 @@ public class MemberTrelloIdTable{
 
 		table.clear();
 		for(Member m : members){
-			table.put(m.getId(), m.getTrelloId());
+			table.put(m.getId(), m);
 		}
 	}
 
 	public String getTrelloId(String memberId){
-		return table.get(memberId);
+		return table.get(memberId).getTrelloId();
 	}
 
-	public String getMemberId(String trelloId){
-		for(Entry<String,String> e : table.entrySet()){
-			if( e.getValue().equals(trelloId) ){
-				return e.getKey();
+	public Member getMember(String trelloId){
+		for(Entry<String,Member> e : table.entrySet()){
+			if( e.getValue().getTrelloId().equals(trelloId) ){
+				return e.getValue();
 			}
 		}
 		return null;
+	}
+
+	public String getMemberId(String trelloId){
+		Member m = getMember(trelloId);
+		return m != null ? m.getId() : null;
 	}
 }
