@@ -27,7 +27,6 @@
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a>ボードリスト</a></li>
-						<li class="disabled"><a>ボードビュー</a></li>
 					</ul>
 				</div>
 			</div>
@@ -37,7 +36,13 @@
 			<div class="alert-area alert alert-danger hidden" style="margin-top: 30px;"></div>
 			<h1>Board 一覧</h1>
 
-			<div class="list-group board-list">
+			<div class="alert-div"></div>
+
+			<a class="btn btn-success" href="addboard.html">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+				新規追加</a>
+
+			<div class="list-group board-list" style="margin-top: 5px;">
 			</div>
 
 
@@ -67,7 +72,7 @@
 					updateButtonPressed(boardinf.data.id);
 				});
 			var openBtn = $("<a></a>").addClass("btn btn-primary")
-				.append("表示", Util.bsGlyphicon("chevron-right"))
+				.append("ダッシュボード", Util.bsGlyphicon("chevron-right"))
 				.attr("href", "index.html?boardId=" + boardinf.data.id);
 
 			$(".board-list").append(
@@ -79,13 +84,14 @@
 							.html(content)),
 					$("<div></div>").addClass("col-sm-4 text-right").append(
 						updateBtn, openBtn)
-				).addClass("list-group-item row")
+				).addClass("list-group-item container")
 			);
 		}
 
 		$(document).ready(function(){
+			Util.showAlertToDiv("読み込み中...", "info");
 			BoardMenu.getBoardList(function(data){
-				console.log(data);
+				Util.showAlertToDiv();
 				$(".board-list").empty();
 				for(var i=0; i<data.length; i++){
 					addBoardInfo(data[i]);
