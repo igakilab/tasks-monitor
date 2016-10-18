@@ -44,13 +44,7 @@
 				<div class="row">
 					<div class="col-md-6">
 						<h2>全タスク</h2>
-					</div>
-					<div class="col-md-6">
-						<h2>メンバー別</h2>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
+
 						<ul class="list-group">
 							<li class="list-group-item">
 								<div class="progress">
@@ -61,8 +55,9 @@
 								<h4 class="task-count-all" style="display: inline"> /99</h4>
 							</li>
 						</ul>
-					</div>
-					<div class="col-md-6">
+
+						<h2>メンバー別</h2>
+
 						<table class="table table-bordered" style="text-align: left">
 							<thead><tr>
 								<th>
@@ -79,7 +74,32 @@
 							</tbody>
 						</table>
 					</div>
+					<div class="col-md-6">
+						<h2>タスクの結果</h2>
+
+						<table class="table" style="text-align: left">
+							<thead><tr>
+								<th>結果</th><th>タスク名</th>
+							</tr></thead>
+							<tbody class="finished-tasks-table">
+								<!-- <tr class="success"><td>
+									<span class="glyphicon glyphicon-ok"></span>
+									</td><td>完了タスク1</td><td>member1</td>
+								</tr>
+								<tr class="success"><td>
+									<span class="glyphicon glyphicon-ok"></span>
+									</td><td>完了タスク2</td><td>member1</td>
+								</tr>
+								<tr class="danger"><td>
+									<span class="glyphicon glyphicon-remove"></span>
+									</td><td>未完了タスク1</td><td>member1</td>
+								</tr> -->
+							</tbody>
+						</table>
+					</div>
 				</div>
+
+
 				<!-- <div class="row">
 					<div class="col-md-4">
 						<h2>各タスクの自己評価</h2>
@@ -176,6 +196,35 @@
 		}
 
 		/*
+		 * カードidで指定されたカードが終了しているか確認します。
+		 * resultとカードidを指定します
+		*/
+		function isFinished(result, cardId){
+			for(var i=0; i<result.finishedCards.length; i++){
+				if( result.finishedCards[i] == cardId ){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/*
+		 * タスク完了表にタスクを追加します
+		 * カードのオブジェクトと、それが完了したかどうかを与えます
+		 */
+		function addCardToTaskTable(card, finished){
+			var tr_type = finished ? "success" : "danger";
+			var mark = finished ? Util.bsGlyphicon("ok") : Util.bsGlyphicon("remove");
+
+			var tr = $("<tr></tr>").append(
+				$("<td></td>").append(mark),
+				$("<td></td>").text(card.name)
+			).addClass(tr_type);
+
+			$(".finished-tasks-table").append(tr);
+		}
+
+		/*
 		 * SprintFinisherから渡されるClosedSprintResultをhtml画面上に
 		 * 表示する関数。
 		*/
@@ -200,6 +249,14 @@
 				addMemberTaskCount(mt.memberId, mt.finishedCards.length,
 					mt.remainedCards.length + mt.finishedCards.length);
 			}
+
+			//タスク結果表を追加
+			$(".finished-tasks-table").empty();
+			for(var i=0; i<result.sprintCards.length; i++){
+				var card = result.sprintCards[i];
+				addCardToTaskTable(card, isFinished(result, card.id));
+			}
+
 		}
 
 		/*
@@ -219,7 +276,7 @@
 			SprintFinisher.closeCurrentSprint(boardId, {
 				//正常に終了した時の動作
 				callback: function(data) {
-					//console.log(data);
+					console.log(data);
 					setSprintResult(data);
 				},
 				//異常終了した時の動作
