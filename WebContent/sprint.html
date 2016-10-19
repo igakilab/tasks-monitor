@@ -32,32 +32,105 @@
 		<div class="container">
 			<div style="padding: 40px 15px; text-align: center;">
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-3">
+						<h2>スプリントの登録</h2>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
 						<h3>次の目標日</h3>
-						<!--<h1>（日付YYYY-MM-DD）</h1>-->
+						<form name="deadline">
+							<input type="text" name="date" size="12">
+							<button class="btn btn-default btn-xs">
+								<span class="glyphon glyphicon-arrow-right">決定</span>
+							</button>
+						</form>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-md-6">
-						<h2>ToDoストア</h2>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<button class="btn btn-default btn-xs" style="float:right">
-									<span class="glyphon glyphicon-arrow-right"></span>
-								</button>
-							</li>
-						</ul>
+						<h2>ToDo未登録タスク</h2>
+						<table id="non-assign" class="table" style="text-align: left">
+							<tr>
+								<th>
+									タスク名
+								</th>
+								<th>
+									担当者
+								</th>
+							<tr>
+								<td>
+									ああああああああああ
+								</td>
+								<td>
+									<form name="assign-1">
+										<input type="text" name="assign-name-1" size="20">
+										<button class="btn btn-default btn-xs" style="float:right">
+											<span class="glyphon glyphicon-arrow-right">決定</span>
+										</button>
+									</form>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									いいいいいいいいいい
+								</td>
+								<td>
+									<form name="assign-2">
+										<input type="text" name="assign-name-2" size="20">
+										<button class="btn btn-default btn-xs" style="float:right">
+											<span class="glyphon glyphicon-arrow-right">決定</span>
+										</button>
+									</form>
+								</td>
+							</tr>
+						</table>
 					</div>
 					<div class="col-md-6">
-						<h2>タスクと担当者</h2>
-						<ul class="list-group">
-							<li class="list-group-item">
-								<button class="btn btn-default btn-xs" style="float:right">
-									<span class="glyphon glyphicon-arrow-right"></span>
-								</button>
-							</li>
-						</ul>
+						<h2>登録済タスク</h2>
+						<table id="assigned" class="table" style="text-align: left">
+							<tr>
+								<th>
+									タスク名
+								</th>
+								<th>
+									期限
+								</th>
+								<th>
+									担当者
+								</th>
+							</tr>
+							<tr>
+								<td>
+									うううううううううう
+								</td>
+								<td>
+									9999/99/99
+								</td>
+								<td>
+									AAAAA
+									<button class="btn btn-default btn-xs" style="float:right">
+										<span class="glyphon glyphicon-arrow-right">取消</span>
+									</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									ええええええええええ
+								</td>
+								<td>
+									9999/99/99
+								</td>
+								<td>
+									BBBBB
+									<button class="btn btn-default btn-xs" style="float:right">
+										<span class="glyphon glyphicon-arrow-right">取消</span>
+									</button>
+								</td>
+							</tr>
+						</table>
 					</div>
 				</div>
 			</div>
@@ -65,5 +138,8 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script>
+			
+		</script>
 	</body>
 </html>
