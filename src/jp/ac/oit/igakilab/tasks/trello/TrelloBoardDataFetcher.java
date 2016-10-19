@@ -59,6 +59,6 @@ public class TrelloBoardDataFetcher {
 		params.put("members", "all");
 
 		Object res = client.rget("/1/boards/" + boardId, params).getData();
-		return toTrelloBoardData(res);
+		return res != null ? toTrelloBoardData(res) : null;
 	}
 }
