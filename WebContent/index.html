@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>top page</title>
+		<title>DashBoard</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
@@ -58,6 +58,11 @@
 						<h2>Done</h2>
 						<ul id="doneList" class="list-group"></ul>
 					</div>
+				</div>
+
+				<div class="row text-right">
+					<a class="btn btn-primary sprint-close-btn disabled" role="button">
+					振り返りへ</a>
 				</div>
 			</div>
 		</div>
@@ -138,7 +143,6 @@
 					var finish = data.done.length;
 					//パーセンテージを計算
 					var progress = Math.floor(finish / (finish + remain) * 100);
-					console.log("progress: " + progress);
 
 					//プログレスパーに設定
 					$("#taskProgress").attr("aria-valuenow", progress)
@@ -172,6 +176,13 @@
 					}else{
 						$("#finishDate").text("現在進行中のスプリントはありません");
 					}
+
+					//feedback.htmlへのリンクをはる
+					if( data != null ){
+						$(".sprint-close-btn").removeClass("disabled")
+							.attr("href", "feedback.html?boardId=" + boardId);
+					}
+
 				},
 				errorHandler: function(msg){
 					alert(msg);

@@ -160,6 +160,17 @@ public class SprintsDB {
 		return result;
 	}
 
+	public List<String> getSprintIdsByBoardId(String boardId){
+		Bson filter = Filters.eq("boardId", boardId);
+		List<String> result = new ArrayList<String>();
+
+		for(Document doc : getCollection().find(filter)){
+			result.add(doc.getString("id"));
+		}
+
+		return result;
+	}
+
 	public <T> List<T> getAllSprints(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 

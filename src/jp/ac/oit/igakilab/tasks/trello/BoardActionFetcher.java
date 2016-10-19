@@ -1,12 +1,9 @@
 package jp.ac.oit.igakilab.tasks.trello;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
 
@@ -30,9 +27,8 @@ public class BoardActionFetcher {
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("limit", "1000");
 		if( since != null ){
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-			df.setTimeZone(TimeZone.getTimeZone("UTC"));
-			params.put("since", df.format(since.getTime()));
+			TrelloDateFormat tdf = new TrelloDateFormat();
+			params.put("since", tdf.format(since.getTime()));
 		}
 
 		return client.rget(url, params).getData();

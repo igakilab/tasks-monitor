@@ -13,7 +13,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 
-public class BoardDBDriver {
+public class TrelloBoardsDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "trello_boards";
 
@@ -34,11 +34,11 @@ public class BoardDBDriver {
 
 	private MongoClient client;
 
-	public BoardDBDriver(MongoClient client){
+	public TrelloBoardsDB(MongoClient client){
 		this.client = client;
 	}
 
-	public BoardDBDriver(String host, int port){
+	public TrelloBoardsDB(String host, int port){
 		this.client = new MongoClient(host, port);
 	}
 
@@ -69,6 +69,22 @@ public class BoardDBDriver {
 		Bson update = Updates.set("lastUpdate", lastdate);
 
 		UpdateResult result = getCollection().updateOne(filter, update);
+		return (int)result.getModifiedCount();
+	}
+
+	public boolean clearLastUpdateDate(String boardId){
+		Bson filter = Filters.eq("id", boardId);
+		Bson update = Updates.unset("lastUpdate");
+
+		UpdateResult result = getCollection().updateOne(filter, update);
+		return result.getModifiedCount() > 0;
+	}
+
+	public int clearAllLastUpdateDate(){
+		Bson filter = Filters.exists("lastUpdate");
+		Bson update = Updates.unset("lastUpdate");
+
+		UpdateResult result = getCollection().updateMany(filter,  update);
 		return (int)result.getModifiedCount();
 	}
 }

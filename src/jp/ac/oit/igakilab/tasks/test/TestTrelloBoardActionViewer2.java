@@ -8,8 +8,8 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TestTrelloBoardActionViewer2 {
@@ -18,7 +18,7 @@ public class TestTrelloBoardActionViewer2 {
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		List<TrelloAction> actions = adb.getTrelloActions(
-			"57d3f5cac2c3720549a9b8c1", new DocumentTrelloActionParser());
+			"57d3f5cac2c3720549a9b8c1", new TrelloActionDocumentParser());
 
 		showActions(actions);
 		TrelloActionsBoard board = new TrelloActionsBoard();

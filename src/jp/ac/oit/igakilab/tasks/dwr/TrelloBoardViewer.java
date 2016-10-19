@@ -5,16 +5,16 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.BoardDBDriver;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardInfoForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.DocumentTrelloActionParser;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloBoardViewer {
@@ -61,7 +61,7 @@ public class TrelloBoardViewer {
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		List<TrelloAction> actions =
-			adb.getTrelloActions(boardId, new DocumentTrelloActionParser());
+			adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 
 		if( actions.size() > 0 ){
 			TrelloActionsBoard board = new TrelloActionsBoard();
@@ -80,7 +80,7 @@ public class TrelloBoardViewer {
 	public List<TrelloBoardInfoForm> getBoardInfoList(){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
-		BoardDBDriver bdb = new BoardDBDriver(client);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<TrelloBoardInfoForm> forms = new ArrayList<TrelloBoardInfoForm>();
 		bdb.getBoardList().forEach((board) -> {
 			TrelloBoardInfoForm form = new TrelloBoardInfoForm();

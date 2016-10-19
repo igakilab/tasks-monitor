@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloActionsCard extends TrelloCard {
@@ -63,7 +64,7 @@ public class TrelloActionsCard extends TrelloCard {
 					setDesc(entry.getValue());
 
 				}else if( entry.getKey().equals("due") ){
-					DateFormat df = new TrelloApiDateFormat();
+					DateFormat df = new TrelloDateFormat();
 					Date tmp = null;
 					try{ tmp = df.parse(entry.getValue());
 					}catch(ParseException e0){};
