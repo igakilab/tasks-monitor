@@ -33,9 +33,58 @@ SprintBuilder = (function() {
 		alert(msg);
 	};
 
-	_class.prototype.fetch(callback, errorHandler){
+	_class.prototype.fetch = function(pcallback, perrorHandler){
+		if( typeof perrorHandler != 'function' ){
+			perrorHandler = _class.defaultErrorHandler;
+		}
 
+		var getMembersCallback = function(members){
+			//メンバーキャッシュにデータを追加
+			this.members = [];
+			for(var i=0; i<members.length; i++){
+				this.members.push(members[i]);
+			}
+		};
+
+		var getTodoCallback = function(data){
+			//カードキャッシュにデータを追加
+			this.cards = [];
+			for(var i=0; i<data.length; i++){
+				data[i].selected = (data[i].tasksMemberIds.length > 0);
+				this.cards.push(data[i]);
+			}
+
+			//次にメンバー一覧を取得
+			SprintPlanner.getBoardMembers(this.boardId, {
+				callback: pcallback,
+				errorHandler: perrorHandler
+			});
+		};
+
+		//カード一覧を取得
+		SprintPlanner.getTodoTrelloCards(this.boardId, {
+			callback: pcallback,
+			errorHandler: perrorHandler
+		});
 	}
+
+	_class.prototype.getIndexByCardId = function(cardId){
+		for(var i=0; i<this.cards.length; i++){
+			if( this.cards[i].id == cardId ){
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	_class.prototype.selectCard = function(cardId){
+		var idx = this.getIndexByCardId(cardId);
+		if( idx >= 0 ){
+			this.cards[idx].selected = true;
+		}
+	}
+
+
 
 	return _class;
 
