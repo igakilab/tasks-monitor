@@ -51,6 +51,14 @@ public class TrelloBoardsDB {
 		return getCollection().count(filter) > 0;
 	}
 
+	public boolean addBoard(String boardId){
+		if( !boardIdExists(boardId) ){
+			getCollection().insertOne(new Document("id", boardId));
+			return true;
+		}
+		return false;
+	}
+
 	public Document getBoardById(String boardId){
 		Bson filter = Filters.eq("id", boardId);
 		return getCollection().find(filter).first();
@@ -62,6 +70,11 @@ public class TrelloBoardsDB {
 			result.add(Board.convert(doc));
 		}
 		return result;
+	}
+
+	public Date getLastUpdateDate(String boardId){
+		Document doc = getBoardById(boardId);
+		return Board.convert(doc).getLastUpdate();
 	}
 
 	public int updateLastUpdateDate(String boardId, Date lastdate){
