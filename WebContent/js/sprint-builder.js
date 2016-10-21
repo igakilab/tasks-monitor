@@ -8,11 +8,13 @@ var SprintBuilder;
     this.members - ボードに参加しているメンバーのidとnameを格納する
   メソッド
     fetch - 情報を取得して、ビルダーを初期化する。callback関数を指定する
+    isBoardMember - 指定されたmemberIdがボードメンバーかどうか返却します
+    getIndexByCardId - cardIdで指定されたカードがcards配列のどの位置にあるか検索します
+    isMemberRegisted - 指定されたカードにメンバーが追加されているか調べる
     selectCard - カードをスプリント対象カードにする
     addMemberToCard - カードにメンバーを追加する。自動的に対象カードになる
     unselectCard - カードをスプリント対象カードから除外する、メンバーはクリアされる
     removeMemberFromCard - カードから指定されたメンバーを消去する
-    isMemberRegisted - 指定されたカードにメンバーが追加されているか調べる
     clearMemberFromCard - カードのメンバーをすべて消去する
     setFinishDate - 目標日を設定する
     getSelectedCards - 選択されたカード一覧を取得する
@@ -22,6 +24,10 @@ var SprintBuilder;
 */
 
 SprintBuilder = (function() {
+	/*
+	 * コンストラクター
+	 * 各フィールドを初期化する
+	 */
 	function _class(boardId) {
 		this.boardId = boardId;
 		this.cards = [];
@@ -29,23 +35,28 @@ SprintBuilder = (function() {
 		this.finishDate = null;
 	}
 
+
+	/*
+	 * デフォルトのエラーハンドラー(static function)
+	 */
 	_class.defaultErrorHandler = function(msg){
 		alert(msg);
 	};
 
+
+	/*
+	 * javaアプリケーションからデータを取得して持ってくる
+	 * getTodoTrelloCards -> getBoardMembersの順に問い合わせが行われ
+	 * 各種結果が自身のインスタンスに格納される。
+	 * 処理が終了すると引数のpcallbackに処理を渡す
+	 */
 	_class.prototype.fetch = function(pcallback, perrorHandler){
+		//エラーハンドラーの設定
 		if( typeof perrorHandler != 'function' ){
 			perrorHandler = _class.defaultErrorHandler;
 		}
 
-		var getMembersCallback = function(members){
-			//メンバーキャッシュにデータを追加
-			this.members = [];
-			for(var i=0; i<members.length; i++){
-				this.members.push(members[i]);
-			}
-		};
-
+		//getTodoTrelloCards(1回目通信)のコールバック関数
 		var getTodoCallback = function(data){
 			//カードキャッシュにデータを追加
 			this.cards = [];
@@ -54,21 +65,55 @@ SprintBuilder = (function() {
 				this.cards.push(data[i]);
 			}
 
-			//次にメンバー一覧を取得
+			//次にメンバー一覧を取得(2回目通信)
 			SprintPlanner.getBoardMembers(this.boardId, {
-				callback: pcallback,
+				callback: getMembersCallback,
 				errorHandler: perrorHandler
 			});
 		};
 
-		//カード一覧を取得
+		//getBoardMembers(2回目通信)のコールバック関数
+		var getMembersCallback = function(members){
+			//メンバーキャッシュにデータを追加
+			this.members = [];
+			for(var i=0; i<members.length; i++){
+				this.members.push(members[i]);
+			}
+
+			//呼び出し元コールバックへ返却
+			if( typeof pcallback == 'function' ){
+				pcallback();
+			}
+		};
+
+		//カード一覧を取得(1回目通信)
 		SprintPlanner.getTodoTrelloCards(this.boardId, {
-			callback: pcallback,
+			callback: getTodoCallback,
 			errorHandler: perrorHandler
 		});
 	}
 
+
+	/*
+	 * 指定されたメンバーidがこのボードに含まれているかどうか返す
+	 */
+	_class.prototype.isBoardMember = function(memberId){
+		//メンバーidが一致すればtrueを返却
+		for(var i=0; i<this.members.length; i++){
+			if( this.members[i] == memberId ){
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/*
+	 * カードリストのキャッシュから、指定されたcardIdを持つカードのインデックスを返す
+	 * みつからなかった場合は-1を返す
+	 */
 	_class.prototype.getIndexByCardId = function(cardId){
+		//カードidが一致すればインデックスを返却
 		for(var i=0; i<this.cards.length; i++){
 			if( this.cards[i].id == cardId ){
 				return i;
@@ -77,14 +122,158 @@ SprintBuilder = (function() {
 		return -1;
 	}
 
+	/*
+	 * 指定されたカードに指定されたメンバーが担当者として設定されているかどうか返す
+	 * メンバーが登録されている場合はtrueを、
+	 * メンバーが登録されていないか、指定されたカードが見つからなかった場合にfalseを返す
+	 */
+	_class.prototype.isMemberRegisted = function(cardId, memberId){
+		//カードを検索する
+		var idx = this.getIndexByCardId(cardId);
+
+		//カードが見つかれば、tasksMemberIdsにidがあるかどうか検索する
+		if( idx >= 0 ){
+			var card = this.cards[idx];
+
+			//memberIdが一致すればtrueを返却
+			for(var i=0; i<card.tasksMemberIds; i++){
+				if( card.tasksMemberIds[i] == memberId ){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		//カードが見つからなかった場合はデフォルトでfalseを返却
+		return false;
+	}
+
+	/*
+	 * 指定されたカードをスプリントの対象カードにする
+	 */
 	_class.prototype.selectCard = function(cardId){
+		//カードを検索、見つかればselectedをtrueに
 		var idx = this.getIndexByCardId(cardId);
 		if( idx >= 0 ){
 			this.cards[idx].selected = true;
 		}
 	}
 
+	_class.prototype.addMemberToCard = function(cardId, memberId){
+		//カードを検索
+		var idx = this.getIndexByCardId(cardId);
 
+		//カードが見つかったかどうか、ボードに指定されたメンバーが所属しているか
+		//対象カードにすでに指定されたメンバーが登録されていないかどうか判定
+		if( idx >= 0
+			&& this.isBoardMember(memberId)
+			&& !this.isMemberRegisted(cardId, memberId)
+		){
+			//メンバーを追加する
+			this.cards[idx].tasksMemberIds.push(memberId);
+		}
+	}
+
+	_class.prototype.unselectCard = function(cardId){
+		//カードを検索
+		var idx = this.getIndexByCardId(cardId);
+
+		//見つかれば、selectedをfalseに、メンバーidを空にする
+		if( idx >= 0 ){
+			this.cards[idx].selected = false;
+			this.cards[idx].tasksMemberIds = [];
+		}
+	}
+
+	_class.prototype.removeMemberFromCard = function(cardId, memberId){
+		//カードを検索
+		var idx = this.getIndexByCardId(cardId);
+
+		//見つかれば、指定されたメンバーが登録されているかどうか判定する
+		if( idx >= 0 && this.isMemberRegisted(cardId, memberId) ){
+			var card = this.cards[idx];
+
+			//メンバーidのあるインデックスを検索
+			var midx = -1;
+			for(var i=0; i<card.tasksMemberIds.length; i++){
+				if( card.tasksMemberIds[i] == memberId ){
+					midx = i;
+					break;
+				}
+			}
+
+			//メンバーを削除する(インデックスが見つかっていれば)
+			if( midx >= 0 ){
+				card.tasksMemberIds.splice(midx, 1);
+			}
+		}
+	}
+
+	_class.prototype.clearMemberFromCard = function(cardId){
+		//カードを検索、見つかればtasksMemberIdsを空にする
+		var idx = this.getIndexByCardId(cardId);
+		if( idx >= 0 ){
+			this.cards[idx].tasksMemberIds = [];
+		}
+	}
+
+	_class.prototype.setFinishDate = function(finishDate){
+		//目標日を設定する
+		this.finishDate = finishDate;
+	}
+
+	_class.prototype.getSelectedCards = function(){
+		//cardsからselectedフラグがたっているものを配列に格納し、返却
+		var selected = [];
+		for(var i=0; i<this.cards.length; i++){
+			if( this.cards[i].selected ){
+				selected.push(this.cards[i]);
+			}
+		}
+	}
+
+	_class.prototype.getUnselectedCards = function(){
+		//cardsからselectedフラグがたっていないものを配列に格納し、返却
+		var unselected = [];
+		for(var i=0; i<this.cards.length; i++){
+			if( !this.cards[i].selected ){
+				unselected.push(this.cards[i]);
+			}
+		}
+	}
+
+	_class.prototype.getBoardMembers = function(){
+		//members配列を返す
+		return this.members;
+	}
+
+	_class.prototype.regist = function(pcallback, perrorHandler){
+		//エラーハンドラーの設定
+		if( typeof perrorHandler != 'function' ){
+			perrorHandler = _class.defaultErrorHandler;
+		}
+
+		//finishDateが指定されているかチェック
+		if( Util.isNull(this.finishDate) ){
+			return;
+		}
+
+		//カード担当者情報を作成
+		var cardAndMembers = [];
+		var selectedList = this.getSelectedCards();
+		for(var i=0; i<selectedList.length; i++){
+			cardAndMembers.push({
+				trelloCardId: selectedList[i].id,
+				memberIds: selectedList[i].tasksMemberIds
+			});
+		}
+
+		//通信開始
+		SprintPlanner.createSprint(this.boardId, this.finishDate, cardAndMembers, {
+			callback: pcallback,
+			errorHandler: perrorHandler
+		});
+	}
 
 	return _class;
 
