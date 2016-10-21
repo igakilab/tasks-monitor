@@ -56,17 +56,21 @@ SprintBuilder = (function() {
 			perrorHandler = _class.defaultErrorHandler;
 		}
 
+		//このオブジェクトのインスタンスを指定
+		var thisp = this;
+
 		//getTodoTrelloCards(1回目通信)のコールバック関数
 		var getTodoCallback = function(data){
 			//カードキャッシュにデータを追加
-			this.cards = [];
+			thisp.cards = [];
+			console.log(data); // DEBUG
 			for(var i=0; i<data.length; i++){
-				data[i].selected = (data[i].tasksMemberIds.length > 0);
-				this.cards.push(data[i]);
+				data[i].selected = (data[i].memberIds.length > 0);
+				thisp.cards.push(data[i]);
 			}
 
 			//次にメンバー一覧を取得(2回目通信)
-			SprintPlanner.getBoardMembers(this.boardId, {
+			SprintPlanner.getBoardMembers(thisp.boardId, {
 				callback: getMembersCallback,
 				errorHandler: perrorHandler
 			});
@@ -74,10 +78,11 @@ SprintBuilder = (function() {
 
 		//getBoardMembers(2回目通信)のコールバック関数
 		var getMembersCallback = function(members){
+			console.log(members) //debug
 			//メンバーキャッシュにデータを追加
-			this.members = [];
+			thisp.members = [];
 			for(var i=0; i<members.length; i++){
-				this.members.push(members[i]);
+				thisp.members.push(members[i]);
 			}
 
 			//呼び出し元コールバックへ返却
@@ -131,13 +136,13 @@ SprintBuilder = (function() {
 		//カードを検索する
 		var idx = this.getIndexByCardId(cardId);
 
-		//カードが見つかれば、tasksMemberIdsにidがあるかどうか検索する
+		//カードが見つかれば、memberIdsにidがあるかどうか検索する
 		if( idx >= 0 ){
 			var card = this.cards[idx];
 
 			//memberIdが一致すればtrueを返却
-			for(var i=0; i<card.tasksMemberIds; i++){
-				if( card.tasksMemberIds[i] == memberId ){
+			for(var i=0; i<card.memberIds; i++){
+				if( card.memberIds[i] == memberId ){
 					return true;
 				}
 			}
@@ -176,7 +181,7 @@ SprintBuilder = (function() {
 			&& !this.isMemberRegisted(cardId, memberId)
 		){
 			//メンバーを追加する
-			this.cards[idx].tasksMemberIds.push(memberId);
+			this.cards[idx].memberIds.push(memberId);
 		}
 	}
 
@@ -192,7 +197,7 @@ SprintBuilder = (function() {
 		//見つかれば、selectedをfalseに、メンバーidを空にする
 		if( idx >= 0 ){
 			this.cards[idx].selected = false;
-			this.cards[idx].tasksMemberIds = [];
+			this.cards[idx].memberIds = [];
 		}
 	}
 
@@ -210,8 +215,8 @@ SprintBuilder = (function() {
 
 			//メンバーidのあるインデックスを検索
 			var midx = -1;
-			for(var i=0; i<card.tasksMemberIds.length; i++){
-				if( card.tasksMemberIds[i] == memberId ){
+			for(var i=0; i<card.memberIds.length; i++){
+				if( card.memberIds[i] == memberId ){
 					midx = i;
 					break;
 				}
@@ -219,7 +224,7 @@ SprintBuilder = (function() {
 
 			//メンバーを削除する(インデックスが見つかっていれば)
 			if( midx >= 0 ){
-				card.tasksMemberIds.splice(midx, 1);
+				card.memberIds.splice(midx, 1);
 			}
 		}
 	}
@@ -228,10 +233,10 @@ SprintBuilder = (function() {
 	 * カードに追加されているメンバーをすべて除去する
 	 */
 	_class.prototype.clearMemberFromCard = function(cardId){
-		//カードを検索、見つかればtasksMemberIdsを空にする
+		//カードを検索、見つかればmemberIdsを空にする
 		var idx = this.getIndexByCardId(cardId);
 		if( idx >= 0 ){
-			this.cards[idx].tasksMemberIds = [];
+			this.cards[idx].memberIds = [];
 		}
 	}
 
@@ -258,6 +263,7 @@ SprintBuilder = (function() {
 				selected.push(this.cards[i]);
 			}
 		}
+		return selected;
 	}
 
 
@@ -273,6 +279,7 @@ SprintBuilder = (function() {
 				unselected.push(this.cards[i]);
 			}
 		}
+		return unselected;
 	}
 
 
@@ -307,7 +314,7 @@ SprintBuilder = (function() {
 		for(var i=0; i<selectedList.length; i++){
 			cardAndMembers.push({
 				trelloCardId: selectedList[i].id,
-				memberIds: selectedList[i].tasksMemberIds
+				memberIds: selectedList[i].memberIds
 			});
 		}
 

@@ -59,7 +59,7 @@
 								</th>
 								<th></th>
 							</tr></thead>
-							<tbody>
+							<tbody class="unselected-card-list">
 							<tr>
 								<td>
 									ああああああああああ
@@ -99,7 +99,7 @@
 									担当者
 								</th>
 							</tr></thead>
-							<tr>
+							<tbody class="selected-card-list"><tr>
 								<td>
 									<button class="btn btn-danger btn-sm">
 										<span class="glyphicon glyphicon-arrow-left" aria-hidden="true">
@@ -134,7 +134,7 @@
 										<button type="button" class="btn btn-primary btn-sm">member3</button>
 									</div>
 								</td>
-							</tr>
+							</tr></tbody>
 						</table>
 					</div>
 				</div>
@@ -161,7 +161,87 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/util.js"></script>
+		<script src="js/sprint-builder.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintPlanner.js"></script>
 		<script>
+		var SPRINT_BUILDER;
+
+		function generateMemberAssignButtonGroup(card, builder){
+			var bgroup = $("<div></div>").addClass("btn-group");
+			var members = builder.getBoardMembers();
+			console.log(members);
+			for(var i=0; i<members.length; i++){
+				var claz = "btn btn-sm";
+				var onClick = null;
+				if( builder.isMemberRegisted(card.id, members[i].id) ){
+					claz = claz + " btn-primary active";
+					onClick = function(){alert("member removed " + card.id + " " + members[i].id)}
+				}else{
+					claz = claz + " btn-default";
+					onClick = function(){alert("member added " + card.id + " " + members[i].id)}
+				}
+
+				bgroup.append($("<button></button>").addClass(claz)
+					.on('click', onClick)
+					.text(members[i].name));
+			}
+			return bgroup;
+		}
+
+		function generateSelectedCardRow(card, builder){
+			return $("<tr></tr>").append(
+				$("<td></td>").append($("<button></button>").addClass("btn btn-sm btn-danger")
+					.on('click', function(){
+						alert("unselect button pressed" + card.id);
+					})
+					.append(Util.bsGlyphicon("arrow-left"), "取消")),
+				$("<td></td>").text(card.name),
+				$("<td></td>").append(generateMemberAssignButtonGroup(card, builder))
+			);
+		}
+
+		function generateUnselectedCardRow(card){
+			return $("<tr></tr>").append(
+				$("<td></td>").text(card.name),
+				$("<td></td>").append(
+					$("<button></button>").on('click', function(){
+						alert("select button pressed" + card.id);
+					}).append("移動", Util.bsGlyphicon("arrow-right"))
+					.addClass("btn btn-sm btn-primary"))
+			);
+		}
+
+		function reloadCardList(){
+			var unselected = SPRINT_BUILDER.getUnselectedCards();
+			$(".unselected-card-list").empty();
+			console.log(unselected);
+			for(var i=0; i<unselected.length; i++){
+				$(".unselected-card-list").append(
+					generateUnselectedCardRow(unselected[i]));
+			}
+
+			var selected = SPRINT_BUILDER.getSelectedCards();
+			$(".selected-card-list").empty();
+			for(var i=0; i<selected.length; i++){
+				$(".selected-card-list").append(
+					generateSelectedCardRow(selected[i], SPRINT_BUILDER));
+			}
+		}
+
+		$(document).ready(function(){
+			var boardId = Util.getUrlParameters().boardId;
+			console.log(boardId);
+			if( !Util.isNull(boardId) ){
+				SPRINT_BUILDER = new SprintBuilder(boardId);
+				SPRINT_BUILDER.fetch(function(){
+					console.log(SPRINT_BUILDER);
+					reloadCardList();
+				});
+			}
+		});
 
 		</script>
 	</body>
