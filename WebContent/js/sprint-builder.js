@@ -148,6 +148,7 @@ SprintBuilder = (function() {
 		return false;
 	}
 
+
 	/*
 	 * 指定されたカードをスプリントの対象カードにする
 	 */
@@ -159,6 +160,11 @@ SprintBuilder = (function() {
 		}
 	}
 
+	/*
+	 * カードにmemberIdで指定されたメンバーを追加する
+	 * 追加する際に、そのメンバーidがボードに参加しているかどうかを確認する
+	 * また、対象カードになっていないカードの場合は、自動的に対象カードになる
+	 */
 	_class.prototype.addMemberToCard = function(cardId, memberId){
 		//カードを検索
 		var idx = this.getIndexByCardId(cardId);
@@ -174,6 +180,11 @@ SprintBuilder = (function() {
 		}
 	}
 
+
+	/*
+	 * 指定されたカードを対象カードから除外する
+	 * メンバーが追加されていた場合は、自動的にすべてのメンバーがカードから除去する
+	 */
 	_class.prototype.unselectCard = function(cardId){
 		//カードを検索
 		var idx = this.getIndexByCardId(cardId);
@@ -185,6 +196,10 @@ SprintBuilder = (function() {
 		}
 	}
 
+
+	/*
+	 * カードから指定されたメンバーを除去する
+	 */
 	_class.prototype.removeMemberFromCard = function(cardId, memberId){
 		//カードを検索
 		var idx = this.getIndexByCardId(cardId);
@@ -209,6 +224,9 @@ SprintBuilder = (function() {
 		}
 	}
 
+	/*
+	 * カードに追加されているメンバーをすべて除去する
+	 */
 	_class.prototype.clearMemberFromCard = function(cardId){
 		//カードを検索、見つかればtasksMemberIdsを空にする
 		var idx = this.getIndexByCardId(cardId);
@@ -217,11 +235,21 @@ SprintBuilder = (function() {
 		}
 	}
 
+
+	/*
+	 * 目標日を設定する
+	 * finishDateはDate型で指定する
+	 */
 	_class.prototype.setFinishDate = function(finishDate){
 		//目標日を設定する
 		this.finishDate = finishDate;
 	}
 
+
+	/*
+	 * 対象カードになっているカードのリストを取得する
+	 * 対象カードのリストが返却される
+	 */
 	_class.prototype.getSelectedCards = function(){
 		//cardsからselectedフラグがたっているものを配列に格納し、返却
 		var selected = [];
@@ -232,6 +260,11 @@ SprintBuilder = (function() {
 		}
 	}
 
+
+	/*
+	 * 対象カードになっていないカードのリストを取得する
+	 * 非対称カードのリストが返却される
+	 */
 	_class.prototype.getUnselectedCards = function(){
 		//cardsからselectedフラグがたっていないものを配列に格納し、返却
 		var unselected = [];
@@ -242,11 +275,21 @@ SprintBuilder = (function() {
 		}
 	}
 
+
+	/*
+	 * ボードに参加しているメンバーのオブジェクトをリストで返す
+	 */
 	_class.prototype.getBoardMembers = function(){
 		//members配列を返す
 		return this.members;
 	}
 
+
+	/*
+	 * 設定された目標日や担当者の情報から、スプリントをシステムに登録する
+	 * fetchと同様、処理が終了するとpcallbackに処理を渡す
+	 * その際、新規作成されたスプリントのIDが引数として渡される
+	 */
 	_class.prototype.regist = function(pcallback, perrorHandler){
 		//エラーハンドラーの設定
 		if( typeof perrorHandler != 'function' ){
