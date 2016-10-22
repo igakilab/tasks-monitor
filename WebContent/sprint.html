@@ -38,12 +38,14 @@
 					</div>
 				</div>
 
+				<div class="row alert-div"></div>
+
 				<div class="row row-eq-height">
 					<form class="form-horizontal">
 						<div class="form-group">
 							<h3 class="col-sm-2">目標日</h3>
 							<div class="col-sm-10">
-								<input type="email" class="form-control datepicker"
+								<input class="form-control datepicker"
 									id="finishDateInput" placeholder="yyyy/mm/dd"
 									style="margin-top: 15px;"/>
 							</div>
@@ -142,6 +144,12 @@
 						</table>
 					</div>
 				</div>
+
+				<div class="row text-right">
+					<button type="button" class="btn btn-success create-btn">
+						新規作成
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -180,24 +188,64 @@
 			//ボードidを取得
 			var boardId = Util.getUrlParameters().boardId;
 
-			//datepickerを初期化
-			$(".datepicker").datepicker({
-				language:"ja",
-				format:"yyyy/mm/dd"
-			});
-
-			//仮の目標日を設定
-			var dt = new Date();
-			dt.setDate(dt.getDate() + 7);
-			$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
-
-			//スプリントのデータを取得
-			if( !Util.isNull(boardId) ){
-				BUILDER = new SprintBuilder(boardId);
-				BUILDER.fetch(function(){
-					setCardList(BUILDER);
-				});
+			if( Util.isNull(boardId) ){
+				Util.showAlertToDiv("ボードIDを指定してください");
+				return;
 			}
+
+			//現在進行中のスプリントがあるかどうか確認
+			SprintPlanner.getCurrentSprint(boardId, function(spr){
+				if( spr != null ){
+					//スプリントがあればエラーを表示
+					Util.showAlertToDiv($("<span></span>").append(
+						"現在進行中のスプリントがあります",
+						$("<a></a>").text("ダッシュボードへ")
+							.attr("href", "index.html?boardId=" + boardId)
+					));
+				}else{
+					//スプリントがなければ続行
+					//datepickerを初期化
+					$(".datepicker").datepicker({
+						language:"ja",
+						format:"yyyy/mm/dd"
+					});
+
+					//仮の目標日を設定
+					var dt = new Date();
+					dt.setDate(dt.getDate() + 7);
+					$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
+
+					//エラーハンドラーを設定
+					SprintBuilder.defaultErrorHandler = function(msg){
+						Util.showAlertToDiv(msg);
+					};
+
+					//スプリントのデータを取得
+					BUILDER = new SprintBuilder(boardId);
+					BUILDER.fetch(function(){
+						setCardList(BUILDER);
+					});
+
+					//新規作成ボタンを設定
+					$(".create-btn").on('click', function(){
+						//日付のパース
+						var ds = $("#finishDateInput").val();
+						var fd = Date.parse(ds);
+						//フォーマット確認
+						if( isNaN(fd) ){
+							Util.showAlertToDiv("無効な目標日です: " +
+								ds + " (yyyy/mm/dd形式で入力してください)");
+							return;
+						}
+
+						BUILDER.setFinishDate(fd);
+
+						BUILDER.regist(function(sid){
+							location.href = "index.html?boardId=" + boardId;
+						});
+					});
+				}
+			});
 		});
 
 		</script>

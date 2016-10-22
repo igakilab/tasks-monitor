@@ -17,7 +17,7 @@ function generateMemberAssignButtonGroup(card, builder){
 
 		//メンバーが登録されているかどうかで分岐、上記の変数を設定
 		if( builder.isMemberRegisted(card.id, mid) ){
-			claz = claz + " btn-primary active";
+			claz = claz + " btn-info active";
 			onClick = function(){removeMemberButtonPressed(builder, card.id, mid)};
 		}else{
 			claz = claz + " btn-default";
@@ -69,7 +69,7 @@ function generateUnselectedCardRow(card, builder){
 		$("<td></td>").append(
 			$("<button></button>").on('click', onButtonPressed)
 				.append("移動 ", Util.bsGlyphicon("arrow-right"))
-				.addClass("btn btn-sm btn-success")
+				.addClass("btn btn-sm btn-primary")
 				.css("float", "right"))
 	);
 }
