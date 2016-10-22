@@ -63,7 +63,7 @@ SprintBuilder = (function() {
 		var getTodoCallback = function(data){
 			//カードキャッシュにデータを追加
 			thisp.cards = [];
-			console.log(data); // DEBUG
+			//console.log(data); // DEBUG
 			for(var i=0; i<data.length; i++){
 				data[i].selected = (data[i].memberIds.length > 0);
 				thisp.cards.push(data[i]);
@@ -78,7 +78,7 @@ SprintBuilder = (function() {
 
 		//getBoardMembers(2回目通信)のコールバック関数
 		var getMembersCallback = function(members){
-			console.log(members) //debug
+			//console.log(members) //DEBUG
 			//メンバーキャッシュにデータを追加
 			thisp.members = [];
 			for(var i=0; i<members.length; i++){
@@ -105,7 +105,7 @@ SprintBuilder = (function() {
 	_class.prototype.isBoardMember = function(memberId){
 		//メンバーidが一致すればtrueを返却
 		for(var i=0; i<this.members.length; i++){
-			if( this.members[i] == memberId ){
+			if( this.members[i].id == memberId ){
 				return true;
 			}
 		}
@@ -141,7 +141,7 @@ SprintBuilder = (function() {
 			var card = this.cards[idx];
 
 			//memberIdが一致すればtrueを返却
-			for(var i=0; i<card.memberIds; i++){
+			for(var i=0; i<card.memberIds.length; i++){
 				if( card.memberIds[i] == memberId ){
 					return true;
 				}
