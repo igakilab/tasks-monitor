@@ -8,6 +8,7 @@
 		<title>top page</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/bootstrap-datepicker3.css" rel="stylesheet"/>
 	</head>
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -42,8 +43,9 @@
 						<div class="form-group">
 							<h3 class="col-sm-2">目標日</h3>
 							<div class="col-sm-10">
-								<input type="email" class="form-control"
-									id="inputEmail3" placeholder="yyyy/mm/dd" style="margin-top: 15px;"/>
+								<input type="email" class="form-control datepicker"
+									id="finishDateInput" placeholder="yyyy/mm/dd"
+									style="margin-top: 15px;"/>
 							</div>
 						</div>
 					</form>
@@ -60,7 +62,7 @@
 								<th></th>
 							</tr></thead>
 							<tbody class="unselected-card-list">
-							<tr>
+							<!-- <tr>
 								<td>
 									ああああああああああ
 								</td>
@@ -83,7 +85,7 @@
 										</span>
 									</button>
 								</td>
-							</tr>
+							</tr> -->
 							</tbody>
 						</table>
 					</div>
@@ -99,7 +101,8 @@
 									担当者
 								</th>
 							</tr></thead>
-							<tbody class="selected-card-list"><tr>
+							<tbody class="selected-card-list">
+							<!-- <tr>
 								<td>
 									<button class="btn btn-danger btn-sm">
 										<span class="glyphicon glyphicon-arrow-left" aria-hidden="true">
@@ -134,7 +137,8 @@
 										<button type="button" class="btn btn-primary btn-sm">member3</button>
 									</div>
 								</td>
-							</tr></tbody>
+							</tr> -->
+							</tbody>
 						</table>
 					</div>
 				</div>
@@ -161,6 +165,8 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/bootstrap-datepicker.js"></script>
+		<script src="js/bootstrap-datepicker.ja.min.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/sprint-builder.js"></script>
 		<script src="dwr/engine.js"></script>
@@ -171,8 +177,21 @@
 		var BUILDER = null;
 
 		$(document).ready(function(){
+			//ボードidを取得
 			var boardId = Util.getUrlParameters().boardId;
 
+			//datepickerを初期化
+			$(".datepicker").datepicker({
+				language:"ja",
+				format:"yyyy/mm/dd"
+			});
+
+			//仮の目標日を設定
+			var dt = new Date();
+			dt.setDate(dt.getDate() + 7);
+			$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
+
+			//スプリントのデータを取得
 			if( !Util.isNull(boardId) ){
 				BUILDER = new SprintBuilder(boardId);
 				BUILDER.fetch(function(){
