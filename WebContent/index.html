@@ -34,7 +34,7 @@
 				<div class="row">
 					<div class="col-md-4">
 						<h3>次の目標日</h3>
-						<h1 id="finishDate"></h1>
+						<span id="finishDate"></span>
 					</div>
 					<div class="col-md-8">
 						<h3>現在の進捗</h3>
@@ -172,9 +172,17 @@
 
 					//スプリントの目標日を表示する
 					if( data != null ){
-						$("#finishDate").text(Util.formatDate(data.finishDate, "YYYY-MM-DD"));
+						$("#finishDate").append(
+							$("<h1></h1>").text(
+								Util.formatDate(data.finishDate, "YYYY-MM-DD"))
+						);
 					}else{
-						$("#finishDate").text("現在進行中のスプリントはありません");
+						$("#finishDate").append(
+							"現在進行中のスプリントはありません",
+							$("<br></br>"),
+							$("<a></a>").text("新しいスプリントを作成...")
+								.attr("href", "sprint.html?boardId=" + boardId)
+						);
 					}
 
 					//feedback.htmlへのリンクをはる

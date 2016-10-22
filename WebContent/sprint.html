@@ -146,9 +146,10 @@
 				</div>
 
 				<div class="row text-right">
+					<button type="button" class="btn btn-default to-dashboard-btn">
+					ダッシュボードへ戻る</button>
 					<button type="button" class="btn btn-success create-btn">
-						新規作成
-					</button>
+					新規作成</button>
 				</div>
 			</div>
 		</div>
@@ -181,10 +182,7 @@
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/SprintPlanner.js"></script>
 		<script src="sprint.js"></script>
-		<script>
-		var BUILDER = null;
-
-		$(document).ready(function(){
+		<script>$(document).ready(function(){
 			//ボードidを取得
 			var boardId = Util.getUrlParameters().boardId;
 
@@ -221,9 +219,9 @@
 					};
 
 					//スプリントのデータを取得
-					BUILDER = new SprintBuilder(boardId);
-					BUILDER.fetch(function(){
-						setCardList(BUILDER);
+					var builder = new SprintBuilder(boardId);
+					builder.fetch(function(){
+						setCardList(builder);
 					});
 
 					//新規作成ボタンを設定
@@ -238,11 +236,16 @@
 							return;
 						}
 
-						BUILDER.setFinishDate(fd);
+						builder.setFinishDate(fd);
 
-						BUILDER.regist(function(sid){
+						builder.regist(function(sid){
 							location.href = "index.html?boardId=" + boardId;
 						});
+					});
+
+					//ダッシュボードへ移動ボタンを設定
+					$(".to-dashboard-btn").on('click', function(){
+						location.href = "index.html?boardId=" + boardId;
 					});
 				}
 			});
