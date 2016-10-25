@@ -23,12 +23,16 @@ public class TrelloBoardFetcher{
 		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api, "580f2dc6cf8021fb4e915e19");
 		fetcher.fetch();
 		System.out.println(fetcher.board.toString());
-		fetcher.board.printListsAndCards(System.out);
+		TrelloBoard board = fetcher.getBoard();
+		board.printListsAndCards(System.out);
 
 		TrelloCard card = new TrelloCard();
 		card.setName("task7");
 		card.setDesc("fetcher.addCardのテストだよー");
+		card.addMemberId("565566d4a5c50916ad29e699");
+		card.addMemberId("5791a4142b2bcb075a3f5874");
 		System.out.println(fetcher.addCard(fetcher.board.getLists().get(0), card));
+		board.printListsAndCards(System.out);
 	}
 
 	private TrelloApi<Object> api;
@@ -165,14 +169,18 @@ public class TrelloBoardFetcher{
 	}
 
 	public boolean addCard(TrelloList list, TrelloCard card){
+		//リストidを取り出し
 		String lid = list.getId();
 		if( lid == null ) return false;
 
+		//urlの設定とパラメータの初期化
 		String url = "/1/cards";
 		Map<String,String> params = new HashMap<String,String>();
 
+		//登録先listidの設定
 		params.put("idList", lid);
 
+		//各種データの変換
 		String tmp0;
 		if( (tmp0 = card.getName()) != null ){
 			params.put("name", tmp0);
@@ -196,8 +204,7 @@ public class TrelloBoardFetcher{
 			params.put("idMembers", tmp3);
 		}
 
-		System.out.println(params.toString());
-
+		//リクエスト送信
 		try{
 			api.post(url, params);
 		}catch(TrelloApiConnectionFailedException e0){
@@ -205,6 +212,7 @@ public class TrelloBoardFetcher{
 			return false;
 		}
 
+		//フェッチ
 		if( autoFetch ){
 			fetch();
 		}
