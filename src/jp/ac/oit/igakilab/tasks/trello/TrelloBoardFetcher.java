@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,57 +16,111 @@ import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 import jp.ac.oit.igakilab.tasks.util.JSONObjectValuePicker;
 
-public class TrelloBoardFetcher {
+public class TrelloBoardFetcher{
 	public static void main(String[] args){
 		TasksTrelloClientBuilder.setTestApiKey();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api);
-		TrelloBoard board = fetcher.fetch("57ab33677fd33ec535cc4f28");
-		System.out.println(board.toString());
-		board.printListsAndCards(System.out);
+		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api, "580f2dc6cf8021fb4e915e19");
+		fetcher.fetch();
+		System.out.println(fetcher.board.toString());
+		fetcher.board.printListsAndCards(System.out);
+
+		TrelloCard card = new TrelloCard();
+		card.setName("task7");
+		card.setDesc("fetcher.addCardのテストだよー");
+		System.out.println(fetcher.addCard(fetcher.board.getLists().get(0), card));
 	}
 
 	private TrelloApi<Object> api;
+	private String boardId;
+	private TrelloBoard board;
+	private boolean autoFetch;
 
-	public TrelloBoardFetcher(TrelloApi<Object> api){
+	public TrelloBoardFetcher(TrelloApi<Object> api, String boardId){
 		this.api = api;
+		this.boardId = boardId;
+		this.board = null;
+		this.autoFetch = true;
 	}
 
-	private TrelloBoard buildTrelloBoard(JSONObject boardData){
-		//各インスタンスの準備
-		JSONObjectValuePicker picker = new JSONObjectValuePicker(boardData);
-		TrelloBoard board = new TrelloBoard();
+	public String getBoardId(){
+		return boardId;
+	}
 
-		//ボードのデータの解析
+	public void setAutoFetch(boolean b){
+		this.autoFetch = b;
+	}
+
+	private void applyBoardData(JSONObject boardData){
+		//ボードインスタンスの生成
+		if( board == null ){
+			board = new TrelloBoard();
+		}
+
+		//ボードデータの更新
+		JSONObjectValuePicker picker = new JSONObjectValuePicker(boardData);
 		board.setId(picker.getString("id"));
 		board.setName(picker.getString("name"));
 		board.setDesc(picker.getString("desc"));
 		board.setShortLink(picker.getString("shortUrl"));
 		board.setClosed(picker.getBoolean("closed"));
 
-		//リストの解析
+		//リストの更新
 		JSONArray lists = picker.getJSONArray("lists");
+		TrelloList[] prelists = board.getLists().toArray(new TrelloList[0]);
+		board.clearLists();
 		for(Object objList : lists){
+			//インスタンスを初期化等
 			JSONObjectValuePicker pickerl = new JSONObjectValuePicker(objList);
-			TrelloList list = new TrelloList();
-			list.setId(pickerl.getString("id"));
+			String lid = pickerl.getString("id");
+
+			//既存リストインスタンスがないかチェック
+			TrelloList list = null;
+			for(TrelloList pl : prelists){
+				if( lid != null && pl.getId().equals(lid) ){
+					list = pl;
+					break;
+				}
+			}
+			//見つからなかった場合はリストを生成
+			list = new TrelloList();
+
+			//値を設定
+			list.setId(lid);
 			list.setName(pickerl.getString("name"));
 			list.setClosed(pickerl.getBoolean("closed"));
+
+			//ボードに追加
 			board.addList(list);
 		}
 
 		//カードの解析
 		TrelloDateFormat df = new TrelloDateFormat();
 		JSONArray cards = picker.getJSONArray("cards");
+		TrelloCard[] precards = board.getCards().toArray(new TrelloCard[0]);
 		for(Object objCard : cards){
+			//インスタンス初期化
 			JSONObjectValuePicker pickerc = new JSONObjectValuePicker(objCard);
-			TrelloCard card = new TrelloCard();
+			String cid = pickerc.getString("id");
+
+			//既存カードインスタンスがないかチェック
+			TrelloCard card = null;
+			for(TrelloCard pc : precards){
+				if( cid != null && pc.getId().equals(cid) ){
+					card = pc;
+					break;
+				}
+			}
+			//見つからなかった場合はカードを生成
+			card = new TrelloCard();
+
+			//値を設定
 			card.setId(pickerc.getString("id"));
 			card.setListId(pickerc.getString("idList"));
 			card.setName(pickerc.getString("name"));
 			card.setDesc(pickerc.getString("desc"));
 			card.setClosed(pickerc.getBoolean("closed"));
-
+			//値を設定(期限)
 			String dueString = pickerc.getString("due");
 			if( dueString != null ){
 				try{
@@ -73,36 +128,87 @@ public class TrelloBoardFetcher {
 					card.setDue(due);
 				}catch(ParseException e0){}
 			}
-
+			//値を設定(担当者trelloid)
 			for(Object mid : pickerc.getJSONArray("idMembers")){
 				if( mid instanceof String ){
 					card.addMemberId((String)mid);
 				}
 			}
 
+			//ボードに追加
 			board.addCard(card);
 		}
-
-		return board;
 	}
 
-	public TrelloBoard fetch(String boardId){
+	public boolean fetch(){
 		String url = "/1/boards/" + boardId;
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("cards", "all");
 		params.put("lists", "all");
 
-		Object res = null;
 		try{
-			res = api.get(url, params);
+			Object res = api.get(url, params);
+			if( res instanceof JSONObject ){
+				applyBoardData((JSONObject)res);
+			}else{
+				return false;
+			}
 		}catch(TrelloApiConnectionFailedException e0){
-			return null;
+			return false;
 		}
 
-		if( res != null && res instanceof JSONObject){
-			return buildTrelloBoard((JSONObject)res);
-		}else{
-			return null;
+		return true;
+	}
+
+	public TrelloBoard getBoard(){
+		return board;
+	}
+
+	public boolean addCard(TrelloList list, TrelloCard card){
+		String lid = list.getId();
+		if( lid == null ) return false;
+
+		String url = "/1/cards";
+		Map<String,String> params = new HashMap<String,String>();
+
+		params.put("idList", lid);
+
+		String tmp0;
+		if( (tmp0 = card.getName()) != null ){
+			params.put("name", tmp0);
 		}
+		if( (tmp0 = card.getDesc()) != null ){
+			params.put("desc", tmp0);
+		}
+
+		Date tmp1 = card.getDue();
+		if( tmp1 != null ){
+			TrelloDateFormat df = new TrelloDateFormat();
+			params.put("due", df.format(tmp1));
+		}
+
+		Set<String> tmp2 = card.getMemberIds();
+		if( tmp2.size() > 0 ){
+			String tmp3 = "";
+			for(String mid : tmp2){
+				tmp3 += (tmp3.length() > 0 ? "," : "") + mid;
+			}
+			params.put("idMembers", tmp3);
+		}
+
+		System.out.println(params.toString());
+
+		try{
+			api.post(url, params);
+		}catch(TrelloApiConnectionFailedException e0){
+			e0.printStackTrace();
+			return false;
+		}
+
+		if( autoFetch ){
+			fetch();
+		}
+
+		return true;
 	}
 }
