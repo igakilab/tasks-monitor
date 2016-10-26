@@ -7,8 +7,8 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardTreeForm;
@@ -31,6 +31,7 @@ public class DashBoard {
 		List<TrelloAction> actions = adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 		//アクションの有無をチェック、ボードがない場合、要素なしのリストが返されている
 		if( actions.size() <= 0 ){
+			client.close();
 			throw new ExcuteFailedException("ボードのデータがありません");
 		}
 
@@ -57,7 +58,10 @@ public class DashBoard {
 		//現在日時から期間内のスプリントを取得
 		Sprint sprint = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		//取得できなかった場合はnullを返却
-		if( sprint == null ) return null;
+		if( sprint == null ){
+			client.close();
+			return null;
+		}
 
 		//formに変換してreturn
 		client.close();

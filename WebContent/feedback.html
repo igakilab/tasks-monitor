@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>top page</title>
+		<title>Feedback</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
@@ -171,6 +171,13 @@
 						</ul>
 					</div>
 				</div> -->
+
+				<div class="row">
+					<button type="button" class="btn btn-primary next-sprint-btn">
+					次のスプリントへ</button>
+					<button type="button" class="btn btn-default to-dashboard-btn">
+					ダッシュボードへ</button>
+				</div>
 			</div>
 		</div>
 
@@ -283,6 +290,14 @@
 				errorHandler: function(msg){
 					alert(msg);
 				}
+			});
+
+			//次のステップのボタンを設定
+			$(".next-sprint-btn").on('click', function(){
+				location.href = "sprint.html?boardId=" + boardId;
+			});
+			$(".to-dashboard-btn").on('click', function(){
+				location.href = "index.html?boardId=" + boardId;
 			});
 		});
 		</script>
