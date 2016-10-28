@@ -26,10 +26,17 @@ public class DashBoardForms {
 			setValues(form, card);
 
 			for(TrelloAction act : card.getActions()){
-				System.out.println(act.dataString());
+				String tmp = act.getData().get("list.name");
+				if( tmp != null ){
+					if( tmp.matches(TasksTrelloClientBuilder.REGEX_DOING) ){
+						form.setMovedDoingAt(act.getDate());
+					}else if( tmp.matches(TasksTrelloClientBuilder.REGEX_DONE) ){
+						form.setMovedDoneAt(act.getDate());
+					}
+				}
 			}
 
-			return null;
+			return form;
 		}
 
 		//カードが作られた日時
