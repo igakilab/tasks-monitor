@@ -6,6 +6,7 @@ import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloBoardUrl;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -149,12 +150,14 @@ public class DashBoardForms {
 			if( board != null ){
 				form.setBoardId(board.getId());
 				form.setBoardName(board.getName());
-				form.setBoardUrl(board.getShortLink());
+				TrelloBoardUrl url = new TrelloBoardUrl(board.getShortLink());
+				form.setBoardUrl(url.getUrl());
 				form.setKanban(Kanban.getInstance(board));
 			}
 			//スプリント情報の設定
 			if( board != null && sprint != null ){
 				form.setSprintId(sprint.getId());
+				form.setBeginDate(sprint.getBeginDate());
 				form.setFinishDate(sprint.getFinishDate());
 				for(String cid : sprint.getTrelloCardIds()){
 					TrelloCard ctmp = board.getCardById(cid);
@@ -175,6 +178,7 @@ public class DashBoardForms {
 		private Kanban kanban;
 		//スプリントの情報
 		private String sprintId;
+		private Date beginDate;
 		private Date finishDate;
 		private List<SprintCard> sprintCards;
 
@@ -184,6 +188,7 @@ public class DashBoardForms {
 			boardUrl = null;
 			kanban = null;
 			sprintId = null;
+			beginDate = null;
 			finishDate = null;
 			sprintCards = new ArrayList<SprintCard>();
 		}
@@ -226,6 +231,14 @@ public class DashBoardForms {
 
 		public void setSprintId(String sprintId) {
 			this.sprintId = sprintId;
+		}
+
+		public Date getBeginDate() {
+			return beginDate;
+		}
+
+		public void setBeginDate(Date beginDate) {
+			this.beginDate = beginDate;
 		}
 
 		public Date getFinishDate() {
