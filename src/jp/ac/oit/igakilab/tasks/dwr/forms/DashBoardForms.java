@@ -25,14 +25,38 @@ public class DashBoardForms {
 			SprintCard form = new SprintCard();
 			//スーパークラスで情報の設定
 			setValues(form, card);
+			//完了フラグを無効にしておく
+			form.setFinished(false);
 
 			for(TrelloAction act : card.getActions()){
-				String tmp = act.getData().get("list.name");
+				String tmp = act.getData().get("listBefore.name");
+				System.out.println(act.dataString());
 				if( tmp != null ){
 					if( tmp.matches(TasksTrelloClientBuilder.REGEX_DOING) ){
-						form.setMovedDoingAt(act.getDate());
+						//すでに設定されている値がないか、その値よりも後の日時かどうか
+						if(
+							form.getMovedDoingAt() == null
+							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0
+						){
+							form.setMovedDoingAt(act.getDate());
+						}
+						//doneに設定された値よりあたらしい場合、doneの移動時刻を削除
+						if(
+							form.getMovedDoneAt() != null
+							&& form.getMovedDoingAt().compareTo(form.getMovedDoneAt()) > 0
+						){
+							form.setMovedDoneAt(null);
+							form.setFinished(false);
+						}
 					}else if( tmp.matches(TasksTrelloClientBuilder.REGEX_DONE) ){
-						form.setMovedDoneAt(act.getDate());
+						//既に設定されている値がないか、その値よりもあとの日時かどうか
+						if(
+							form.getMovedDoneAt() == null
+							|| act.getDate().compareTo(form.getMovedDoneAt()) > 0
+						){
+							form.setMovedDoneAt(act.getDate());
+							form.setFinished(true);
+						}
 					}
 				}
 			}
@@ -40,6 +64,8 @@ public class DashBoardForms {
 			return form;
 		}
 
+		//カードがdoneに移動しているかどうか
+		private boolean finished;
 		//カードが作られた日時
 		private Date createdAt;
 		//カードが最後にdoingに移動した日時
@@ -48,9 +74,18 @@ public class DashBoardForms {
 		private Date movedDoneAt;
 
 		public SprintCard(){
+			finished = false;
 			createdAt = null;
 			movedDoingAt = null;
 			movedDoneAt = null;
+		}
+
+		public boolean isFinished() {
+			return finished;
+		}
+
+		public void setFinished(boolean finished) {
+			this.finished = finished;
 		}
 
 		public Date getCreatedAt() {
