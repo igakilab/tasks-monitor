@@ -37,6 +37,7 @@ public class TestListMovedDate {
 		//List<DashBoardForms.SprintCard> cards = new ArrayList<DashBoardForms.SprintCard>();
 		for(TrelloCard card : board.getCards()){
 			TrelloActionsCard acard = (TrelloActionsCard)card;
+
 			DashBoardForms.SprintCard scard =
 				DashBoardForms.SprintCard.getInstance(acard, board);
 

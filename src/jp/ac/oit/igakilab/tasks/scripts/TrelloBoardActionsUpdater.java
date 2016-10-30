@@ -109,6 +109,9 @@ public class TrelloBoardActionsUpdater {
 		Calendar cal = Calendar.getInstance();
 
 		//データ取得
+		if( printResult ){
+			System.out.println("fetching... (" + boardId + ")");
+		}
 		fetcher.fetch(since);
 		JSONArray records = fetcher.getJSONArrayData();
 

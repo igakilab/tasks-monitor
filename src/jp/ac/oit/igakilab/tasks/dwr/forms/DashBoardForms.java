@@ -36,7 +36,7 @@ public class DashBoardForms {
 			board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_DONE).forEach((list) ->
 				listsDone.add(list.getId()));
 
-			//悪りょんの解析
+			//アクションの解析
 			for(TrelloAction act : card.getActions()){
 				//リスト移動が発生したアクションデータを取得
 				String after = act.getData().get("listAfter.id");
@@ -51,21 +51,25 @@ public class DashBoardForms {
 							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0
 						){
 							form.setMovedDoingAt(act.getDate());
+
+							//doneに設定された値よりあたらしい場合、doneの移動時刻を削除
+							if(
+								form.getMovedDoneAt() != null
+								&& form.getMovedDoingAt().compareTo(form.getMovedDoneAt()) > 0
+							){
+								form.setMovedDoneAt(null);
+								form.setFinished(false);
+							}
 						}
-						//doneに設定された値よりあたらしい場合、doneの移動時刻を削除
-						if(
-							form.getMovedDoneAt() != null
-							&& form.getMovedDoingAt().compareTo(form.getMovedDoneAt()) > 0
-						){
-							form.setMovedDoneAt(null);
-							form.setFinished(false);
-						}
+
 					//doneへの移動かどうかチェック
 					}else if( listsDone.contains(after) ){
 						//既に設定されている値がないか、その値よりもあとの日時かどうか
 						if(
-							form.getMovedDoneAt() == null
-							|| act.getDate().compareTo(form.getMovedDoneAt()) > 0
+							( form.getMovedDoneAt() == null
+							|| act.getDate().compareTo(form.getMovedDoneAt()) > 0 )
+							&& ( form.getMovedDoingAt() == null
+							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0 )
 						){
 							form.setMovedDoneAt(act.getDate());
 							form.setFinished(true);
