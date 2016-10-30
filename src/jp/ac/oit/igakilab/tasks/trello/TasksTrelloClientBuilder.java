@@ -5,8 +5,12 @@ import jp.ac.oit.igakilab.tasks.trello.api.SimpleJsonResponseTextParser;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class TasksTrelloClientBuilder {
+	public static String REGEX_TODO = "(?i)to\\s*do";
+	public static String REGEX_DOING = "(?i)doing";
+	public static String REGEX_DONE = "(?i)done";
+
 	private static String apiKey(){
-		String key = AppProperties.globalGet("tasks.trello.key");
+		String key = AppProperties.global.get("tasks.trello.key");
 		if( key != null ){
 			return key;
 		}else{
@@ -16,7 +20,7 @@ public class TasksTrelloClientBuilder {
 	}
 
 	private static String apiToken(){
-		String token = AppProperties.globalGet("tasks.trello.token");
+		String token = AppProperties.global.get("tasks.trello.token");
 		if( token != null ){
 			return token;
 		}else{
