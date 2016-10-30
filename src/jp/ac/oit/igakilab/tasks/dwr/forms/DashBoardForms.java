@@ -38,6 +38,9 @@ public class DashBoardForms {
 
 			//アクションの解析
 			for(TrelloAction act : card.getActions()){
+				if( act.getActionType() == TrelloAction.ACTION_CREATE ){
+					form.setCreatedAt(act.getDate());
+				}
 				//リスト移動が発生したアクションデータを取得
 				String after = act.getData().get("listAfter.id");
 
