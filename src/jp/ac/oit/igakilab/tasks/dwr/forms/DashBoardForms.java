@@ -20,7 +20,7 @@ public class DashBoardForms {
 	 *
 	 */
 	public static class SprintCard extends TrelloCardForm{
-		public static SprintCard getInstance(TrelloActionsCard card){
+		public static SprintCard getInstance(TrelloActionsCard card, TrelloBoard board){
 			//インスタンス生成
 			SprintCard form = new SprintCard();
 			//スーパークラスで情報の設定
@@ -28,12 +28,24 @@ public class DashBoardForms {
 			//完了フラグを無効にしておく
 			form.setFinished(false);
 
+			//対象となるリストidを取得する
+			List<String> listsDoing = new ArrayList<String>();
+			board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_DOING).forEach((list) ->
+				listsDoing.add(list.getId()));
+			List<String> listsDone = new ArrayList<String>();
+			board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_DONE).forEach((list) ->
+				listsDone.add(list.getId()));
+
+			//悪りょんの解析
 			for(TrelloAction act : card.getActions()){
-				String tmp = act.getData().get("listBefore.name");
-				System.out.println(act.dataString());
-				if( tmp != null ){
-					if( tmp.matches(TasksTrelloClientBuilder.REGEX_DOING) ){
-						//すでに設定されている値がないか、その値よりも後の日時かどうか
+				//リスト移動が発生したアクションデータを取得
+				String after = act.getData().get("listAfter.id");
+
+				//移動チェック
+				if( after != null ){
+					//doingへの移動かどうかチェック
+					if( listsDoing.contains(after) ){
+						//現在登録されている値よりも新しいものかチェック
 						if(
 							form.getMovedDoingAt() == null
 							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0
@@ -48,7 +60,8 @@ public class DashBoardForms {
 							form.setMovedDoneAt(null);
 							form.setFinished(false);
 						}
-					}else if( tmp.matches(TasksTrelloClientBuilder.REGEX_DONE) ){
+					//doneへの移動かどうかチェック
+					}else if( listsDone.contains(after) ){
 						//既に設定されている値がないか、その値よりもあとの日時かどうか
 						if(
 							form.getMovedDoneAt() == null
@@ -198,7 +211,7 @@ public class DashBoardForms {
 					TrelloCard ctmp = board.getCardById(cid);
 					if( ctmp instanceof TrelloActionsCard ){
 						TrelloActionsCard card = (TrelloActionsCard)ctmp;
-						form.getSprintCards().add(SprintCard.getInstance(card));
+						form.getSprintCards().add(SprintCard.getInstance(card, board));
 					}
 				}
 			}
