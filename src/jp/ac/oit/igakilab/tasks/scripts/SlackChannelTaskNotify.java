@@ -10,6 +10,7 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
@@ -33,7 +34,10 @@ public class SlackChannelTaskNotify {
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
 		notifer.setNotifyLine(cal.getTime());
 
-		System.out.println(notifer.execute(boardId));
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		bdb.setSlackNotifyEnabled(boardId, true);
+
+		System.out.println(notifer.execute());
 
 		client.close();
 	}
@@ -110,9 +114,18 @@ public class SlackChannelTaskNotify {
 		return cmsg.taskNotification(boardName, "期限が近付いているタスクがあります", cards);
 	}
 
+	public boolean execute(){
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		List<TrelloBoardsDB.Board> boards =  bdb.getBoardList();
 
+		for(TrelloBoardsDB.Board board : boards){
+			if( board.getSlackNotifyEnabled() ){
+				execute(board.getId());
+			}else{
+				System.out.println(board.getId() + "is notify disabled");
+			}
+		}
 
-
-
-
+		return false;
+	}
 }
