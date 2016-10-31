@@ -110,6 +110,12 @@
 		}
 
 		function setInfo(data){
+			if( data == null ){
+				Util.showAlertToDiv("ボードデータを取得できませんでした");
+				return;
+			}
+
+
 			$(".info-last-update-date").text(data.lastUpdate);
 
 			var isne = $(".info-slack-notify-enabled")
@@ -166,9 +172,9 @@
 				if( confirm("ボードを削除してもよろしいですか？") ){
 					BoardSettings.deleteBoard(BOARD_ID, function(res){
 						if( res ){
-							location.href = "../boards";
+							location.href = "../";
 						}else{
-							Util.showAlertToDiv("ボードの更新に失敗しました", "danger");
+							Util.showAlertToDiv("ボードの削除に失敗しました", "danger");
 						}
 					});
 				}
