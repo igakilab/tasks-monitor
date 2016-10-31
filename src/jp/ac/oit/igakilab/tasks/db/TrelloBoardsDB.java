@@ -11,6 +11,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 public class TrelloBoardsDB {
@@ -57,6 +58,12 @@ public class TrelloBoardsDB {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean removeBoard(String boardId){
+		Bson filter = Filters.eq("id", boardId);
+		DeleteResult res = getCollection().deleteOne(filter);
+		return res.getDeletedCount() > 0;
 	}
 
 	public Document getBoardById(String boardId){
