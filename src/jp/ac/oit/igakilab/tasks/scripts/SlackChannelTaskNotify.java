@@ -26,7 +26,7 @@ import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SlackChannelTaskNotify {
 	public static void main(String[] args){
-		String boardId = "57ab33677fd33ec535cc4f28";
+		//String boardId = "57ab33677fd33ec535cc4f28";
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		HubotSendMessage msg = new HubotSendMessage("http://igakilabot.herokuapp.com");
 		Calendar cal = Calendar.getInstance();
@@ -34,8 +34,8 @@ public class SlackChannelTaskNotify {
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
 		notifer.setNotifyLine(cal.getTime());
 
-		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
-		bdb.setSlackNotifyEnabled(boardId, true);
+		//TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		//bdb.setSlackNotifyEnabled(boardId, true);
 
 		System.out.println(notifer.execute());
 
@@ -117,15 +117,16 @@ public class SlackChannelTaskNotify {
 	public boolean execute(){
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		List<TrelloBoardsDB.Board> boards =  bdb.getBoardList();
+		boolean res = true;
 
 		for(TrelloBoardsDB.Board board : boards){
 			if( board.getSlackNotifyEnabled() ){
-				execute(board.getId());
+				res = execute(board.getId()) && res ? true : false;
 			}else{
 				System.out.println(board.getId() + "is notify disabled");
 			}
 		}
 
-		return false;
+		return res;
 	}
 }
