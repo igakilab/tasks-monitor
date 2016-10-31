@@ -7,7 +7,7 @@
 
 		<title>Board Viewer - Boards</title>
 
-		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
 
 	<body style="padding-top: 50px;">
@@ -38,7 +38,7 @@
 
 			<div class="alert-div"></div>
 
-			<a class="btn btn-success" href="addboard.html">
+			<a class="btn btn-success" href="add/">
 				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
 				新規追加</a>
 
@@ -80,7 +80,7 @@
 				});
 			var openBtn = $("<a></a>").addClass("btn btn-primary")
 				.append("ダッシュボード", Util.bsGlyphicon("chevron-right"))
-				.attr("href", "index.html?boardId=" + boardinf.data.id);
+				.attr("href", "../index.html?boardId=" + boardinf.data.id);
 
 			$(".board-list").append(
 				$("<div></div>").append(

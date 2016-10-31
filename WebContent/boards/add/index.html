@@ -7,7 +7,7 @@
 
 		<title>addboard</title>
 
-		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="../../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
 
 	<body style="padding-top: 50px;">
@@ -119,7 +119,7 @@
 				if( BOARD_ID != null ){
 					BoardMenu.addTrelloBoard(BOARD_ID, {
 						callback: function(res){
-							location.href = "boards.html";
+							location.href = "../";
 						},
 						errorHandler: Util.showAlertToDiv
 					});

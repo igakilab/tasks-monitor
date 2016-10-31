@@ -49,15 +49,15 @@
 					<h3>ボード情報の更新</h3>
 				</div>
 				<div class="col-md-8" style="margin-top: 20px;">
-					<p>最終更新日時: <span>2016/10/31 15:24:07</span></p>
+					<p>最終更新日時: <span class="info-last-update-date"></span></p>
 					<p>ボードデータを更新します</p>
 					<div class="text-right">
-						<button type="button" class="btn btn-default">更新</button>
+						<button type="button" class="btn btn-default update-btn">更新</button>
 					</div>
 
 					<p>ボードデータを一回クリアし、trelloから全データを取得しなおします</p>
 					<div class="text-right">
-						<button type="button" class="btn btn-default">リフレッシュ</button>
+						<button type="button" class="btn btn-default refresh-btn">リフレッシュ</button>
 					</div>
 				</div>
 			</div>
@@ -71,8 +71,9 @@
 				<div class="col-md-8" style="margin-top: 20px;">
 					<p>slackへの通知機能を有効化します</p>
 					<div class="text-right">
-						slackの通知機能は現在 <span>無効</span> です
-						<button class="btn btn-default">有効化</button>
+						slackの通知機能は現在 <span class="info-slack-notify-enabled">無効</span> です
+						<button type="button" class="btn btn-default slack-notify-config-btn">
+						有効化</button>
 					</div>
 				</div>
 			</div>
@@ -86,7 +87,7 @@
 				<div class="col-md-8" style="margin-top: 20px;">
 					<p>ボードを削除します</p>
 					<div class="text-right">
-						<button class="btn btn-danger">削除</button>
+						<button class="btn btn-danger delete-btn">削除</button>
 					</div>
 				</div>
 			</div>
@@ -100,41 +101,80 @@
 
 		<script src="../../dwr/engine.js"></script>
 		<script src="../../dwr/util.js"></script>
-		<script src="../../dwr/interface/BoardMenu.js"></script>
+		<script src="../../dwr/interface/BoardSettings.js"></script>
 		<script>
 		var BOARD_ID = null;
 
-		$(document).ready(function(){
-			/*$(".board-search-btn").on('click', function(){
-				//urlをフォームから取得
-				var url = $("#shortUrlInput").val();
+		function loadInfo(){
+			BoardSettings.getInfomation(BOARD_ID, setInfo);
+		}
 
-				//ボードurl問い合わせ
-				BoardMenu.getBoardDataByUrl(url, {
-					callback: function(data){
-						BOARD_ID = data.id;
-						$(".board-info-area").removeClass("hidden");
-						$(".board-id-view").text(data.id);
-						$(".board-name-view").text(data.name);
-					},
-					errorHandler: function(msg){
-						BOARD_ID = null;
-						$(".board-info-area").addClass("hidden");
-						Util.showAlertToDiv(msg);
+		function setInfo(data){
+			$(".info-last-update-date").text(data.lastUpdate);
+
+			var isne = $(".info-slack-notify-enabled")
+			var sncbtn = $(".slack-notify-config-btn");
+			sncbtn.off('click');
+			if( data.slackNotifyEnabled ){
+				isne = "有効";
+				sncbtn.text("無効化");
+				sncbtn.on('click', function(){
+					alert("slackNotify無効化");
+				});
+			}else{
+				isne = "無効";
+				sncbtn.text("有効化");
+				sncbtn.on('click', function(){
+					alert("slackNotify有効化");
+				});
+			}
+		}
+
+		$(document).ready(function(){
+			var boardId = Util.getUrlParameters().boardId;
+
+			if( Util.isNull(boardId) ){
+				Util.showAlertToDiv("ボードidを指定してください");
+				return;
+			}else{
+				BOARD_ID = boardId;
+			}
+
+			$(".update-btn").on('click', function(){
+				BoardSettings.updateBoard(BOARD_ID, function(res){
+					if( res ){
+						Util.showAlertToDiv("ボードの更新に成功しました", "success");
+						loadInfo();
+					}else{
+						Util.showAlertToDiv("ボードの更新に失敗しました", "danger");
 					}
 				});
 			});
 
-			$(".board-regist-btn").on('click', function(){
-				if( BOARD_ID != null ){
-					BoardMenu.addTrelloBoard(BOARD_ID, {
-						callback: function(res){
-							location.href = "boards.html";
-						},
-						errorHandler: Util.showAlertToDiv
+			$(".refresh-btn").on('click', function(){
+				BoardSettings.refreshBoard(BOARD_ID, function(res){
+					if( res ){
+						Util.showAlertToDiv("ボードのリフレッシュに成功しました", "success");
+						loadInfo();
+					}else{
+						Util.showAlertToDiv("ボードのリフレッシュに失敗しました", "danger");
+					}
+				});
+			});
+
+			$(".delete-btn").on('click', function(){
+				if( confirm("ボードを削除してもよろしいですか？") ){
+					BoardSettings.deleteBoard(BOARD_ID, function(res){
+						if( res ){
+							location.href = "../boards";
+						}else{
+							Util.showAlertToDiv("ボードの更新に失敗しました", "danger");
+						}
 					});
 				}
-			});*/
+			});
+
+			loadInfo();
 		});
 		</script>
 	</body>

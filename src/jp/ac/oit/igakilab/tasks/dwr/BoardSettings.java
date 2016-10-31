@@ -4,11 +4,31 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
+import jp.ac.oit.igakilab.tasks.dwr.forms.BoardSettingsForms;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class BoardSettings {
+	public BoardSettingsForms.Info getInfomation(String boardId){
+		//インスタンス初期化
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+
+		//ボードの存在チェック
+		if( !bdb.boardIdExists(boardId) ){
+			client.close();
+			return null;
+		}
+
+		//データ格納
+		BoardSettingsForms.Info inf = new BoardSettingsForms.Info();
+		inf.setLastUpdate(bdb.getLastUpdateDate(boardId));
+
+		client.close();
+		return inf;
+	}
+
 	public boolean updateBoard(String boardId){
 		//インスタンス初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
