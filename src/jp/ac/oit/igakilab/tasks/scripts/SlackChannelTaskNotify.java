@@ -30,7 +30,7 @@ public class SlackChannelTaskNotify {
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		HubotSendMessage msg = new HubotSendMessage("http://igakilabot.herokuapp.com");
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, 5);
+		cal.add(Calendar.DATE, 7);
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
 		notifer.setNotifyLine(cal.getTime());
 
@@ -48,9 +48,9 @@ public class SlackChannelTaskNotify {
 
 	private TrelloBoardActionsDB adb;
 	private DocumentParser<TrelloAction> parser;
-	private ChannelNotification cmsg;
 	private MemberSlackIdTable stable;
 	private MemberTrelloIdTable ttable;
+	private ChannelNotification cmsg;
 
 	public SlackChannelTaskNotify(MongoClient client, HubotSendMessage msg){
 		this.client = client;
@@ -61,11 +61,11 @@ public class SlackChannelTaskNotify {
 	public void init(){
 		adb = new TrelloBoardActionsDB(client);
 		parser = new TrelloActionDocumentParser();
+		stable = new MemberSlackIdTable(client);
+		ttable = new MemberTrelloIdTable(client);
 		cmsg = new ChannelNotification(msg);
 		cmsg.setSlackIdTable(stable);
 		cmsg.setTestMode(true);
-		stable = new MemberSlackIdTable(client);
-		ttable = new MemberTrelloIdTable(client);
 	}
 
 	public void setNotifyLine(Date d){
