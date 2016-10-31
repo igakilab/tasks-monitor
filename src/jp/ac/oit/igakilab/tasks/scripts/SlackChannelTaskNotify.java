@@ -106,6 +106,7 @@ public class SlackChannelTaskNotify {
 		List<NotifyTrelloCard> cards = collectNotifyCards(board);
 
 		//送信
+		System.out.println("to: " + boardName);
 		return cmsg.taskNotification(boardName, "期限が近付いているタスクがあります", cards);
 	}
 
