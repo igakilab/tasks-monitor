@@ -8,6 +8,9 @@
 		<title>DashBoard</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
+		<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
+		<script src="js/modernizr.js"></script> <!-- Modernizr -->
 	</head>
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -33,6 +36,14 @@
 			<div style="padding: 40px 15px; text-align: center;">
 				<div class="row">
 					<div class="col-md-4">
+						<a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank"><h1>tasks-test</h1></a>
+					</div>
+					<div class="col-md-2">
+						<br><a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank">Trelloで開く</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
 						<h3>次の目標日</h3>
 						<span id="finishDate"></span>
 					</div>
@@ -44,6 +55,63 @@
 						</div>
 					</div>
 				</div>
+				<div class="row">
+					<section class="cd-horizontal-timeline">
+					<div class="col-md-2">
+
+						<ol style="margin: 0 auto">
+							<li><h2>aaaaa</h2></li>
+						</ol>
+					</div>
+					<div class="col-md-9">
+							<div class="timeline">
+								<div class="events-wrapper">
+									<div class="events">
+										<ol id="bb">
+											<li><a href="#0" data-date="2016/10/28" class="selected">10/28</a></li>
+											<li><a href="#0" data-date="2016/10/29">10/29</a></li>
+											<li><a href="#0" data-date="2016/10/30">10/30</a></li>
+											<li><a href="#0" data-date="2016/10/31">10/31</a></li>
+											<li><a href="#0" data-date="2016/11/1">11/01</a></li>
+											<li><a href="#0" data-date="2016/11/2">11/02</a></li>
+											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
+										</ol>
+										<span id="bb" class="filling-line" aria-hidden="true"></span>
+									</div> <!-- .events -->
+								</div> <!-- .events-wrapper -->
+							</div> <!-- .timeline -->
+					</div>
+					</section>
+				</div>
+
+				<div class="row">
+					<section class="cd-horizontal-timeline">
+					<div class="col-md-2">
+						<ol style="margin: 0 auto">
+							<li><h2>bbbbb</h2></li>
+						</ol>
+					</div>
+					<div class="col-md-9">
+							<div class="timeline">
+								<div class="events-wrapper">
+									<div class="events">
+										<ol id="cc">
+											<li><a href="#0" data-date="2016/10/28" class="selected ; doing">10/28<br>Doing登録</a></li>
+											<li><a href="#0" data-date="2016/10/29" >10/29</a></li>
+											<li><a href="#0" data-date="2016/10/30">10/30</a></li>
+											<li><a href="#0" data-date="2016/10/31" class="done">10/31<br>Done登録</a></li>
+											<li><a href="#0" data-date="2016/11/1">11/01</a></li>
+											<li><a href="#0" data-date="2016/11/2">11/02</a></li>
+											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
+										</ol>
+										<span id="cc" class="filling-line" aria-hidden="true"></span>
+									</div> <!-- .events -->
+								</div> <!-- .events-wrapper -->
+							</div> <!-- .timeline -->
+					</div>
+					</section>
+				</div>
+
 
 				<div class="row">
 					<div class="col-md-4">
@@ -69,6 +137,8 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script src="js/jquery.mobile.custom.min.js"></script>
+		<script src="js/main.js"></script> <!-- Resource jQuery -->
 		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
