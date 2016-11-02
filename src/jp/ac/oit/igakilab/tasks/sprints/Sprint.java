@@ -10,6 +10,11 @@ public class Sprint {
 		if( d0 == null ) return null;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(d0);
+		return roundDate(cal);
+	}
+
+	public static Calendar roundDate(Calendar cal){
+		if( cal == null ) return null;
 		Calendar ncal = Calendar.getInstance();
 		ncal.clear();
 		ncal.set(Calendar.YEAR, cal.get(Calendar.YEAR));
