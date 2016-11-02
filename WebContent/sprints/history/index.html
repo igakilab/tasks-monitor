@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>Feedback</title>
+		<title>Sprint History</title>
 
 		<link href="../../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
@@ -32,6 +32,8 @@
 		<div class="container">
 			<h2>過去のスプリント一覧</h2>
 
+			<div class="alert-div"></div>
+
 			<h3>ボード名</h3>
 
 			<table class="table">
@@ -43,9 +45,6 @@
 					<th>達成カード数</th>
 				</tr></thead>
 				<tbody class="sprint-list-tbody">
-					<tr><td><a href="">37a3528</a></td>
-					<td>2016/10/30</td><td>2016/11/3</td>
-					<td>2016/11/3 15:32</td><td>4 / 5</td></tr>
 				</tbody>
 			</table>
 
@@ -61,11 +60,73 @@
 		<script src="../../dwr/interface/SprintHistory.js"></script>
 
 		<script>
+		/*
+		 * スプリント一覧表の位置行のdomオブジェクトを生成する関数
+		 * sprにはsprintListのそれぞれの要素を渡す
+		 */
+		function generateSprintRow(spr){
+			var $did = $("<td></td>");
+
+			var $row = $("<tr></tr>").append(
+				$did,
+				$("<td></td>").text(Util.formatDate(spr.beginDate, "YYYY/MM/DD")),
+				$("<td></td>").text(Util.formatDate(spr.finishDate, "YYYY/MM/DD")));
+
+			if( !Util.isNull(spr.closedDate) ){
+				$row.append(
+					$("<td></td>").text(Util.formatDate(spr.closedDate, "YYYY/MM/DD hh:mm")));
+				$did.append($("<a></a>").text(spr.id)
+					.attr("href", "../result/?sprintId=" + spr.id));
+			}else{
+				$row.append($("<td></td>").text("進行中"));
+				$did.append(spr.id);
+			}
+
+			if( !Util.isNull(spr.finishedCards) && !Util.isNull(spr.remainedCards) ){
+				var f = spr.finishedCards.length;
+				var t = f + spr.remainedCards.length;
+				$row.append($("<td></td>").text(f + " / " + t));
+			}else{
+				$row.append($("<td></td>").append("- / -"));
+			}
+
+			return $row;
+		}
+
+		/*
+		 * スプリントリストを表示する関数
+		 */
+		function showSprintList(list){
+			var tbody = $(".sprint-list-tbody");
+			tbody.empty();
+
+			for(var i=0; i<list.length; i++){
+				tbody.append(generateSprintRow(list[i]));
+			}
+		}
+
+		/*
+		 * ボード情報を表示する関数
+		 */
+		function showBoardData(boardData){
+			$(".board-name").text(boardData.name);
+		}
 
 		/*
 		 * ページロード時に実行される関数
 		 */
 		$(document).ready(function(){
+			var boardId = Util.getUrlParameters().boardId;
+
+			if( Util.isNull(boardId) ){
+				Util.showAlertToDiv("ボードIDを指定してください");
+				return;
+			}
+
+			SprintHistory.getSprintList(boardId, function(reply){
+				showBoardData(reply.boardData);
+				showSprintList(reply.sprintList);
+			});
 		});
 		</script>
 	</body>
