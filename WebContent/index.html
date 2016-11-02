@@ -38,9 +38,6 @@
 					<div class="col-md-4">
 						<a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank"><h1>tasks-test</h1></a>
 					</div>
-					<div class="col-md-2">
-						<br><a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank">Trelloで開く</a>
-					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-4">
@@ -57,26 +54,26 @@
 				</div>
 				<div class="row">
 					<section class="cd-horizontal-timeline">
-					<div class="col-md-2">
+					<div class="col-md-3">
 
 						<ol style="margin: 0 auto">
-							<li><h2>aaaaa</h2></li>
+							<li><h2>aaaaa</h2></li><!--カード名かナンバリング-->
 						</ol>
 					</div>
 					<div class="col-md-9">
-							<div class="timeline">
+							<div class="timeline"><!--タイムライン表示本体 main.jsで制御-->
 								<div class="events-wrapper">
 									<div class="events">
-										<ol id="bb">
-											<li><a href="#0" data-date="2016/10/28" class="selected">10/28</a></li>
-											<li><a href="#0" data-date="2016/10/29">10/29</a></li>
-											<li><a href="#0" data-date="2016/10/30">10/30</a></li>
-											<li><a href="#0" data-date="2016/10/31">10/31</a></li>
+										<ol id="bb"><!--注:ol要素にidを付けないと表示されない idは#ナンバリングでいいかも？-->
+											<li><a href="#0" data-date="2016/10/28" class="selected">10/28</a></li> <!--data-date属性の形式はYYYY/MM/DD-->
+											<li><a href="#0" data-date="2016/10/29">10/29</a></li>					<!--ただし先頭の0は抜くように　日付の判定ができなくなるので-->
+											<li><a href="#0" data-date="2016/10/30">10/30</a></li>	<!--class="selected"は日付やカードの移動状況によって移動-->
+											<li><a href="#0" data-date="2016/10/31">10/31</a></li>	<!--参考 main.js:49,61,66-->
 											<li><a href="#0" data-date="2016/11/1">11/01</a></li>
 											<li><a href="#0" data-date="2016/11/2">11/02</a></li>
 											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
 										</ol>
-										<span id="bb" class="filling-line" aria-hidden="true"></span>
+										<span id="bb" class="filling-line" aria-hidden="true"></span>　<!--バー表示 日付によって動く-->
 									</div> <!-- .events -->
 								</div> <!-- .events-wrapper -->
 							</div> <!-- .timeline -->
@@ -86,7 +83,7 @@
 
 				<div class="row">
 					<section class="cd-horizontal-timeline">
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<ol style="margin: 0 auto">
 							<li><h2>bbbbb</h2></li>
 						</ol>
@@ -100,8 +97,8 @@
 											<li><a href="#0" data-date="2016/10/29" >10/29</a></li>
 											<li><a href="#0" data-date="2016/10/30">10/30</a></li>
 											<li><a href="#0" data-date="2016/10/31" class="done">10/31<br>Done登録</a></li>
-											<li><a href="#0" data-date="2016/11/1">11/01</a></li>
-											<li><a href="#0" data-date="2016/11/2">11/02</a></li>
+											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	<!--doing,doneはa要素にクラス追加で対応 制御jsの判定で使う-->
+											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	<!--クラス追加すればマーカーが付く-->
 											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
 										</ol>
 										<span id="cc" class="filling-line" aria-hidden="true"></span>

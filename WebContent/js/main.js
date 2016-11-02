@@ -4,7 +4,6 @@ jQuery(document).ready(function($){
 	var dt = new Date();
 	var month = dt.getMonth()+1;
 	var today = dt.getFullYear()+"/"+month+"/"+dt.getDate();
-	console.log(today);
 
 	(timelines.length > 0) && initTimeline(timelines);
 
@@ -41,37 +40,30 @@ jQuery(document).ready(function($){
 			});
 			//detect click on the a single event - show new event content
 			timelineComponents['timelineEvents'].ready(function(event){
-				//event.preventDefault()
-				//this = timelineComponents['timelineEvents'];
 				$('a').removeClass('selected');
-				//this.removeClass('selected');
-				//if($('ol').attr('id')!=null){var id=$('ol').attr('id');}
-				console.log($('.events > ol:eq(0)').attr('id'));
-				console.log($('.events > ol:last').attr('id'));
-				for(var j=0;j<2;j++){
+				var num = $('ol[id]').length;
+				for(var j=0;j<num;j++){
 				for(var i=0;i<7;i++){
-					var sel="a:eq("+i+")"
-					var id=$(".events > ol:eq("+j+")").attr('id')
-					console.log(id);
-					if($("#"+id).find(sel).data('date')==today){
+					var sel="a:eq("+i+")"//セレクタ
+					var id=$(".events > ol:eq("+j+")").attr('id')//ol要素のid取得
+					if($("#"+id).find(sel).data('date')==today){　//今日の日付が入っているdata-date属性を探索
 						$("#"+id).find(sel).addClass('selected');
 						updateOlderEvents($(this));
 						updateFilling($("#"+id).find(sel), timelineComponents['fillingLine'], timelineTotWidth);
 						updateVisibleContent($("#"+id).find(sel), timelineComponents['eventsContent']);
 						break;
 					}else{
-						$("#"+id).find(sel).addClass('hidden');
+						$("#"+id).find(sel).addClass('hidden');　//日が過ぎているなら非表示に
 					}
 				}
 				for(var i=0;i<7;i++){
 					var sel="a:eq("+i+")"
-					if($("#"+id).find(sel).hasClass('done')||$("#"+id).find(sel).hasClass('doing')){
-						$("#"+id).find(sel).removeClass('hidden');
+					if($("#"+id).find(sel).hasClass('done')||$("#"+id).find(sel).hasClass('doing')){　//doing・done移動した日を探索 
+						$("#"+id).find(sel).removeClass('hidden'); //非表示解除
 						$("#"+id).find(sel).addClass('selected');
 						updateOlderEvents($(this));
-						//updateFilling($("#"+id).find(sel), timelineComponents['fillingLine'], timelineTotWidth);
 						updateVisibleContent($("#"+id).find(sel), timelineComponents['eventsContent']);
-						if($("#"+id).find(sel).hasClass('done')){break;}
+						if($("#"+id).find(sel).hasClass('done')){break;}//doneした日があれば探索終了
 					}
 				}
 				}
@@ -88,7 +80,7 @@ jQuery(document).ready(function($){
 				updateOlderEvents($(this));
 				updateFilling($(this), timelineComponents['fillingLine'], timelineTotWidth);
 				updateVisibleContent($(this), timelineComponents['eventsContent']);
-			});*/
+			});
 
 			//on swipe, show next/prev event content
 			timelineComponents['eventsContent'].on('swipeleft', function(){
@@ -107,12 +99,12 @@ jQuery(document).ready(function($){
 				} else if( event.which=='39' && elementInViewport(timeline.get(0))) {
 					showNewContent(timelineComponents, timelineTotWidth, 'next');
 				}
-			});
+			});*/
 		});
 	}
 
 	function updateSlide(timelineComponents, timelineTotWidth, string) {
-		//retrieve translateX value of timelineComponents['eventsWrapper']
+		//retrieve translateX value of timelineComponents['eventsWrapper']　不使用
 		var translateValue = getTranslateValue(timelineComponents['eventsWrapper']),
 			wrapperWidth = Number(timelineComponents['timelineWrapper'].css('width').replace('px', ''));
 		//translate the timeline to the left('next')/right('prev') 
@@ -122,7 +114,7 @@ jQuery(document).ready(function($){
 	}
 
 	function showNewContent(timelineComponents, timelineTotWidth, string) {
-		//go from one event to the next/previous one
+		//go from one event to the next/previous one　不使用
 		var visibleContent =  timelineComponents['eventsContent'].find('.selected'),
 			newContent = ( string == 'next' ) ? visibleContent.next() : visibleContent.prev();
 
@@ -163,7 +155,7 @@ jQuery(document).ready(function($){
 	}
 
 	function updateFilling(selectedEvent, filling, totWidth) {
-		//change .filling-line length according to the selected event
+		//change .filling-line length according to the selected event バー制御
 		var eventStyle = window.getComputedStyle(selectedEvent.get(0), null),
 			eventLeft = eventStyle.getPropertyValue("left"),
 			eventWidth = eventStyle.getPropertyValue("width");
@@ -246,7 +238,7 @@ jQuery(document).ready(function($){
 		element.style["transform"] = property+"("+value+")";
 	}
 
-	//based on http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript
+	//based on http://stackoverflow.com/questions/542938/how-do-i-get-the-number-of-days-between-two-dates-in-javascript　data-date属性取得
 	function parseDate(events) {
 		var dateArrays = [];
 		events.each(function(){
