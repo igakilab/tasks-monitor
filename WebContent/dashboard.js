@@ -77,7 +77,7 @@ function showDashBoard(data){
 
 		//タイムライングラフを作成
 		var $timeline = createTaskTimeline("sc" + i,
-			data.beginDate, card.moveDoingAt, card.moveDoneAt, data.finishDate);
+			data.beginDate, card.movedDoingAt, card.movedDoneAt, data.finishDate);
 
 		//左にタスク名、右にタイムライングラフを格納して、sprint-cardsに追加
 		$(".sprint-cards").append(
@@ -89,6 +89,8 @@ function showDashBoard(data){
 			)
 		);
 	}
+	//タイムラインを初期化
+	$(".cd-horizontal-timeline").initTimeline();
 
 	// *****
 	// かんばんの表示
@@ -120,7 +122,17 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 	while( dtmp.getTime() <= dFinish.getTime() ){
 		//data-dateの文字列表現を生成、doing,doneの表現と比較
 		var dtmpStr = formatDate(dtmp);
-		var clazz = dtmpStr == dDoingStr ? "doing" : (dtmpStr == dDoneStr ? "done" : "");
+		var label = Util.formatDate(dtmp, "MM/DD");
+		var clazz = "";
+
+		//doing,doneの表現と比較、それぞれの処理
+		if( dtmpStr == dDoingStr ){
+			clazz = "doing";
+			label += "<br/>Doing登録";
+		}else if( dtmpStr == dDoneStr ){
+			clazz = "done";
+			label += "<br/>Done登録";
+		}
 
 		//初回の要素にselectedクラスを付加する
 		if( selflg ){
@@ -133,7 +145,7 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 			$("<a></a>").attr("href", "#0")
 				.attr("data-date", dtmpStr)
 				.addClass(clazz)
-				.append(Util.formatDate(dtmp, "MM/DD"))
+				.append(label)
 		));
 
 
