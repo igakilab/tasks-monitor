@@ -68,6 +68,13 @@ function showDashBoard(data){
 	for(var i=0; i<data.sprintCards.length; i++){
 		var card = data.sprintCards[i];
 
+		//ラベル部分を作成
+		var $label = $("<ol></ol>").append(
+			$("<li></li>").append(
+				$("<h2></h2>").append(card.name)
+			)
+		).css("margin", "0 auto");
+
 		//タイムライングラフを作成
 		var $timeline = createTaskTimeline("sc" + i,
 			data.beginDate, card.moveDoingAt, card.moveDoneAt, data.finishDate);
@@ -76,8 +83,7 @@ function showDashBoard(data){
 		$(".sprint-cards").append(
 			$("<div></div>").addClass("row").append(
 				$("<section></section>").addClass("cd-horizontal-timeline").append(
-					$("<div></div>").addClass("col-md-3").append(
-						$("<h3></h3>").text(card.name)),
+					$("<div></div>").addClass("col-md-3").append($label),
 					$("<div></div>").addClass("col-md-9").append($timeline)
 				)
 			)
@@ -98,18 +104,21 @@ function showDashBoard(data){
  * 進捗グラフのグラフ部分の要素を作成します
  */
 function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
-	console.log(id + ":" + dBegin + ":" + dDoing + ":" + dDone + ":" + dFinish);
+	//日付フォーマット作成関数
+	var formatDate = function(date){
+		return date.getFullYear() + "/" + (date.getMonth()+1) + "/" + date.getDate();
+	};
 	//ol要素を作成
 	var $ol = $("<ol></ol>").attr("id", id);
 	//doing,doneの文字列表現を作成
-	var dDoingStr = Util.isNull(dDoing) ? "null" : Util.formatDate(dDoing, "YYYY/MM/DD");
-	var dDoneStr = Util.isNull(dDone) ? "null" : Util.formatDate(dDone, "YYYY/MM/DD");
+	var dDoingStr = Util.isNull(dDoing) ? "null" : formatDate(dDoing);
+	var dDoneStr = Util.isNull(dDone) ? "null" : formatDate(dDone);
 
 	//開始日から終了日まで繰り返し
 	var dtmp = new Date(dBegin.getTime());
 	while( dtmp.getTime() <= dFinish.getTime() ){
 		//data-dateの文字列表現を生成、doing,doneの表現と比較
-		var dtmpStr = Util.formatDate(dtmp, "YYYY/MM/DD");
+		var dtmpStr = formatDate(dtmp);
 		var clazz = dtmpStr == dDoingStr ? "doing" : (dtmpStr == dDoneStr ? "done" : "");
 		//要素を生成し追加
 		$ol.append($("<li></li>").append(
