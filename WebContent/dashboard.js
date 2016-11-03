@@ -4,13 +4,16 @@
 function showDashBoard(data){
 	// *****
 	//ボード名/ボードリンクの表示
+	$(".board-title").empty();
 	$(".board-title").append(
-		$("<a></a>").text(data.boardName)
-			.attr("href", boardUrl));
+		$("<a></a>").append(
+			$("<h1></h1>").text(data.boardName))
+			.attr("href", data.boardUrl));
 
 
 	// *****
 	//目標日の表示
+	$("finish-date").empty();
 	if( !Util.isNull(data.finishDate) ){
 		$(".finish-date").append(
 			$("<h1></h1>").text(Util.formatDate(
@@ -55,29 +58,56 @@ function showDashBoard(data){
 	//パーセンテージを計算
 	var progress = Math.floor(fin / all * 100);
 	//プログレスパーに設定
-	$(".task-progress").attr("aria-valuenow", progress)
+	$("#taskProgress").attr("aria-valuenow", progress)
 		.css("width", progress + "%");
 
 
 	// *****
 	// 進捗グラフの表示
+	$(".sprint-cards").empty();
+	for(var i=0; i<data.sprintCards.length; i++){
+		var card = data.sprintCards[i];
 
+		//タイムライングラフを作成
+		var $timeline = createTaskTimeline("sc" + i,
+			data.beginDate, card.moveDoingAt, card.moveDoneAt, data.finishDate);
 
+		//左にタスク名、右にタイムライングラフを格納して、sprint-cardsに追加
+		$(".sprint-cards").append(
+			$("<div></div>").addClass("row").append(
+				$("<section></section>").addClass("cd-horizontal-timeline").append(
+					$("<div></div>").addClass("col-md-3").append(
+						$("<h3></h3>").text(card.name)),
+					$("<div></div>").addClass("col-md-9").append($timeline)
+				)
+			)
+		);
+	}
+
+	// *****
+	// かんばんの表示
+	$("#todoList").empty();
+	addCardToListGroup($("#todoList"), data.kanban.todo);
+	$("#doingList").empty();
+	addCardToListGroup($("#doingList"), data.kanban.doing);
+	$("#doneList").empty();
+	addCardToListGroup($("#doneList"), data.kanban.done);
 }
 
 /*
  * 進捗グラフのグラフ部分の要素を作成します
  */
 function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
+	console.log(id + ":" + dBegin + ":" + dDoing + ":" + dDone + ":" + dFinish);
 	//ol要素を作成
 	var $ol = $("<ol></ol>").attr("id", id);
 	//doing,doneの文字列表現を作成
-	var dDoingStr = Util.formatDate(dDoing, "YYYY/MM/DD");
-	var dDoneStr = Util.formatDate(dDone, "YYYY/MM/DD");
+	var dDoingStr = Util.isNull(dDoing) ? "null" : Util.formatDate(dDoing, "YYYY/MM/DD");
+	var dDoneStr = Util.isNull(dDone) ? "null" : Util.formatDate(dDone, "YYYY/MM/DD");
 
-	var dtmp = dBegin;
 	//開始日から終了日まで繰り返し
-	while( dtmp.getTime() <= finishDate.getTime() ){
+	var dtmp = new Date(dBegin.getTime());
+	while( dtmp.getTime() <= dFinish.getTime() ){
 		//data-dateの文字列表現を生成、doing,doneの表現と比較
 		var dtmpStr = Util.formatDate(dtmp, "YYYY/MM/DD");
 		var clazz = dtmpStr == dDoingStr ? "doing" : (dtmpStr == dDoneStr ? "done" : "");
@@ -86,7 +116,7 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 			$("<a></a>").attr("href", "#0")
 				.attr("data-date", dtmpStr)
 				.addClass(clazz))
-			.text(Util.formatDate(dtmp, "MM/DD")));
+			.append(Util.formatDate(dtmp, "MM/DD")));
 
 		//日付をインクリメント
 		dtmp.setDate(dtmp.getDate() + 1);
@@ -95,29 +125,34 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 	//ラッパーに入れて返却
 	return $("<div></div>").addClass("timeline").append(
 		$("<div></div>").addClass("events-wrapper").append(
-			$("<div></div>").addClass("events").append($ol)
+			$("<div></div>").addClass("events").append($ol,
+				$("<span></span>").attr("id", id)
+					.addClass("filling-line")
+					.attr("aria-hidden", "true"))
 		)
 	);
 }
 
 /*
-<div class="timeline">
-	<div class="events-wrapper">
-		<div class="events">
-			<ol id="cc">
-				<li><a href="#0" data-date="2016/10/28" class="selected ; doing">10/28<br>Doing登録</a></li>
-				<li><a href="#0" data-date="2016/10/29" >10/29</a></li>
-				<li><a href="#0" data-date="2016/10/30">10/30</a></li>
-				<li><a href="#0" data-date="2016/10/31" class="done">10/31<br>Done登録</a></li>
-				<li><a href="#0" data-date="2016/11/1">11/01</a></li>	<!--doing,doneはa要素にクラス追加で対応 制御jsの判定で使う-->
-				<li><a href="#0" data-date="2016/11/2">11/02</a></li>	<!--クラス追加すればマーカーが付く-->
-				<li><a href="#0" data-date="2016/11/3">11/03</a></li>
-			</ol>
-			<span id="cc" class="filling-line" aria-hidden="true"></span>
-		</div> <!-- .events -->
-	</div> <!-- .events-wrapper -->
-</div> <!-- .timeline -->*/
+ * 与えられたtrellocardオブジェクトを変換し
+ * $listgrpに追加します
+ */
+function addCardToListGroup($listgrp, cards){
+	cards.forEach(function(val, idx, ary){
+		//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
+		var listItem = $("<li></li>");
+		listItem.addClass("list-group-item");
 
+		//アイテムのタイトルを作成, アイテムに追加
+		var listItemHead = $("<h4></h4>");
+		listItemHead.addClass("list-group-item-heading");
+		listItemHead.text(val.name);
+		listItem.append(listItemHead);
+
+		//listGroupにアイテムを追加
+		$listgrp.append(listItem);
+	});
+}
 
 
 

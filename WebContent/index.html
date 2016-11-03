@@ -42,7 +42,7 @@
 				<div class="row">
 					<div class="col-md-4">
 						<h3>次の目標日</h3>
-						<span id="finishDate"></span>
+						<span class="finish-date"></span>
 					</div>
 					<div class="col-md-8">
 						<h3>現在の進捗</h3>
@@ -52,6 +52,7 @@
 						</div>
 					</div>
 				</div>
+				<div class="sprint-cards">
 				<div class="row">
 					<section class="cd-horizontal-timeline">
 					<div class="col-md-3">
@@ -108,6 +109,7 @@
 					</div>
 					</section>
 				</div>
+				</div>
 
 
 				<div class="row">
@@ -129,11 +131,6 @@
 					<a class="btn btn-primary sprint-close-btn disabled" role="button">
 					振り返りへ</a>
 				</div>
-
-				<ol>
-					<li>ぢぢｄ</li>
-					<li>つつど</li>
-				</ol>
 			</div>
 		</div>
 
@@ -146,31 +143,8 @@
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/DashBoard.js"></script>
 
+		<script src="dashboard.js"></script>
 		<script>
-		/*
-		 * リストグループにカードを追加する
-		 * listGroupには追加する先のリストのjqueryオブジェクトを、
-		 * cardsには追加したいカードの配列を渡します。
-		*/
-		function addCardToListGroup(listGroup, cards){
-			//カードのオブジェクトを生成してlistGroupに追加していく
-			for(var i=0; i<cards.length; i++){
-
-				//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
-				var listItem = $("<li></li>");
-				listItem.addClass("list-group-item");
-
-				//アイテムのタイトルを作成, アイテムに追加
-				var listItemHead = $("<h4></h4>");
-				listItemHead.addClass("list-group-item-heading");
-				listItemHead.text(cards[i].name);
-				listItem.append(listItemHead);
-
-				//listGroupにアイテムを追加
-				listGroup.append(listItem);
-			}
-		}
-
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
 			var params = Util.getUrlParameters();
@@ -180,92 +154,45 @@
 
 			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
 			if( typeof boardId === 'undefined' ){
-				alert("ボードIDを指定してください");
+				Util.showAlertToDiv("ボードIDを指定してください");
 				return;
 			}
 
 			//かんばんの情報を取得する
-			DashBoard.getKanban(boardId, {
+			DashBoard.getDashBoardData(boardId, {
 				//処理が完了したときに呼び出されるコールバック関数
 				//dataにかんばんの情報が返却される
 				callback: function(data){
 					/*
 					 * 返却されるデータ: {
-					 *	boardId: <ボードのID>
-					 *	boardName: <ボードの名前>
-					 *	todo: <カードのリスト(配列)>
-					 *	doing: <カードのリスト(配列)>
-					 *	done: <カードのリスト(配列)>
+					 *  boardId: <ボードのID>
+					 *  boardName: <ボードの名前>
+					 *  boardUrl: <ボードのURL>
+					 *  kanban: {
+					 *  	todo: <todoのタスクリスト>
+					 *  	doing: <doingのタスクリスト>
+					 *  	done: <doneのタスクリスト>
+					 * }
+					 *  sprintId: <スプリントのID>
+					 *  beginDate: <スプリントの開始日>
+					 *  finishDate: <スプリントの終了日>
+					 *  sprintCards: [{
+					 *  	finished: <終了していたらtrue>
+					 *  	createdAt: <タスク(カード)の作成された日時>
+					 *  	movedDoingAt: <doingに移動した日時>
+					 *  	movedDoneAt: <doneに移動した日時>
+					 *  }, ...]
 					 * }
 					*/
 
-					//それぞれのリストにカードを追加する
-					//empty()でhtmlで表示されるリストのカードをクリア
-					//addCardToListGroupでカードを追加
-					$("#todoList").empty();
-					addCardToListGroup($("#todoList"), data.todo);
-					$("#doingList").empty();
-					addCardToListGroup($("#doingList"), data.doing);
-					$("#doneList").empty();
-					addCardToListGroup($("#doneList"), data.done);
-
-					//プログレスバーの進捗を計算する
-					//残っているタスク数と完了しているタスク数を取得
-					var remain = data.todo.length + data.doing.length;
-					var finish = data.done.length;
-					//パーセンテージを計算
-					var progress = Math.floor(finish / (finish + remain) * 100);
-
-					//プログレスパーに設定
-					$("#taskProgress").attr("aria-valuenow", progress)
-						.css("width", progress + "%");
+					//showDashBoardを呼ぶ
+					showDashBoard(data);
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数
 				//msgにエラーメッセージが返却される
 				errorHandler: function(msg){
-					alert(msg);
-				}
-			});
-
-			//目標日を取得する
-			DashBoard.getCurrentSprint(boardId, {
-				callback: function(data){
-					/*
-					 * 返却されるデータ: {
-					 *	id: <スプリントのID>
-					 *	boardId: <ボードのID>
-					 *	beginDate: <スプリントの開始日>
-					 *	finishDate: <スプリントの目標日>
-					 *	closed: <スプリントが完了しているか(true/false)>
-					 *  closedDate: <スプリントの完了日>
-					 * }
-					*/
-
-					//スプリントの目標日を表示する
-					if( data != null ){
-						$("#finishDate").append(
-							$("<h1></h1>").text(
-								Util.formatDate(data.finishDate, "YYYY-MM-DD"))
-						);
-					}else{
-						$("#finishDate").append(
-							"現在進行中のスプリントはありません",
-							$("<br></br>"),
-							$("<a></a>").text("新しいスプリントを作成...")
-								.attr("href", "sprint.html?boardId=" + boardId)
-						);
-					}
-
-					//feedback.htmlへのリンクをはる
-					if( data != null ){
-						$(".sprint-close-btn").removeClass("disabled")
-							.attr("href", "feedback.html?boardId=" + boardId);
-					}
-
-				},
-				errorHandler: function(msg){
-					alert(msg);
+					Util.showAlertToDiv("通信エラー: " + msg);
 				}
 			});
 		});
