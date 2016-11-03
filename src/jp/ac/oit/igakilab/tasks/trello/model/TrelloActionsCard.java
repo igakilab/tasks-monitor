@@ -97,5 +97,9 @@ public class TrelloActionsCard extends TrelloCard {
 		return true;
 	}
 
+	public List<TrelloAction> getActions(){
+		return actions;
+	}
+
 
 }
