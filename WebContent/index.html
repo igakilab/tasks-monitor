@@ -8,9 +8,9 @@
 		<title>DashBoard</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
-		<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
-		<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
-		<script src="js/modernizr.js"></script> <!-- Modernizr -->
+		<link rel="stylesheet" href="css/reset.css"><!-- CSS reset -->
+		<link rel="stylesheet" href="css/htimeline.css"><!-- Resource style -->
+		<script src="js/modernizr.js"></script><!-- Modernizr -->
 	</head>
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -65,13 +65,13 @@
 								<div class="events-wrapper">
 									<div class="events">
 										<ol id="bb"><!--注:ol要素にidを付けないと表示されない idは#ナンバリングでいいかも？-->
-											<li><a href="#0" data-date="2016/10/28" class="selected">10/28</a></li> <!--data-date属性の形式はYYYY/MM/DD-->
-											<li><a href="#0" data-date="2016/10/29">10/29</a></li>					<!--ただし先頭の0は抜くように　日付の判定ができなくなるので-->
-											<li><a href="#0" data-date="2016/10/30">10/30</a></li>	<!--class="selected"は日付やカードの移動状況によって移動-->
-											<li><a href="#0" data-date="2016/10/31">10/31</a></li>	<!--参考 main.js:49,61,66-->
-											<li><a href="#0" data-date="2016/11/1">11/01</a></li>
-											<li><a href="#0" data-date="2016/11/2">11/02</a></li>
+											<li><a href="#0" data-date="2016/10/30" class="selected">10/30</a></li> <!--data-date属性の形式はYYYY/MM/DD-->
+											<li><a href="#0" data-date="2016/10/31">10/31</a></li>					<!--ただし先頭の0は抜くように　日付の判定ができなくなるので-->
+											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	<!--class="selected"は日付やカードの移動状況によって移動-->
+											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	<!--参考 main.js:49,61,66-->
 											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
+											<li><a href="#0" data-date="2016/11/4">11/04</a></li>
+											<li><a href="#0" data-date="2016/11/5">11/05</a></li>
 										</ol>
 										<span id="bb" class="filling-line" aria-hidden="true"></span>　<!--バー表示 日付によって動く-->
 									</div> <!-- .events -->
@@ -129,13 +129,18 @@
 					<a class="btn btn-primary sprint-close-btn disabled" role="button">
 					振り返りへ</a>
 				</div>
+
+				<ol>
+					<li>ぢぢｄ</li>
+					<li>つつど</li>
+				</ol>
 			</div>
 		</div>
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery.mobile.custom.min.js"></script>
-		<script src="js/main.js"></script> <!-- Resource jQuery -->
+		<!-- <script src="js/jquery.mobile.custom.min.js"></script> -->
+		<script src="js/htimeline.js"></script> <!-- Resource jQuery -->
 		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
