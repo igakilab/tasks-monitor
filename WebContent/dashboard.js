@@ -58,6 +58,7 @@ function showDashBoard(data){
 	//パーセンテージを計算
 	var progress = Math.floor(fin / all * 100);
 	//プログレスパーに設定
+	$("#taskProgressMsg").text("現在の進捗: " + progress + "%");
 	$("#taskProgress").attr("aria-valuenow", progress)
 		.css("width", progress + "%");
 
@@ -126,12 +127,12 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 		var clazz = "";
 
 		//doing,doneの表現と比較、それぞれの処理
-		if( dtmpStr == dDoingStr ){
-			clazz = "doing";
-			label += "<br/>Doing登録";
-		}else if( dtmpStr == dDoneStr ){
+		if( dtmpStr == dDoneStr ){
 			clazz = "done";
 			label += "<br/>Done登録";
+		}else if( dtmpStr == dDoingStr ){
+			clazz = "doing";
+			label += "<br/>Doing登録";
 		}
 
 		//初回の要素にselectedクラスを付加する
@@ -170,18 +171,36 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
  */
 function addCardToListGroup($listgrp, cards){
 	cards.forEach(function(val, idx, ary){
-		//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
-		var listItem = $("<li></li>");
-		listItem.addClass("list-group-item");
+		//アイテムヘッダーを生成
+		var $itemhead = $("<h4></h4>");
+		$itemhead.addClass("list-group-item-heading");
 
-		//アイテムのタイトルを作成, アイテムに追加
-		var listItemHead = $("<h4></h4>");
-		listItemHead.addClass("list-group-item-heading");
-		listItemHead.text(val.name);
-		listItem.append(listItemHead);
+		//タイトルをヘッダーにセット
+		$itemhead.text(val.name);
+
+		//アイテムテキストを生成
+		var $itemtext = $("<p></p>");
+		$itemtext.addClass("list-group-item-text");
+
+		//カード情報を配列に挿入
+		var details = [];
+		if( !Util.isNull(val.desc) && val.desc != "" ){
+			details.push(val.desc);
+		}
+		if( !Util.isNull(val.due) ){
+			details.push("期限: " + Util.formatDate(val.due, "YYYY/MM/DD"));
+		}
+
+		//アイテムテキストにセット
+		$itemtext.append(Util.arrayToString(details, "<br/>"));
+
+		//アイテムとして新しいjqueryオブジェクトを生成, クラスを設定
+		var $item = $("<li></li>");
+		$item.addClass("list-group-item");
+		$item.append($itemhead, $itemtext);
 
 		//listGroupにアイテムを追加
-		$listgrp.append(listItem);
+		$listgrp.append($item);
 	});
 }
 
