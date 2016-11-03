@@ -116,16 +116,26 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
 
 	//開始日から終了日まで繰り返し
 	var dtmp = new Date(dBegin.getTime());
+	var selflg = true;
 	while( dtmp.getTime() <= dFinish.getTime() ){
 		//data-dateの文字列表現を生成、doing,doneの表現と比較
 		var dtmpStr = formatDate(dtmp);
 		var clazz = dtmpStr == dDoingStr ? "doing" : (dtmpStr == dDoneStr ? "done" : "");
+
+		//初回の要素にselectedクラスを付加する
+		if( selflg ){
+			clazz = clazz + " selected";
+			selflg = false;
+		}
+
 		//要素を生成し追加
 		$ol.append($("<li></li>").append(
 			$("<a></a>").attr("href", "#0")
 				.attr("data-date", dtmpStr)
-				.addClass(clazz))
-			.append(Util.formatDate(dtmp, "MM/DD")));
+				.addClass(clazz)
+				.append(Util.formatDate(dtmp, "MM/DD"))
+		));
+
 
 		//日付をインクリメント
 		dtmp.setDate(dtmp.getDate() + 1);
