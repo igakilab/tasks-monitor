@@ -3,6 +3,7 @@ package jp.ac.oit.igakilab.tasks.dwr;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.BoardSettingsForms;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater;
@@ -98,6 +99,7 @@ public class BoardSettings {
 		//インスタンス初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 
 		//ボードの存在チェック
 		if( !bdb.boardIdExists(boardId) ){
@@ -106,6 +108,7 @@ public class BoardSettings {
 		}
 
 		boolean res = bdb.removeBoard(boardId);
+		res = res && (adb.removeTrelloActions(boardId) > 0);
 
 		client.close();
 		return res;
