@@ -39,7 +39,9 @@
 
 			<div class="alert-div"></div>
 
-			<a class="btn btn-default">戻る</a>
+
+			<a class="btn btn-default" href="../">
+			ボード一覧へ戻る</a>
 
 			<hr/>
 
@@ -109,6 +111,20 @@
 			BoardSettings.getInfomation(BOARD_ID, setInfo);
 		}
 
+		function applySlackNotifyEnabled(enabled){
+			if( !Util.isNull(BOARD_ID) ){
+				var before = enabled ? "有効化" : "無効化";
+				BoardSettings.setSlackNotifyEnabled(BOARD_ID, enabled, function(res){
+					if( res ){
+						Util.showAlertToDiv("タスク通知を" + before + "しました", "success");
+						loadInfo();
+					}else{
+						Util.showAlertToDiv("設定に失敗しました");
+					}
+				});
+			}
+		}
+
 		function setInfo(data){
 			if( data == null ){
 				Util.showAlertToDiv("ボードデータを取得できませんでした");
@@ -122,16 +138,16 @@
 			var sncbtn = $(".slack-notify-config-btn");
 			sncbtn.off('click');
 			if( data.slackNotifyEnabled ){
-				isne = "有効";
+				isne.text("有効");
 				sncbtn.text("無効化");
 				sncbtn.on('click', function(){
-					alert("slackNotify無効化");
+					applySlackNotifyEnabled(false);
 				});
 			}else{
-				isne = "無効";
+				isne.text("無効");
 				sncbtn.text("有効化");
 				sncbtn.on('click', function(){
-					alert("slackNotify有効化");
+					applySlackNotifyEnabled(true);
 				});
 			}
 		}

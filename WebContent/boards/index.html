@@ -78,6 +78,9 @@
 						}
 					});
 				});
+			var settingBtn = $("<a></a>").addClass("btn btn-default")
+				.append(Util.bsGlyphicon("wrench"), "設定")
+				.attr("href", "settings/?boardId=" + boardinf.data.id);
 			var openBtn = $("<a></a>").addClass("btn btn-primary")
 				.append("ダッシュボード", Util.bsGlyphicon("chevron-right"))
 				.attr("href", "../index.html?boardId=" + boardinf.data.id);
@@ -90,7 +93,7 @@
 						$("<p></p>").addClass("list-group-item-text")
 							.html(content)),
 					$("<div></div>").addClass("col-sm-4 text-right").append(
-						updateBtn, " ", openBtn)
+						updateBtn, " ", settingBtn, " ", openBtn)
 				).addClass("list-group-item container")
 			);
 		}

@@ -24,6 +24,7 @@ public class BoardSettings {
 		//データ格納
 		BoardSettingsForms.Info inf = new BoardSettingsForms.Info();
 		inf.setLastUpdate(bdb.getLastUpdateDate(boardId));
+		inf.setSlackNotifyEnabled(bdb.getSlackNotifyEnabled(boardId));
 
 		client.close();
 		return inf;
@@ -72,6 +73,25 @@ public class BoardSettings {
 
 		client.close();
 		return true;
+	}
+
+	public boolean setSlackNotifyEnabled(String boardId, boolean enabled){
+		//インスタンス初期化
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+
+		//ボードの存在チェック
+		if( !bdb.boardIdExists(boardId) ){
+			client.close();
+			return false;
+		}
+
+		//処理
+		boolean res = bdb.setSlackNotifyEnabled(boardId, enabled);
+
+		//返却
+		client.close();
+		return res;
 	}
 
 	public boolean deleteBoard(String boardId){
