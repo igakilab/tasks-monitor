@@ -5,8 +5,7 @@ import java.util.Date;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class TrelloCardForm {
-	public static TrelloCardForm getInstance(TrelloCard card){
-		TrelloCardForm form = new TrelloCardForm();
+	protected static void setValues(TrelloCardForm form, TrelloCard card){
 		form.setId(card.getId());
 		form.setName(card.getName());
 		form.setDesc(card.getDesc());
@@ -14,6 +13,11 @@ public class TrelloCardForm {
 		form.setDue(card.getDue());
 		form.setMemberIds(card.getMemberIds().toArray(new String[0]));
 		form.setClosed(card.isClosed());
+	}
+
+	public static TrelloCardForm getInstance(TrelloCard card){
+		TrelloCardForm form = new TrelloCardForm();
+		setValues(form, card);
 		return form;
 	}
 

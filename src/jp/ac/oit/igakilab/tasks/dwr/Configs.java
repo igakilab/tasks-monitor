@@ -16,6 +16,7 @@ import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
 import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
 
 public class Configs {
@@ -87,6 +88,14 @@ public class Configs {
 	public void updateTrelloActionsCache(){
 		UpdateTrelloBoardActions updater = new UpdateTrelloBoardActions();
 		updater.run();
+	}
+
+	public boolean setBoardSlackNotification(String boardId, boolean b){
+		MongoClient c = TasksMongoClientBuilder.createClient();
+		TrelloBoardsDB bdb = new TrelloBoardsDB(c);
+		boolean res = bdb.setSlackNotifyEnabled(boardId, b);
+		c.close();
+		return res;
 	}
 
 	public String hubotSendMessageTest(String dest){

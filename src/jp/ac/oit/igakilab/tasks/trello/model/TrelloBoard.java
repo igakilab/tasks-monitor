@@ -57,6 +57,15 @@ public class TrelloBoard extends TrelloBoardData{
 		return null;
 	}
 
+	public TrelloCard getCardByName(String name){
+		for(TrelloCard card : cards){
+			if( card.getName().equals(name) ){
+				return card;
+			}
+		}
+		return null;
+	}
+
 	public boolean containsCardById(String cid){
 		return getCardById(cid) != null;
 	}
@@ -90,6 +99,16 @@ public class TrelloBoard extends TrelloBoardData{
 			}
 		}
 		return null;
+	}
+
+	public List<TrelloList> getListsByNameMatches(String regex){
+		List<TrelloList> result = new ArrayList<TrelloList>();
+		for(TrelloList list : lists){
+			if( list.getName().matches(regex) ){
+				result.add(list);
+			}
+		}
+		return result;
 	}
 
 	public List<TrelloCard> getCardsByListId(String lid){
