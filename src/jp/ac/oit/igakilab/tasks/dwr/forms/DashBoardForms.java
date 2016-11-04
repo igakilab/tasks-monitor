@@ -141,14 +141,23 @@ public class DashBoardForms {
 			List<TrelloList> lists = board.getLists();
 			for(TrelloList list : lists){
 				if( list.getName().matches(TasksTrelloClientBuilder.REGEX_TODO) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getTodo().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getTodo().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}else if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DOING) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getDoing().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getDoing().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}else if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getDone().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getDone().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}
 			}
 

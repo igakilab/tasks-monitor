@@ -171,16 +171,14 @@ function createTaskTimeline(id, dBegin, dDoing, dDone, dFinish){
  */
 function addCardToListGroup($listgrp, cards){
 	cards.forEach(function(val, idx, ary){
-		//アイテムヘッダーを生成
+		//アイテムヘッダーとテキストを生成
 		var $itemhead = $("<h4></h4>");
 		$itemhead.addClass("list-group-item-heading");
+		var $itemtext = $("<p></p>");
+		$itemtext.addClass("list-group-item-text");
 
 		//タイトルをヘッダーにセット
 		$itemhead.text(val.name);
-
-		//アイテムテキストを生成
-		var $itemtext = $("<p></p>");
-		$itemtext.addClass("list-group-item-text");
 
 		//カード情報を配列に挿入
 		var details = [];
@@ -190,7 +188,6 @@ function addCardToListGroup($listgrp, cards){
 		if( !Util.isNull(val.due) ){
 			details.push("期限: " + Util.formatDate(val.due, "YYYY/MM/DD"));
 		}
-
 		//アイテムテキストにセット
 		$itemtext.append(Util.arrayToString(details, "<br/>"));
 
