@@ -77,6 +77,13 @@ public class DashBoardForms {
 							form.setMovedDoneAt(act.getDate());
 							form.setFinished(true);
 						}
+
+					//その他の移動で、doneより後の移動の場合はフラグを下げる
+					}else{
+						if( form.getMovedDoneAt() != null
+							&& act.getDate().compareTo(form.getMovedDoneAt()) > 0 ){
+							form.setFinished(false);
+						}
 					}
 				}
 			}
