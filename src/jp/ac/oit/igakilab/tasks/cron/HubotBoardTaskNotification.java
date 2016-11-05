@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.cron;
 
+import java.util.Calendar;
+
 import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
@@ -32,6 +34,11 @@ public class HubotBoardTaskNotification extends CronTask{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 3);
+		notifer.setNotifyLine(cal.getTime());
+
 		notifer.execute();
 
 		client.close();
