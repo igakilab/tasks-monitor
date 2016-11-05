@@ -173,8 +173,8 @@
 				</div> -->
 
 				<div class="row">
-					<button type="button" class="btn btn-primary next-sprint-btn">
-					次のスプリントへ</button>
+					<!-- <button type="button" class="btn btn-primary next-sprint-btn">
+					次のスプリントへ</button> -->
 					<button type="button" class="btn btn-default to-dashboard-btn">
 					ダッシュボードへ</button>
 				</div>
@@ -190,20 +190,20 @@
 		<script src="../../dwr/util.js"></script>
 		<script src="../../dwr/interface/SprintHistory.js"></script>
 
+		<script src="script.js"></script>
 		<script>
 		/*
 		 * ページロード時に実行される関数
 		 */
 		$(document).ready(function(){
 			//urlパラメータからボードIDを取得
-			//var sprintId = Util.getUrlParameters().sprintId;
+			var sprintId = Util.getUrlParameters().sprintId;
 
-			var sprintId = "81c722f65bc53f";
+
 			var sra = new SprintResultAnalyzer(sprintId);
 			sra.fetch(function(){
-				console.log(sra);
+				setSprintResult(sra);
 			});
-
 		});
 		</script>
 	</body>

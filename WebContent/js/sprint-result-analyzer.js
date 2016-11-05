@@ -165,6 +165,62 @@ SprintResultAnalyzer = (function() {
 
 
 	/*
+	 * ボードデータのオブジェクトを返します
+	 */
+	_class.prototype.getBoardData = function(){
+		return this.boardData;
+	}
+
+
+	/*
+	 * スプリントデータのオブジェクトを返します
+	 */
+	_class.prototype.getSprintData = function(){
+		return this.sprintData;
+	}
+
+
+	/*
+	 * midに指定されたメンバーidを持つメンバーを返します。
+	 */
+	_class.prototype.getMember = function(mid){
+		for(var i=0; i<this.members.length; i++){
+			if( this.members[i].id == mid ){
+				return this.members[i];
+			}
+		}
+		return null;
+	}
+
+
+	/*
+	 * メンバーの一覧を返します
+	 */
+	_class.prototype.getMembers = function(){
+		return this.members;
+	}
+
+
+	/*
+	 * cidに指定されたカードidをもつカードを返します
+	 */
+	_class.prototype.getCard = function(cid){
+		for(var i=0; i<this.cards.length; i++){
+			if( this.cards[i].id == mid ){
+				return this.cards[i];
+			}
+		}return null;
+	}
+
+
+	/*
+	 * カードの一覧を返します
+	 */
+	_class.prototype.getCards = function(){
+		return this.cards;
+	}
+
+	/*
 	 * 指定されたメンバーidが担当しているカード(タスク)一覧を返却します
 	 */
 	_class.prototype.getMemberCards = function(mid){

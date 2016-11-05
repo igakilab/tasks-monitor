@@ -11,19 +11,6 @@ function addMemberTaskCount(name, finished, all){
 }
 
 /*
- * カードidで指定されたカードが終了しているか確認します。
- * resultとカードidを指定します
-*/
-function isFinished(result, cardId){
-	for(var i=0; i<result.finishedCards.length; i++){
-		if( result.finishedCards[i] == cardId ){
-			return true;
-		}
-	}
-	return false;
-}
-
-/*
  * タスク完了表にタスクを追加します
  * カードのオブジェクトと、それが完了したかどうかを与えます
  */
@@ -42,15 +29,17 @@ function addCardToTaskTable(card, finished){
 /*
  * SprintFinisherから渡されるClosedSprintResultをhtml画面上に
  * 表示する関数。
+ * resultにはsprintResultAnalyzerを指定します
 */
 function setSprintResult(result){
 	//振り返り日設定
+	var sprintData = result.getSprintData();
 	$(".feedback-date").text(
-		Util.formatDate(result.createdAt, "MM/DD"));
+		Util.formatDate(sprintData.closedDate, "MM/DD"));
 
 	//全体の完了タスク数
-	var fin = result.finishedCards.length;
-	var all = result.remainedCards.length + fin;
+	var fin = sprintData.finishedCount;
+	var all = sprintData.remainedCount + fin;
 	var progress = Math.floor((fin / all) * 100);
 	$(".task-count-finished").text(fin);
 	$(".task-count-all").text(" /" + all);
@@ -59,17 +48,14 @@ function setSprintResult(result){
 
 	//メンバー別完了タスク数
 	$(".member-tasks-table").empty();
-	for(var i=0; i<result.memberTasks.length; i++){
-		var mt = result.memberTasks[i];
-		addMemberTaskCount(mt.memberId, mt.finishedCards.length,
-			mt.remainedCards.length + mt.finishedCards.length);
-	}
+	result.getMembers().forEach(function(val, idx, ary){
+		addMemberTaskCount(val.name, val.remainedCount,
+			val.remainedCount + val.finishedCount);
+	});
 
 	//タスク結果表を追加
 	$(".finished-tasks-table").empty();
-	for(var i=0; i<result.sprintCards.length; i++){
-		var card = result.sprintCards[i];
-		addCardToTaskTable(card, isFinished(result, card.id));
-	}
-
+	result.getCards().forEach(function(val, idx, ary){
+		addCardToTaskTable(val, val.finished);
+	});
 }
