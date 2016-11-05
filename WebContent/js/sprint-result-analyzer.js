@@ -3,10 +3,21 @@ var SprintResultAnalyzer;
 /*
   仕様のメモ
   フィールド
-  - sprint
-  - result(
+  - boardData ボードのデータ
+  - sprintData スプリントとスプリント結果のデータ
+  - cards スプリントカードのデータ(配列)
+  - members ボードに参加しているメンバーのデータ(配列)
   メソッド
-  -
+  - fetch データを取得
+  - analyze 引数に与えられたデータを自身のフィールドにセットする
+
+  - getBoardData ボードのデータ
+  - getSprintData スプリントのデータ
+  - getMember メンバーidに基づくメンバー情報
+  - getMembers すべてのメンバー情報
+  - getCard カードidに基づくカードデータ
+  - getCards すべてのカードデータ
+  - getMemberCards メンバーidに基づくカードデータの配列
 */
 
 SprintResultAnalyzer = (function() {
@@ -14,11 +25,12 @@ SprintResultAnalyzer = (function() {
 	 * コンストラクター
 	 * 各フィールドを初期化する
 	 */
-	function _class(boardId) {
-		this.boardId = boardId;
+	function _class(sprintId) {
+		this.sprintId = sprintId;
+		this.boardData = null;
+		this.sprintData = null;
 		this.cards = [];
 		this.members = [];
-		this.finishDate = null;
 	}
 
 
@@ -32,9 +44,9 @@ SprintResultAnalyzer = (function() {
 
 	/*
 	 * javaアプリケーションからデータを取得して持ってくる
-	 * getTodoTrelloCards -> getBoardMembersの順に問い合わせが行われ
-	 * 各種結果が自身のインスタンスに格納される。
-	 * 処理が終了すると引数のpcallbackに処理を渡す
+	 * SprintHistoryのgetSprintResultAnalyzerFormが呼ばれ、
+	 * 受け取ったデータはanalyze関数に渡す。
+	 * sprintIdは自身のインスタンスの設定値を使用する
 	 */
 	_class.prototype.fetch = function(pcallback, perrorHandler){
 		//エラーハンドラーの設定
@@ -45,270 +57,137 @@ SprintResultAnalyzer = (function() {
 		//このオブジェクトのインスタンスを指定
 		var thisp = this;
 
-		//getTodoTrelloCards(1回目通信)のコールバック関数
-		var getTodoCallback = function(data){
-			//カードキャッシュにデータを追加
-			thisp.cards = [];
-			//console.log(data); // DEBUG
-			for(var i=0; i<data.length; i++){
-				data[i].selected = (data[i].memberIds.length > 0);
-				thisp.cards.push(data[i]);
-			}
-
-			//次にメンバー一覧を取得(2回目通信)
-			SprintPlanner.getBoardMembers(thisp.boardId, {
-				callback: getMembersCallback,
-				errorHandler: perrorHandler
-			});
-		};
-
-		//getBoardMembers(2回目通信)のコールバック関数
-		var getMembersCallback = function(members){
-			//console.log(members) //DEBUG
-			//メンバーキャッシュにデータを追加
-			thisp.members = [];
-			for(var i=0; i<members.length; i++){
-				thisp.members.push(members[i]);
-			}
-
-			//呼び出し元コールバックへ返却
-			if( typeof pcallback == 'function' ){
+		//データの取得
+		SprintHistory.getSprintResultAnalyzerData(this.sprintId, {
+			callback: function(data){
+				console.log("received.");
+				console.log(data);
+				thisp.analyze(data);
 				pcallback();
-			}
-		};
-
-		//カード一覧を取得(1回目通信)
-		SprintPlanner.getTodoTrelloCards(this.boardId, {
-			callback: getTodoCallback,
+			},
 			errorHandler: perrorHandler
 		});
 	}
 
 
 	/*
-	 * 指定されたメンバーidがこのボードに含まれているかどうか返す
+	 * スプリント結果のデータを解析します
+	 * ボードとスプリントの基本データをそれぞれ、boardDataとsprintDataに
+	 * カードごとの集計をcardsに
+	 * メンバーごとの集計をmembersに格納します
 	 */
-	_class.prototype.isBoardMember = function(memberId){
-		//メンバーidが一致すればtrueを返却
-		for(var i=0; i<this.members.length; i++){
-			if( this.members[i].id == memberId ){
-				return true;
-			}
-		}
-		return false;
-	}
+	_class.prototype.analyze = function(data){
+		//*****
+		//ボードのデータを設定する
+		this.boardData = data.boardData;
 
+		//*****
+		//スプリントのデータを設定する
+		var stmp = {
+			id: data.sprint.id,
+			beginDate: data.sprint.beginDate,
+			finishDate: data.sprint.finishDate,
+			closedDate: data.sprint.closedDate,
+			closedAt: data.result.createdAt,
+			remainedCards: data.result.remainedCards,
+			remainedCount: data.result.remainedCards.length,
+			finishedCards: data.result.finishedCards,
+			finishedCount: data.result.finishedCards.length
+		};
+		this.sprintData = stmp;
 
-	/*
-	 * カードリストのキャッシュから、指定されたcardIdを持つカードのインデックスを返す
-	 * みつからなかった場合は-1を返す
-	 */
-	_class.prototype.getIndexByCardId = function(cardId){
-		//カードidが一致すればインデックスを返却
-		for(var i=0; i<this.cards.length; i++){
-			if( this.cards[i].id == cardId ){
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/*
-	 * 指定されたカードに指定されたメンバーが担当者として設定されているかどうか返す
-	 * メンバーが登録されている場合はtrueを、
-	 * メンバーが登録されていないか、指定されたカードが見つからなかった場合にfalseを返す
-	 */
-	_class.prototype.isMemberRegisted = function(cardId, memberId){
-		//カードを検索する
-		var idx = this.getIndexByCardId(cardId);
-
-		//カードが見つかれば、memberIdsにidがあるかどうか検索する
-		if( idx >= 0 ){
-			var card = this.cards[idx];
-
-			//memberIdが一致すればtrueを返却
-			for(var i=0; i<card.memberIds.length; i++){
-				if( card.memberIds[i] == memberId ){
-					return true;
+		//*****
+		//スプリントカードの配列を生成する
+		this.cards = [];
+		var thisp = this;
+		//それぞれのカードについてremainとfinishのリストを検索し、
+		//finishedフラグを付けて、cards配列にコピーする
+		data.sprintCards.forEach(function(val, idx, ary){
+			//remainとfinishのリストからカードを検索する
+			var finished = null;
+			var memberIds = null;
+			var maxcnt = Math.max(stmp.remainedCount, stmp.finishedCount);
+			for(var i=0; i<maxcnt; i++){
+				console.log(val);
+				if( i < stmp.finishedCount && stmp.finishedCards[i].trelloCardId == val.id ){
+					finished = true;
+					memberIds = stmp.finishedCards[i].memberIds;
+					break;
 				}
-			}
-			return false;
-		}
-
-		//カードが見つからなかった場合はデフォルトでfalseを返却
-		return false;
-	}
-
-
-	/*
-	 * 指定されたカードをスプリントの対象カードにする
-	 */
-	_class.prototype.selectCard = function(cardId){
-		//カードを検索、見つかればselectedをtrueに
-		var idx = this.getIndexByCardId(cardId);
-		if( idx >= 0 ){
-			this.cards[idx].selected = true;
-		}
-	}
-
-	/*
-	 * カードにmemberIdで指定されたメンバーを追加する
-	 * 追加する際に、そのメンバーidがボードに参加しているかどうかを確認する
-	 * また、対象カードになっていないカードの場合は、自動的に対象カードになる
-	 */
-	_class.prototype.addMemberToCard = function(cardId, memberId){
-		//カードを検索
-		var idx = this.getIndexByCardId(cardId);
-
-		//カードが見つかったかどうか、ボードに指定されたメンバーが所属しているか
-		//対象カードにすでに指定されたメンバーが登録されていないかどうか判定
-		if( idx >= 0
-			&& this.isBoardMember(memberId)
-			&& !this.isMemberRegisted(cardId, memberId)
-		){
-			//メンバーを追加する
-			this.cards[idx].memberIds.push(memberId);
-		}
-	}
-
-
-	/*
-	 * 指定されたカードを対象カードから除外する
-	 * メンバーが追加されていた場合は、自動的にすべてのメンバーがカードから除去する
-	 */
-	_class.prototype.unselectCard = function(cardId){
-		//カードを検索
-		var idx = this.getIndexByCardId(cardId);
-
-		//見つかれば、selectedをfalseに、メンバーidを空にする
-		if( idx >= 0 ){
-			this.cards[idx].selected = false;
-			this.cards[idx].memberIds = [];
-		}
-	}
-
-
-	/*
-	 * カードから指定されたメンバーを除去する
-	 */
-	_class.prototype.removeMemberFromCard = function(cardId, memberId){
-		//カードを検索
-		var idx = this.getIndexByCardId(cardId);
-
-		//見つかれば、指定されたメンバーが登録されているかどうか判定する
-		if( idx >= 0 && this.isMemberRegisted(cardId, memberId) ){
-			var card = this.cards[idx];
-
-			//メンバーidのあるインデックスを検索
-			var midx = -1;
-			for(var i=0; i<card.memberIds.length; i++){
-				if( card.memberIds[i] == memberId ){
-					midx = i;
+				if( i < stmp.remainedCount && stmp.remainedCards[i].trelloCardId == val.id ){
+					finished = false;
+					memberIds = stmp.remainedCards[i].memberIds;
 					break;
 				}
 			}
 
-			//メンバーを削除する(インデックスが見つかっていれば)
-			if( midx >= 0 ){
-				card.memberIds.splice(midx, 1);
+			//カードを登録する
+			console.log("cnt: " + maxcnt);
+			console.log("finished: " + finished);
+			if( finished != null ){
+				console.log("pushed: " + finished);
+				thisp.cards.push({
+					id: val.id,
+					name: val.name,
+					desc: val.desc,
+					due: val.due,
+					listId: val.listId,
+					memberIds: memberIds,
+					closed: val.closed,
+					finished: finished
+				});console.log(thisp.cards);
 			}
-		}
-	}
-
-	/*
-	 * カードに追加されているメンバーをすべて除去する
-	 */
-	_class.prototype.clearMemberFromCard = function(cardId){
-		//カードを検索、見つかればmemberIdsを空にする
-		var idx = this.getIndexByCardId(cardId);
-		if( idx >= 0 ){
-			this.cards[idx].memberIds = [];
-		}
-	}
-
-
-	/*
-	 * 目標日を設定する
-	 * finishDateはDate型で指定する
-	 */
-	_class.prototype.setFinishDate = function(finishDate){
-		//目標日を設定する
-		this.finishDate = finishDate;
-	}
-
-
-	/*
-	 * 対象カードになっているカードのリストを取得する
-	 * 対象カードのリストが返却される
-	 */
-	_class.prototype.getSelectedCards = function(){
-		//cardsからselectedフラグがたっているものを配列に格納し、返却
-		var selected = [];
-		for(var i=0; i<this.cards.length; i++){
-			if( this.cards[i].selected ){
-				selected.push(this.cards[i]);
-			}
-		}
-		return selected;
-	}
-
-
-	/*
-	 * 対象カードになっていないカードのリストを取得する
-	 * 非対称カードのリストが返却される
-	 */
-	_class.prototype.getUnselectedCards = function(){
-		//cardsからselectedフラグがたっていないものを配列に格納し、返却
-		var unselected = [];
-		for(var i=0; i<this.cards.length; i++){
-			if( !this.cards[i].selected ){
-				unselected.push(this.cards[i]);
-			}
-		}
-		return unselected;
-	}
-
-
-	/*
-	 * ボードに参加しているメンバーのオブジェクトをリストで返す
-	 */
-	_class.prototype.getBoardMembers = function(){
-		//members配列を返す
-		return this.members;
-	}
-
-
-	/*
-	 * 設定された目標日や担当者の情報から、スプリントをシステムに登録する
-	 * fetchと同様、処理が終了するとpcallbackに処理を渡す
-	 * その際、新規作成されたスプリントのIDが引数として渡される
-	 */
-	_class.prototype.regist = function(pcallback, perrorHandler){
-		//エラーハンドラーの設定
-		if( typeof perrorHandler != 'function' ){
-			perrorHandler = _class.defaultErrorHandler;
-		}
-
-		//finishDateが指定されているかチェック
-		if( Util.isNull(this.finishDate) ){
-			return;
-		}
-
-		//カード担当者情報を作成
-		var cardAndMembers = [];
-		var selectedList = this.getSelectedCards();
-		for(var i=0; i<selectedList.length; i++){
-			cardAndMembers.push({
-				trelloCardId: selectedList[i].id,
-				memberIds: selectedList[i].memberIds
-			});
-		}
-
-		//通信開始
-		SprintPlanner.createSprint(this.boardId, this.finishDate, cardAndMembers, {
-			callback: pcallback,
-			errorHandler: perrorHandler
 		});
+
+		//*****
+		//メンバーの配列を生成する
+		this.members = [];
+		data.members.forEach(function(val, idx, ary){
+			//メンバーごとのremainとfinishのカウントを行います
+			var cards = thisp.getMemberCards(val.id);
+			var rem = 0;
+			var fin = 0;
+			cards.forEach(function(val, idx, ary){
+				if( val.finished ){
+					fin++;
+				}else{
+					rem++;
+				}
+			});
+			thisp.members.push({
+				id: val.id,
+				name: val.name,
+				remainedCount: rem,
+				finishedCount: fin
+			});
+		});
+	}
+
+
+	/*
+	 * 指定されたメンバーidが担当しているカード(タスク)一覧を返却します
+	 */
+	_class.prototype.getMemberCards = function(mid){
+		var cards = [];
+		for(var i=0; i<this.cards.length; i++){
+			var card = this.cards[i];
+
+			//メンバーを探す
+			var flg = false;
+			for(var j=0; j<card.memberIds.length; j++){
+				if( card.memberIds[j] == mid ){
+					flg = true;
+					break;
+				}
+			}
+
+			//カードを格納する
+			if( flg ){
+				cards.push(card);
+			}
+		}
+
+		return cards;
 	}
 
 	return _class;

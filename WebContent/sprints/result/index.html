@@ -7,7 +7,7 @@
 
 		<title>Feedback</title>
 
-		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="../../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -181,13 +181,14 @@
 			</div>
 		</div>
 
-		<script src="js/jquery-2.1.4.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="comm.js"></script>
-		<script src="js/util.js"></script>
-		<script src="dwr/engine.js"></script>
-		<script src="dwr/util.js"></script>
-		<script src="dwr/interface/SprintFinisher.js"></script>
+		<script src="../../js/jquery-2.1.4.min.js"></script>
+		<script src="../../js/bootstrap.min.js"></script>
+		<script src="../../comm.js"></script>
+		<script src="../../js/util.js"></script>
+		<script src="../../js/sprint-result-analyzer.js"></script>
+		<script src="../../dwr/engine.js"></script>
+		<script src="../../dwr/util.js"></script>
+		<script src="../../dwr/interface/SprintHistory.js"></script>
 
 		<script>
 		/*
@@ -195,7 +196,14 @@
 		 */
 		$(document).ready(function(){
 			//urlパラメータからボードIDを取得
-			var sprintId = Util.getUrlParameters().sprintId;
+			//var sprintId = Util.getUrlParameters().sprintId;
+
+			var sprintId = "81c722f65bc53f";
+			var sra = new SprintResultAnalyzer(sprintId);
+			sra.fetch(function(){
+				console.log(sra);
+			});
+
 		});
 		</script>
 	</body>
