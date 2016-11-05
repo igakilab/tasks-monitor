@@ -187,6 +187,12 @@
 
 					//showDashBoardを呼ぶ
 					showDashBoard(data);
+
+					if( data.sprintId != null ){
+						$(".sprint-close-btn")
+							.removeClass("disabled")
+							.attr("href", "feedback.html?boardId=" + data.boardId);
+					}
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数
