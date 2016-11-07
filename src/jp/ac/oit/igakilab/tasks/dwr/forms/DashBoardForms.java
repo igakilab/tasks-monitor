@@ -77,6 +77,13 @@ public class DashBoardForms {
 							form.setMovedDoneAt(act.getDate());
 							form.setFinished(true);
 						}
+
+					//その他の移動で、doneより後の移動の場合はフラグを下げる
+					}else{
+						if( form.getMovedDoneAt() != null
+							&& act.getDate().compareTo(form.getMovedDoneAt()) > 0 ){
+							form.setFinished(false);
+						}
 					}
 				}
 			}
@@ -141,14 +148,23 @@ public class DashBoardForms {
 			List<TrelloList> lists = board.getLists();
 			for(TrelloList list : lists){
 				if( list.getName().matches(TasksTrelloClientBuilder.REGEX_TODO) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getTodo().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getTodo().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}else if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DOING) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getDoing().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getDoing().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}else if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
-					board.getCardsByListId(list.getId()).forEach((card ->
-						form.getDone().add(TrelloCardForm.getInstance(card))));
+					board.getCardsByListId(list.getId()).forEach((card) -> {
+						if( !card.isClosed() ){
+							form.getDone().add(TrelloCardForm.getInstance(card));
+						}
+					});
 				}
 			}
 

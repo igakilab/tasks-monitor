@@ -1,4 +1,12 @@
 jQuery(document).ready(function($){
+	//jquery拡張
+	//参考: http://qiita.com/hosomichi/items/29b19ed3ebd0df9361ae
+	jQuery.fn.extend({
+		initTimeline: function(){
+			initTimeline(this);
+		}
+	});
+
 	var timelines = $('.cd-horizontal-timeline'),
 		eventsMinDistance = 70;
 	var dt = new Date();
