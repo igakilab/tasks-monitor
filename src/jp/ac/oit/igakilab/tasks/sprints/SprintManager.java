@@ -13,9 +13,9 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
@@ -30,10 +30,12 @@ public class SprintManager {
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
+	private SprintDocumentConverter converter;
 
 	public SprintManager(MongoClient dbClient, TrelloApi<Object> api){
 		this.dbClient = dbClient;
 		this.trelloApi = api;
+		this.converter = new SprintDocumentConverter();
 	}
 
 	public String createSprint(String boardId,
@@ -106,7 +108,7 @@ public class SprintManager {
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 
 		//現在のスプリントの情報を取得
-		Sprint currSpr = smdb.getSprintById(sprintId, new SprintDocumentConverter());
+		Sprint currSpr = smdb.getSprintById(sprintId, converter);
 		if( currSpr == null ){
 			//throw new SprintManagementException("スプリントが見つかりません");
 			return null;
@@ -156,6 +158,12 @@ public class SprintManager {
 		resdb.addSprintResult(result, new SprintResultDocumentConverter());
 
 		return result;
+	}
+
+	public List<Sprint> getSprintsByBoardId(String boardId){
+		SprintsDB sdb = new SprintsDB(dbClient);
+
+		return sdb.getSprintsByBoardId(boardId, converter);
 	}
 
 	public List<SprintResult> getSprintResultsByBoardId(String boardId){

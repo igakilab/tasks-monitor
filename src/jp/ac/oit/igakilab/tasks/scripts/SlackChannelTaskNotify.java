@@ -65,7 +65,6 @@ public class SlackChannelTaskNotify {
 		ttable = new MemberTrelloIdTable(client);
 		cmsg = new ChannelNotification(msg);
 		cmsg.setSlackIdTable(stable);
-		cmsg.setTestMode(true);
 	}
 
 	public void setNotifyLine(Date d){
