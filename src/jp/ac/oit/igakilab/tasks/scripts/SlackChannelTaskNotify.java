@@ -45,6 +45,7 @@ public class SlackChannelTaskNotify {
 	private MongoClient client;
 	private HubotSendMessage msg;
 	private Date notifyLine;
+	private String header;
 
 	private TrelloBoardActionsDB adb;
 	private DocumentParser<TrelloAction> parser;
@@ -55,6 +56,18 @@ public class SlackChannelTaskNotify {
 	public SlackChannelTaskNotify(MongoClient client, HubotSendMessage msg){
 		this.client = client;
 		this.msg = msg;
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 3);
+		this.notifyLine = cal.getTime();
+		this.header = "期限の近づいているタスクがあります";
+		init();
+	}
+
+	public SlackChannelTaskNotify(MongoClient client, HubotSendMessage msg, Date d){
+		this.client = client;
+		this.msg = msg;
+		this.notifyLine = d;
+		this.header = "期限の近づいているタスクがあります";
 		init();
 	}
 
@@ -69,6 +82,10 @@ public class SlackChannelTaskNotify {
 
 	public void setNotifyLine(Date d){
 		notifyLine = d;
+	}
+
+	public void setHeader(String header){
+		this.header = header;
 	}
 
 	private TrelloBoard buildBoard(String boardId){
@@ -97,6 +114,7 @@ public class SlackChannelTaskNotify {
 		return cards;
 	}
 
+
 	public boolean execute(String boardId){
 		//ボードのビルド
 		TrelloBoard board = buildBoard(boardId);
@@ -110,7 +128,7 @@ public class SlackChannelTaskNotify {
 
 		//送信
 		System.out.println("to: " + boardName);
-		return cmsg.taskNotification(boardName, "期限が近付いているタスクがあります", cards);
+		return cmsg.taskNotification(boardName, header, cards);
 	}
 
 	public boolean execute(){
