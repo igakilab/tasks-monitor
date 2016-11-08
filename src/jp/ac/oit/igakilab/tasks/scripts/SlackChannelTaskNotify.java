@@ -78,6 +78,7 @@ public class SlackChannelTaskNotify {
 		ttable = new MemberTrelloIdTable(client);
 		cmsg = new ChannelNotification(msg);
 		cmsg.setSlackIdTable(stable);
+		//cmsg.setTestMode(true);
 	}
 
 	public void setNotifyLine(Date d){
@@ -126,14 +127,12 @@ public class SlackChannelTaskNotify {
 		//カードの選択と変換
 		List<NotifyTrelloCard> cards = collectNotifyCards(board);
 
-		//通知するカードがない時は終了する
-		if( cards.size() <= 0 ){
+		//送信
+		if( cards.size() > 0 ){
+			return cmsg.taskNotification(boardName, header, cards);
+		}else{
 			return true;
 		}
-
-		//送信
-		System.out.println("to: " + boardName);
-		return cmsg.taskNotification(boardName, header, cards);
 	}
 
 	public boolean execute(){
