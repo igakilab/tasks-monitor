@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,8 @@ import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
+import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.scripts.SlackChannelTaskNotify;
 
 public class Configs {
 	public Configs(){};
@@ -111,5 +114,45 @@ public class Configs {
 		}else{
 			return "宛先を指定してください";
 		}
+	}
+
+	private String testHubotBoardTaskNotification(String boardId, int date){
+		MongoClient c = TasksMongoClientBuilder.createClient();
+		String hubotUrl = AppProperties.global.get("tasks.hubot.url");
+		HubotSendMessage m = new HubotSendMessage(hubotUrl);
+
+		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(c, m);
+		notifer.setHeader("テスト送信");
+
+		if( date >= 0 ){
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DATE, date);
+			notifer.setNotifyLine(cal.getTime());
+		}
+
+		boolean res;
+		if( boardId != null ){
+			res = notifer.execute(boardId);
+		}else{
+			res = notifer.execute();
+		}
+
+		return "URL: " + hubotUrl + " RESULT: " + res;
+	}
+
+	public String testBoardTaskNotifyBD(String boardId, int date){
+		return testHubotBoardTaskNotification(boardId, date);
+	}
+
+	public String testBoardTaskNotifyB(String boardId){
+		return testHubotBoardTaskNotification(boardId, -1);
+	}
+
+	public String testBoardTaskNotifyD(int date){
+		return testHubotBoardTaskNotification(null, date);
+	}
+
+	public String testBoardTaskNotify(){
+		return testHubotBoardTaskNotification(null, -1);
 	}
 }
