@@ -112,6 +112,11 @@ public class ChannelNotification {
 		buffer.append(head + "\n");
 		appendTaskNotifyText(buffer, cards);
 
+		//カードがない場合は送信しない
+		if( cards.size() <= 0 ){
+			return true;
+		}
+
 		return sendMessage(dest, buffer.toString());
 	}
 
