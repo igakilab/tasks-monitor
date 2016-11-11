@@ -7,19 +7,10 @@ import org.bson.Document;
 
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
 public class SprintResultDocumentConverter
 implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
-	public TrelloCardMembers parseTrelloCardMembers(Document doc){
-		DocumentValuePicker picker = new DocumentValuePicker(doc);
-		TrelloCardMembers card = new TrelloCardMembers(picker.getString("cardId", null));
-		picker.getStringArray("memberIds").forEach(
-			(memberId ->card.addMemberId(memberId)));
-		return card;
-	}
-
 	public CardResult parseCardResult(Document doc){
 		DocumentValuePicker picker = new DocumentValuePicker(doc);
 		return parseCardResult(picker, picker.getBoolean("finished", false));
@@ -38,10 +29,10 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 		return cres;
 	}
 
-	public Document convertTrelloCardMembers(TrelloCardMembers card){
-		Document doc = new Document("cardId", card.getCardId());
+	public Document convertCardResult(CardResult cres){
+		Document doc = new Document("cardId", cres.getCardId());
 		List<String> memberIds = new ArrayList<String>();
-		card.getMemberIds().forEach((memberId ->
+		cres.getMemberIds().forEach((memberId ->
 			memberIds.add(memberId)));
 		doc.append("memberIds", memberIds);
 		return doc;
@@ -74,11 +65,11 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 	@Override
 	public Document convert(SprintResult data){
 		List<Document> sprintCards = new ArrayList<Document>();
-
+		data.getAllCards().forEach((sc) ->
+			sprintCards.add(convertCardResult(sc)));
 
 		return new Document("sprintId", data.getSprintId())
 			.append("createdAt", data.getCreatedAt())
-			.append("remainedCards", remainedCards)
-			.append("finishedCards", finishedCards);
+			.append("sprintCards", sprintCards);
 	}
 }
