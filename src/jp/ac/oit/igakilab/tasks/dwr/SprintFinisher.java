@@ -73,7 +73,7 @@ public class SprintFinisher {
 		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
 		res.getAllCards().forEach((ttcm) ->
 			cards.add(TrelloCardForm.getInstance(
-				board.getCardById(ttcm.getCardId()))));
+				board.getCardById(ttcm.getTrelloCardId()))));
 		result.setSprintCards(cards);
 
 		return result;
