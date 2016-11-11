@@ -141,13 +141,13 @@ public class SprintManager {
 				if( list != null ){
 					if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
 						result.addSprintCard(
-							SprintResultTrelloCard.getInstance(c, mtable, true));
+							CardResult.getInstance(c, mtable, true));
 					}else if(
 						list.getName().matches(TasksTrelloClientBuilder.REGEX_DOING) ||
 						list.getName().matches(TasksTrelloClientBuilder.REGEX_TODO)
 					){
 						result.addSprintCard(
-							SprintResultTrelloCard.getInstance(c, mtable, false));
+							CardResult.getInstance(c, mtable, false));
 					}
 				}
 			}

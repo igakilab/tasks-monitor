@@ -14,10 +14,10 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.MemberCards;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.sprints.SprintResultTrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
@@ -53,15 +53,15 @@ public class SprintFinisher {
 		List<String> remained = new ArrayList<String>();
 		List<String> finished = new ArrayList<String>();
 
-		for(SprintResultTrelloCard scard : res.getAllCards()){
+		for(CardResult scard : res.getAllCards()){
 			for(String mid : scard.getMemberIds()){
 				addCardToMemberCardsList(
-					memberTasks, mid, scard.getTrelloCardId(), scard.isFinished());
+					memberTasks, mid, scard.getCardId(), scard.isFinished());
 			}
 			if( scard.isFinished() ){
-				finished.add(scard.getTrelloCardId());
+				finished.add(scard.getCardId());
 			}else{
-				remained.add(scard.getTrelloCardId());
+				remained.add(scard.getCardId());
 			}
 		}
 
@@ -72,7 +72,7 @@ public class SprintFinisher {
 		List<TrelloCardForm> cards = new ArrayList<TrelloCardForm>();
 		res.getAllCards().forEach((ttcm) ->
 			cards.add(TrelloCardForm.getInstance(
-				board.getCardById(ttcm.getTrelloCardId()))));
+				board.getCardById(ttcm.getCardId()))));
 		result.setSprintCards(cards);
 
 		return result;
