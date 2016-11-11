@@ -8,10 +8,12 @@ import java.util.List;
 public class SprintResult {
 	private String sprintId;
 	private Date createdAt;
-	private List<SprintResultTrelloCard> sprintCards;
+	private List<CardResult> sprintCards;
 
 	public SprintResult(String sprintId){
 		this.sprintId = sprintId;
+		createdAt = null;
+		sprintCards = new ArrayList<CardResult>();
 	}
 
 	public String getSprintId() {
@@ -30,15 +32,15 @@ public class SprintResult {
 		this.createdAt = createdAt;
 	}
 
-	public void addSprintCard(SprintResultTrelloCard scard){
+	public void addSprintCard(CardResult scard){
 		sprintCards.add(scard);
 	}
 
 	public void addSprintCard(String cardId, List<String> memberIds, boolean finished){
-		SprintResultTrelloCard scard = new SprintResultTrelloCard(cardId);
-		memberIds.forEach((mid -> scard.addMemberId(mid)));
-		scard.setFinished(finished);
-		sprintCards.add(scard);
+		CardResult cr = new CardResult(cardId);
+		memberIds.forEach((mid -> cr.addMemberId(mid)));
+		cr.setFinished(finished);
+		sprintCards.add(cr);
 	}
 
 	@Deprecated
@@ -51,12 +53,11 @@ public class SprintResult {
 		col.forEach(c -> addRemainedCard(c));
 	}
 
-	@Deprecated
 	public List<TrelloCardMembers> getRemainedCards(){
 		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
 		sprintCards.forEach((sc) -> {
 			if( !sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getTrelloCardId());
+				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
 				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
 				cards.add(tcm);
 			}
@@ -74,12 +75,11 @@ public class SprintResult {
 		col.forEach(c -> addFinishedCard(c));
 	}
 
-	@Deprecated
 	public List<TrelloCardMembers> getFinishedCards(){
 		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
 		sprintCards.forEach((sc) -> {
 			if( sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getTrelloCardId());
+				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
 				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
 				cards.add(tcm);
 			}
@@ -87,7 +87,7 @@ public class SprintResult {
 		return cards;
 	}
 
-	public List<SprintResultTrelloCard> getAllCards(){
+	public List<CardResult> getAllCards(){
 		return sprintCards;
 	}
 }
