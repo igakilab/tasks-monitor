@@ -30,6 +30,10 @@ public class SprintResult {
 		this.createdAt = createdAt;
 	}
 
+	public void addSprintCard(SprintResultTrelloCard scard){
+		sprintCards.add(scard);
+	}
+
 	public void addSprintCard(String cardId, List<String> memberIds, boolean finished){
 		SprintResultTrelloCard scard = new SprintResultTrelloCard(cardId);
 		memberIds.forEach((mid -> scard.addMemberId(mid)));

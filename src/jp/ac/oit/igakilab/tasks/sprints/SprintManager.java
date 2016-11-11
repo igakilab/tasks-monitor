@@ -17,6 +17,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -138,13 +139,15 @@ public class SprintManager {
 			if( c != null ){
 				TrelloList list = board.getListById(c.getListId());
 				if( list != null ){
-					if( list.getName().matches("(?i)done") ){
-						result.addFinishedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+					if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
+						result.addSprintCard(
+							SprintResultTrelloCard.getInstance(c, mtable, true));
 					}else if(
-						list.getName().matches("(?i)doing") ||
-						list.getName().matches("(?i)to\\s*do")
+						list.getName().matches(TasksTrelloClientBuilder.REGEX_DOING) ||
+						list.getName().matches(TasksTrelloClientBuilder.REGEX_TODO)
 					){
-						result.addRemainedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+						result.addSprintCard(
+							SprintResultTrelloCard.getInstance(c, mtable, false));
 					}
 				}
 			}
