@@ -19,7 +19,6 @@ import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
-import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -33,14 +32,43 @@ public class SprintManager {
 	private TrelloApi<Object> trelloApi;
 	private SprintDocumentConverter converter;
 
+	/**
+	 * スプリントマネージャを初期化します
+	 * @param dbClient MongoClient
+	 * @param api TrelloApiClient
+	 */
 	public SprintManager(MongoClient dbClient, TrelloApi<Object> api){
 		this.dbClient = dbClient;
 		this.trelloApi = api;
 		this.converter = new SprintDocumentConverter();
 	}
 
+	protected boolean setTrelloCardDueAndMembers
+	(TrelloCardEditor tce, String trelloCardId,
+	Date dueDate, List<String> memberIds, MemberTrelloIdTable ttb){
+		//メンバーid変換
+		List<String> trelloMemberIds = new ArrayList<String>();
+		memberIds.forEach((mid) -> {
+			String tmid = ttb.getTrelloId(mid);
+			if( tmid != null ){
+				trelloMemberIds.add(tmid);
+			}
+		});
+		//処理
+		return tce.setDueAndMembers(trelloCardId, dueDate, trelloMemberIds);
+	}
+
+	/**
+	 * 新しくスプリントを作成し、dbに登録、trelloにカードを設定します
+	 * @param boardId
+	 * @param beginDate
+	 * @param finishDate
+	 * @param cardAndMembers
+	 * @return
+	 * @throws SprintManagementException
+	 */
 	public String createSprint(String boardId,
-		Date beginDate, Date finishDate, List<TrelloCardMembers> cardAndMembers)
+		Date beginDate, Date finishDate, List<CardMembers> cardAndMembers)
 	throws SprintManagementException
 	{
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
@@ -74,30 +102,12 @@ public class SprintManager {
 		Calendar dueDate = Calendar.getInstance();
 		dueDate.setTime(finishDate);
 		dueDate.set(Calendar.HOUR, 18);
-		for(TrelloCardMembers cm : cardAndMembers){
+		for(CardMembers cm : cardAndMembers){
 			//カードIDを読み出し
 			String cardId= cm.getCardId();
 
-			//担当者設定、mdbからtrelloIdを取得し設定
-			for(String memberId : cm.getMemberIds()){
-				String trelloId = mtable.getTrelloId(memberId);
-				if( trelloId != null ){
-					if( DEBUG )
-						System.out.format("TCEDIT: addMember %s(%s) to %s\n",
-								memberId, trelloId, cardId);
-					tceditor.addMember(cardId, trelloId);
-				}else{
-					if( DEBUG )
-						System.out.format("TCEDIT: addMember FAILED {memberId:%s} to %s\n",
-								memberId, cardId);
-				}
-			}
-
-			//期限を設定
-			if( DEBUG )
-				System.out.format("TCEDIT: addDue %s to %s",
-					new TrelloDateFormat().format(dueDate.getTime()), cardId);
-			tceditor.setDueDate(cardId, dueDate.getTime());
+			//カードに期限と担当者を設定
+			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
 		}
 
 		return newId;

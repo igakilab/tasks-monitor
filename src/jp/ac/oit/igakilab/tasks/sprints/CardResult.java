@@ -6,7 +6,7 @@ import java.util.List;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
-public class CardResult {
+public class CardResult{
 	/**
 	 * TrelloCardからCardResultを生成します
 	 * @param card TrelloCardオブジェクト

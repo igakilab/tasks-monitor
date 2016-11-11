@@ -19,10 +19,10 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForms.TrelloCardMemberIds
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -71,10 +71,11 @@ public class SprintPlanner {
 		//日付の取得
 		Date today = Sprint.roundDate(Calendar.getInstance().getTime()).getTime();
 		//formをオブジェクトに変換
-		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
+		List<CardMembers> cards = new ArrayList<CardMembers>();
 		if( cardsForm != null ){
 			cardsForm.forEach(
-				(card -> cards.add(TrelloCardMembersForm.convertToTrelloCardMembers(card))));
+				(card -> cards.add(CardMembers.getInstance(
+					TrelloCardMembersForm.convertToTrelloCardMembers(card)))));
 		}
 		//DB登録
 		String newId = null;
