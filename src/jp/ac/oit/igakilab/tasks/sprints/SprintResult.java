@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class SprintResult {
 	private String sprintId;
 	private Date createdAt;
-	private List<TrelloCardMembers> remainedCards;
-	private List<TrelloCardMembers> finishedCards;
+	private List<SprintResultTrelloCard> sprintCards;
 
 	public SprintResult(String sprintId){
 		this.sprintId = sprintId;
-		remainedCards = new ArrayList<TrelloCardMembers>();
-		finishedCards = new ArrayList<TrelloCardMembers>();
 	}
 
 	public String getSprintId() {
@@ -34,35 +30,60 @@ public class SprintResult {
 		this.createdAt = createdAt;
 	}
 
+	public void addSprintCard(String cardId, List<String> memberIds, boolean finished){
+		SprintResultTrelloCard scard = new SprintResultTrelloCard(cardId);
+		memberIds.forEach((mid -> scard.addMemberId(mid)));
+		scard.setFinished(finished);
+		sprintCards.add(scard);
+	}
+
+	@Deprecated
 	public void addRemainedCard(TrelloCardMembers card){
-		remainedCards.add(card);
+		addSprintCard(card.getCardId(), card.getMemberIds(), false);
 	}
 
+	@Deprecated
 	public void addRemainedCards(Collection<TrelloCardMembers> col){
-		remainedCards.addAll(col);
+		col.forEach(c -> addRemainedCard(c));
 	}
 
+	@Deprecated
 	public List<TrelloCardMembers> getRemainedCards(){
-		return remainedCards;
-	}
-
-	public void addFinishedCard(TrelloCardMembers card){
-		finishedCards.add(card);
-	}
-
-	public void addFinishedCards(Collection<TrelloCardMembers> col){
-		finishedCards.addAll(col);
-	}
-
-	public List<TrelloCardMembers> getFinishedCards(){
-		return finishedCards;
-	}
-
-	public List<TrelloCardMembers> getAllCards(){
 		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
-		Consumer<TrelloCardMembers> register = (card ->  cards.add(card));
-		getRemainedCards().forEach(register);
-		getFinishedCards().forEach(register);
+		sprintCards.forEach((sc) -> {
+			if( !sc.isFinished() ){
+				TrelloCardMembers tcm = new TrelloCardMembers(sc.getTrelloCardId());
+				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
+				cards.add(tcm);
+			}
+		});
 		return cards;
+	}
+
+	@Deprecated
+	public void addFinishedCard(TrelloCardMembers card){
+		addSprintCard(card.getCardId(), card.getMemberIds(), false);
+	}
+
+	@Deprecated
+	public void addFinishedCards(Collection<TrelloCardMembers> col){
+		col.forEach(c -> addFinishedCard(c));
+	}
+
+	@Deprecated
+	public List<TrelloCardMembers> getFinishedCards(){
+		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
+		sprintCards.forEach((sc) -> {
+			if( sc.isFinished() ){
+				TrelloCardMembers tcm = new TrelloCardMembers(sc.getTrelloCardId());
+				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
+				cards.add(tcm);
+			}
+		});
+		return cards;
+	}
+
+	public List<SprintResultTrelloCard> getAllCards(){
+		return sprintCards;
 	}
 }
