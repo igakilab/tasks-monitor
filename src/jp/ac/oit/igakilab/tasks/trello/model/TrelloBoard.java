@@ -4,8 +4,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
-
 public class TrelloBoard extends TrelloBoardData{
 	protected List<TrelloCard> cards;
 	protected List<TrelloList> lists;
