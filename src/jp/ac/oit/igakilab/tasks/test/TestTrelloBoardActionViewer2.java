@@ -26,6 +26,9 @@ public class TestTrelloBoardActionViewer2 {
 		board.build();
 		System.out.println("SHORT LINK: " + board.getShortLink());
 
+		System.out.println(
+			TrelloAction.getTargetTypeLabels(TrelloAction.TARGET_CARD));
+
 		client.close();
 	}
 
