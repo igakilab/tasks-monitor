@@ -37,6 +37,9 @@
     <create creator="new" javascript="SprintHistory">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintHistory"/>
     </create>
+    <create creator="new" javascript="SprintMemberHistory">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintMemberHistory"/>
+    </create>
     <create creator="new" javascript="BoardMenu">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.BoardMenu"/>
     </create>
