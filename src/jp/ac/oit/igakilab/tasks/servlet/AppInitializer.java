@@ -12,10 +12,10 @@ import javax.servlet.ServletContextListener;
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.AppProperties;
+import jp.ac.oit.igakilab.tasks.cron.CronTask;
 import jp.ac.oit.igakilab.tasks.cron.HubotBoardTaskNotification;
+import jp.ac.oit.igakilab.tasks.cron.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
-import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
-import jp.ac.oit.igakilab.tasks.cron.samples.SampleCron;
 
 public class AppInitializer implements ServletContextListener{
 	private DebugLog logger;
@@ -72,8 +72,7 @@ public class AppInitializer implements ServletContextListener{
 	private Scheduler hello, boardUpdater, hubotDailyTalk, tasksNotifer;
 	private Scheduler boardTasksNotifer;
 	private void initCronTasks(){
-		SampleCron cron = new SampleCron();
-		hello = cron.schedule("* * * * *", null);
+		hello = CronTask.createScheduler("* * * * *");
 		hello.start();
 
 		boardUpdater = UpdateTrelloBoardActions.createScheduler("*/10 * * * *");

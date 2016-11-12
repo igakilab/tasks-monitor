@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -15,7 +16,6 @@ import com.mongodb.client.model.Updates;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
-import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
@@ -101,15 +101,16 @@ public class Configs {
 		return res;
 	}
 
-	public String hubotSendMessageTest(String dest){
+	public String hubotSendMessageTest(String dest)
+	throws IOException{
 		if( !AppProperties.global.hasValue("tasks.hubot.url") ){
 			return "test: hubotのurlが設定されていません";
 		}
 
 		String url = AppProperties.global.get("tasks.hubot.url");
-		HubotDailyTalk hdt = new HubotDailyTalk(url, dest);
+		HubotSendMessage hdt = new HubotSendMessage(url);
 		if( dest != null ){
-			hdt.sendMessage(dest, "このメッセージはテストです");
+			hdt.send(dest, "このメッセージはテストです");
 			return "送信しました";
 		}else{
 			return "宛先を指定してください";

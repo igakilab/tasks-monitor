@@ -14,8 +14,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForms;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintPlannerForms.TrelloCardMemberIds;
+import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
@@ -24,9 +23,9 @@ import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintPlanner {
@@ -114,7 +113,7 @@ public class SprintPlanner {
 
 	//ボードにあるtodoのカードリストを返却する
 	//ボードやリストがない場合は空のリストが返却される
-	public List<TrelloCardMemberIds> getTodoTrelloCards(String boardId){
+	public List<TrelloCardForm> getTodoTrelloCards(String boardId){
 		//dbのクライアントを生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
@@ -125,7 +124,7 @@ public class SprintPlanner {
 			adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
 
 		//カードリストの初期化
-		List<TrelloCardMemberIds> forms = new ArrayList<TrelloCardMemberIds>();
+		List<TrelloCardForm> forms = new ArrayList<TrelloCardForm>();
 
 		//ボードの解析
 		if( actions.size() > 0 ){
@@ -136,7 +135,7 @@ public class SprintPlanner {
 
 			//正規表現でマッチするリストのカードを取得
 			board.getCardsByListNameMatches(TasksTrelloClientBuilder.REGEX_TODO).forEach(
-				(card -> forms.add(SprintPlannerForms.TrelloCardMemberIds.getInstance(card, mtable))));
+				(card -> forms.add(TrelloCardForm.getInstance(card, mtable))));
 		}
 
 		//結果を返却

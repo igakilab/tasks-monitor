@@ -6,8 +6,8 @@ import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class SprintHistoryForms {
@@ -18,12 +18,11 @@ public class SprintHistoryForms {
 
 			TrelloCardForm cf = null;
 			if( card != null ){
-				cf = TrelloCardForm.getInstance(card);
+				cf = TrelloCardForm.getInstance(card, memberIds);
 			}else{
 				cf = new TrelloCardForm();
 				cf.setId(cardId);
 			}
-			cf.setMemberIds(memberIds.toArray(new String[memberIds.size()]));
 
 			return cf;
 		}
