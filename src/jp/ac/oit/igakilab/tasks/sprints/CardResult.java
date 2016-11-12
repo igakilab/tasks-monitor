@@ -54,6 +54,10 @@ public class CardResult{
 		return memberIds;
 	}
 
+	public boolean containsMemberId(String mid){
+		return memberIds.contains(mid);
+	}
+
 	public void addMemberId(String mid){
 		memberIds.add(mid);
 	}

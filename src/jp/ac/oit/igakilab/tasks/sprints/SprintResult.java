@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SprintResult {
 	private String sprintId;
@@ -85,6 +86,12 @@ public class SprintResult {
 			}
 		});
 		return cards;
+	}
+
+	public List<CardResult> getCardsByMemberIdContains(String mid){
+		return sprintCards.stream()
+			.filter((c -> c.containsMemberId(mid)))
+			.collect(Collectors.toList());
 	}
 
 	public List<CardResult> getAllCards(){

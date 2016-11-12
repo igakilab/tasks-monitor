@@ -8,6 +8,7 @@ import org.bson.conversions.Bson;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
@@ -68,6 +69,24 @@ public class SprintResultsDB{
 
 		List<T> result = new ArrayList<T>();
 		for(Document doc : collection.find(filter)){
+			T data = parser.parse(doc);
+			if( data != null ) result.add(data);
+		}
+
+		return result;
+	}
+
+	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
+		Bson filter = Filters.or(
+			Filters.eq("remainedCards.memberIds", memberId),
+			Filters.eq("finishedCards.memberIds", memberId),
+			Filters.eq("sprintCards.memberIds", memberId)
+		);
+
+		List<T> result = new ArrayList<T>();
+		FindIterable<Document> cursor = collection.find(filter);
+		for(Document doc : cursor){
+			//System.out.println(doc.toJson());
 			T data = parser.parse(doc);
 			if( data != null ) result.add(data);
 		}
