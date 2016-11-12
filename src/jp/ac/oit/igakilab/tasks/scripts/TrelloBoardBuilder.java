@@ -38,16 +38,17 @@ public class TrelloBoardBuilder {
 		}
 
 		//最終更新日時チェックとアップデート
-		Date boardLastUpdate = bdb.getLastUpdateDate(boardId);
-		Calendar now = Calendar.getInstance();
-		if(
-			(now.getTimeInMillis() - boardLastUpdate.getTime())
-			>= ACTION_UPDATE_TIMEOUT_MS &&
-			autoUpdate
-		){
-			TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-			TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
-			updater.updateBoardActions(boardId, boardLastUpdate);
+		if( autoUpdate ){
+			Date boardLastUpdate = bdb.getLastUpdateDate(boardId);
+			Calendar now = Calendar.getInstance();
+			if(
+				(now.getTimeInMillis() - boardLastUpdate.getTime())
+				>= ACTION_UPDATE_TIMEOUT_MS
+			){
+				TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+				TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
+				updater.updateBoardActions(boardId, boardLastUpdate);
+			}
 		}
 
 		//ボードのビルド
