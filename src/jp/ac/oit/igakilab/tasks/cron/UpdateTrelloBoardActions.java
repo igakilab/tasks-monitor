@@ -12,8 +12,7 @@ import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater.UpdateResult;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
-public class UpdateTrelloBoardActions implements Runnable{
-	private DebugLog logger = new DebugLog("cron_UpdateTrelloBoardActions");
+public class UpdateTrelloBoardActions extends CronTask{
 
 	public static Scheduler createScheduler(String schedule){
 		Scheduler scheduler = new Scheduler();
@@ -21,9 +20,11 @@ public class UpdateTrelloBoardActions implements Runnable{
 		return scheduler;
 	}
 
-	public void run(){
-		logger.log(DebugLog.LS_INFO, "CRONTASK TRIGGERED");
+	public UpdateTrelloBoardActions(){
+		taskName = "UpdateTrelloBoardActions";
+	}
 
+	public void execute(){
 		//クライアントの初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
@@ -34,7 +35,7 @@ public class UpdateTrelloBoardActions implements Runnable{
 
 		//結果の記録
 		results.forEach((result ->
-			logger.log(DebugLog.LS_INFO, String.format(
+			log(DebugLog.LS_INFO, String.format(
 				"result: id:%s, received:%d, upserted:%d",
 				result.getBoardId(), result.getReceivedCount(),
 				result.getUpsertedCount()))
@@ -42,7 +43,5 @@ public class UpdateTrelloBoardActions implements Runnable{
 
 		//クライアントのクローズ
 		client.close();
-
-		logger.log(DebugLog.LS_INFO, "CRONTASK FINISHED");
 	}
 }
