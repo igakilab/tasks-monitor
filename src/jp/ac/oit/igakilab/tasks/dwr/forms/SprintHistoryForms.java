@@ -18,12 +18,11 @@ public class SprintHistoryForms {
 
 			TrelloCardForm cf = null;
 			if( card != null ){
-				cf = TrelloCardForm.getInstance(card);
+				cf = TrelloCardForm.getInstance(card, memberIds);
 			}else{
 				cf = new TrelloCardForm();
 				cf.setId(cardId);
 			}
-			cf.setMemberIds(memberIds.toArray(new String[memberIds.size()]));
 
 			return cf;
 		}
