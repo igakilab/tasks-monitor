@@ -137,7 +137,7 @@ public class SprintsDB {
 		return newId;
 	}
 
-	public boolean updateSprintCards(Sprint id, List<String> cardIds){
+	public boolean updateSprintCards(String id, List<String> cardIds){
 		Bson filter = Filters.eq("id", id);
 		Bson update = Updates.set("trelloCardIds", cardIds);
 

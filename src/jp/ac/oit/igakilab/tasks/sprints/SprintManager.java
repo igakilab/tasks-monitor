@@ -43,6 +43,15 @@ public class SprintManager {
 		this.converter = new SprintDocumentConverter();
 	}
 
+	/**
+	 * トレロのカードに期限とメンバーを一度に設定します
+	 * @param tce
+	 * @param trelloCardId
+	 * @param dueDate
+	 * @param memberIds
+	 * @param ttb
+	 * @return
+	 */
 	protected boolean setTrelloCardDueAndMembers
 	(TrelloCardEditor tce, String trelloCardId,
 	Date dueDate, List<String> memberIds, MemberTrelloIdTable ttb){
@@ -111,6 +120,54 @@ public class SprintManager {
 		}
 
 		return newId;
+	}
+
+
+	public String updateSprint(String sprintId, Date finishDate, List<CardMembers> cardAndMembers)
+	throws SprintManagementException
+	{
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
+		SprintDocumentConverter converter = new SprintDocumentConverter();
+
+		//スプリントのチェック
+		Sprint sprint = smdb.getSprintById(sprintId, converter);
+		if( sprint == null ){
+			throw new SprintManagementException("既存スプリントが見つかりません");
+		}
+
+		//終了日の設定
+		if( finishDate != null ){
+			if( sprint.getFinishDate().compareTo(Sprint.roundDate(finishDate).getTime()) != 0 ){
+				//終了日のチェックには期間の有効判定が必要である
+				throw new SprintManagementException("終了日の変更はサポートしていません");
+			}
+		}
+
+		//カードの設定
+		if( cardAndMembers != null ){
+			sprint.clearTrelloCardId();
+			cardAndMembers.forEach((cam -> sprint.addTrelloCardId(cam.getCardId())));
+		}
+
+		//Sprintのデータを登録
+		smdb.updateSprintCards(sprint.getId(), sprint.getTrelloCardIds());
+
+
+		//Trelloの担当者と期限を設定
+		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
+		Calendar dueDate = Calendar.getInstance();
+		dueDate.setTime(finishDate);
+		dueDate.set(Calendar.HOUR, 18);
+		for(CardMembers cm : cardAndMembers){
+			//カードIDを読み出し
+			String cardId= cm.getCardId();
+
+			//カードに期限と担当者を設定
+			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
+		}
+
+		return sprint.getId();
 	}
 
 	public SprintResult closeSprint(String sprintId){
