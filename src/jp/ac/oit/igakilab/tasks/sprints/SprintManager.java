@@ -114,7 +114,6 @@ public class SprintManager {
 		for(CardMembers cm : cardAndMembers){
 			//カードIDを読み出し
 			String cardId= cm.getCardId();
-
 			//カードに期限と担当者を設定
 			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
 		}
@@ -157,12 +156,11 @@ public class SprintManager {
 		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
 		Calendar dueDate = Calendar.getInstance();
-		dueDate.setTime(finishDate);
+		dueDate.setTime(sprint.getFinishDate());
 		dueDate.set(Calendar.HOUR, 18);
 		for(CardMembers cm : cardAndMembers){
 			//カードIDを読み出し
 			String cardId= cm.getCardId();
-
 			//カードに期限と担当者を設定
 			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
 		}

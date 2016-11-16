@@ -4,20 +4,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
+import jp.ac.oit.igakilab.tasks.dwr.forms.CardMembersForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
@@ -25,7 +30,9 @@ import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintPlanner {
@@ -47,6 +54,54 @@ public class SprintPlanner {
 		//DBをクローズ、formに変換してreturn
 		client.close();
 		return SprintForm.getInstance(sprint);
+	}
+
+	//SprintBuilderのためのデータを取得する
+	public SprintBuilderForm getSprintBuilderForm(String boardId)
+	throws ExcuteFailedException{
+		//dbのクライアント等生成
+		MongoClient client = TasksMongoClientBuilder.createClient();
+
+		//ボードの存在確認
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		if( !bdb.boardIdExists(boardId) ){
+			client.close();
+			throw new ExcuteFailedException("ボードが見つかりません");
+		}
+
+		//現在進行中のスプリント取得
+		SprintsManageDB smdb = new SprintsManageDB(client);
+		Sprint sprint = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
+
+		//ボードオブジェクトを生成
+		TrelloBoardBuilder builder = new TrelloBoardBuilder(client);
+		TrelloBoard board = builder.buildTrelloBoardFromTrelloActions(boardId);
+		if( board == null ){
+			client.close();
+			throw new ExcuteFailedException("ボードの生成に失敗しました");
+		}
+
+
+		//対象カードリストを生成
+		List<TrelloCardForm> fcards = new ArrayList<TrelloCardForm>();
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
+		Consumer<TrelloCard> collector = (card) -> {
+			if( sprint != null && sprint.getTrelloCardIds().contains(card.getId()) ){
+				fcards.add(TrelloCardForm.getInstance(card, ttb));
+			}else{
+				fcards.add(TrelloCardForm.getInstance(card));
+			}
+		};
+		board.getCardsByListNameMatches(
+			TasksTrelloClientBuilder.REGEX_TODO).forEach(collector);
+		board.getCardsByListNameMatches(
+			TasksTrelloClientBuilder.REGEX_DOING).forEach(collector);
+
+		//formを生成
+		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards);
+
+		client.close();
+		return form;
 	}
 
 	//スプリントを新しく生成
@@ -88,6 +143,43 @@ public class SprintPlanner {
 		//DBをクローズ、登録されたidを返却
 		client.close();
 		return newId;
+	}
+
+	//スプリントを更新
+	// 指定されたスプリントidがない場合はエラーを投げる
+	public String updateSprint(String sprintId, Date finishDate, List<CardMembersForm> cardForm)
+	throws ExcuteFailedException{
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		SprintsManageDB smdb = new SprintsManageDB(client);
+		SprintManager manager = new SprintManager(client, api);
+
+		//スプリントデータを取得
+		SprintDocumentConverter converter = new SprintDocumentConverter();
+		Sprint sprint = smdb.getSprintById(sprintId, converter);
+
+		//スプリントデータを検証
+		if( sprint == null ){
+			client.close();
+			throw new ExcuteFailedException("指定されたスプリントがありません");
+		}
+		if( sprint.isClosed() ){
+			client.close();
+			throw new ExcuteFailedException("指定されたスプリントはすでに閉じられています");
+		}
+
+		//スプリントデータ更新作業
+		List<CardMembers> members = new ArrayList<CardMembers>();
+		cardForm.forEach((cmf) -> members.add(CardMembersForm.convert(cmf)));
+		try{
+			manager.updateSprint(sprintId, finishDate, members);
+		}catch(SprintManagementException e0){
+			client.close();
+			throw new ExcuteFailedException("登録に失敗しました: " + e0.getMessage());
+		}
+
+		client.close();
+		return sprint.getId();
 	}
 
 	//boardIdより現在進行中のスプリントをクローズする
