@@ -116,6 +116,7 @@
 					<div class="col-md-4">
 						<h2>ToDo</h2>
 						<ul id="todoList" class="list-group"></ul>
+						<ul id="addtask" class="list-group"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal">追加</button></ul>
 					</div>
 					<div class="col-md-4">
 						<h2>Doing</h2>
@@ -134,6 +135,59 @@
 			</div>
 		</div>
 
+		<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modallabel" aria-hidden="true">
+			<div class="modal-dialog" role="dodument">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modallabel">追加タスクの選択</h4>
+					</div>
+					<div class="modal-body">
+					<div class="row">
+					<div class="col-md-9">
+						<table id="non-assign" class="table" style="text-align: left">
+							<thead><tr>
+								<th>
+									タスク名
+								</th>
+								<th></th>
+							</tr></thead>
+							<tbody class="unselected-card-list">
+							<!-- <tr>
+								<td>
+									ああああああああああ
+								</td>
+								<td>
+									<button class="btn btn-primary btn-sm" style="float:right">
+										移動
+										<span class="glyphicon glyphicon-arrow-right" aria-hidden="true">
+										</span>
+									</button>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									いいいいいいいいいい
+								</td>
+								<td>
+									<button class="btn btn-primary btn-sm" style="float:right">
+										移動
+										<span class="glyphicon glyphicon-arrow-right" aria-hidden="true">
+										</span>
+									</button>
+								</td>
+							</tr> -->
+							</tbody>
+						</table>
+					</div>
+					</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success create-btn">新規追加</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<!-- <script src="js/jquery.mobile.custom.min.js"></script> -->
@@ -144,6 +198,12 @@
 		<script src="dwr/interface/DashBoard.js"></script>
 
 		<script src="dashboard.js"></script>
+
+		<script src="js/sprint-builder.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintPlanner.js"></script>
+		<script src="sprint.js"></script>
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
@@ -200,6 +260,64 @@
 				errorHandler: function(msg){
 					Util.showAlertToDiv("通信エラー: " + msg);
 				}
+			});
+
+			SprintPlanner.getCurrentSprint(boardId, function(spr){
+				/*if( spr != null ){
+					//スプリントがあればエラーを表示
+					Util.showAlertToDiv($("<span></span>").append(
+						"現在進行中のスプリントがあります",
+						$("<a></a>").text("ダッシュボードへ")
+							.attr("href", "index.html?boardId=" + boardId)
+					));
+				}else{*/
+					//スプリントがなければ続行
+					//datepickerを初期化
+					$(".datepicker").datepicker({
+						language:"ja",
+						format:"yyyy/mm/dd"
+					});
+
+					//仮の目標日を設定
+					var dt = new Date();
+					//dt.setDate(dt.getDate() + 7);
+					$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
+
+					//エラーハンドラーを設定
+					SprintBuilder.defaultErrorHandler = function(msg){
+						Util.showAlertToDiv(msg);
+					};
+
+					//スプリントのデータを取得
+					var builder = new SprintBuilder(boardId);
+					builder.fetch(function(){
+						setCardList(builder);
+					});
+
+					//新規作成ボタンを設定
+					$(".create-btn").on('click', function(){
+						//日付のパース
+						var ds = Util.getUrlParameters().finishDate;
+						var fd = Date.parse(ds);
+						//フォーマット確認
+						if( isNaN(fd) ){
+							Util.showAlertToDiv("無効な目標日です: " +
+								ds + " (yyyy/mm/dd形式で入力してください)");
+							return;
+						}
+
+						builder.setFinishDate(fd);
+
+						builder.regist(function(sid){
+							location.href = "index.html?boardId=" + boardId;
+						});
+					});
+
+					//ダッシュボードへ移動ボタンを設定
+					/*$(".to-dashboard-btn").on('click', function(){
+						location.href = "index.html?boardId=" + boardId;
+					});
+				}*/
 			});
 		});
 		</script>
