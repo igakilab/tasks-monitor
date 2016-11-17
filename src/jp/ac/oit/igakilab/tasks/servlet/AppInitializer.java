@@ -12,10 +12,10 @@ import javax.servlet.ServletContextListener;
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.AppProperties;
-import jp.ac.oit.igakilab.tasks.cron.HubotTasksNotification;
+import jp.ac.oit.igakilab.tasks.cron.CronTask;
+import jp.ac.oit.igakilab.tasks.cron.HubotBoardTaskNotification;
+import jp.ac.oit.igakilab.tasks.cron.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
-import jp.ac.oit.igakilab.tasks.cron.samples.HubotDailyTalk;
-import jp.ac.oit.igakilab.tasks.cron.samples.SampleCron;
 
 public class AppInitializer implements ServletContextListener{
 	private DebugLog logger;
@@ -70,9 +70,9 @@ public class AppInitializer implements ServletContextListener{
 	}
 
 	private Scheduler hello, boardUpdater, hubotDailyTalk, tasksNotifer;
+	private Scheduler boardTasksNotifer;
 	private void initCronTasks(){
-		SampleCron cron = new SampleCron();
-		hello = cron.schedule("* * * * *", null);
+		hello = CronTask.createScheduler("* * * * *");
 		hello.start();
 
 		boardUpdater = UpdateTrelloBoardActions.createScheduler("*/10 * * * *");
@@ -82,8 +82,11 @@ public class AppInitializer implements ServletContextListener{
 		if( hubotUrl != null ){
 			hubotDailyTalk = HubotDailyTalk.createSchedule("0 9 * * *", hubotUrl, "botbot");
 			hubotDailyTalk.start();
-			tasksNotifer = HubotTasksNotification.createScheduler("5 9 * * *", hubotUrl, true);
-			tasksNotifer.start();
+			//boardTasksNotiferの導入に伴い、個人用のタスク通知を無効化
+			//tasksNotifer = HubotTasksNotification.createScheduler("5 9 * * *", hubotUrl, true);
+			//tasksNotifer.start();
+			boardTasksNotifer = HubotBoardTaskNotification.createScheduler("10 9 * * *", hubotUrl);
+			boardTasksNotifer.start();
 		}
 	}
 
@@ -92,6 +95,7 @@ public class AppInitializer implements ServletContextListener{
 		boardUpdater.stop();
 		if( hubotDailyTalk != null ) hubotDailyTalk.stop();
 		if( tasksNotifer != null ) tasksNotifer.stop();
+		if( boardTasksNotifer != null ) tasksNotifer.stop();
 	}
 
 	@Override

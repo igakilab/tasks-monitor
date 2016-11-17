@@ -7,7 +7,7 @@
 
 		<title>addboard</title>
 
-		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="../../css/bootstrap.min.css" rel="stylesheet"/>
 	</head>
 
 	<body style="padding-top: 50px;">
@@ -83,14 +83,14 @@
 
 		</div>
 
-		<script src="js/jquery-2.1.4.min.js"></script>
-		<script src="js/jquery.serialize.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/util.js"></script>
+		<script src="../../js/jquery-2.1.4.min.js"></script>
+		<script src="../../js/jquery.serialize.js"></script>
+		<script src="../../js/bootstrap.min.js"></script>
+		<script src="../../js/util.js"></script>
 
-		<script src="dwr/engine.js"></script>
-		<script src="dwr/util.js"></script>
-		<script src="dwr/interface/BoardMenu.js"></script>
+		<script src="../../dwr/engine.js"></script>
+		<script src="../../dwr/util.js"></script>
+		<script src="../../dwr/interface/BoardMenu.js"></script>
 		<script>
 		var BOARD_ID = null;
 
@@ -119,7 +119,7 @@
 				if( BOARD_ID != null ){
 					BoardMenu.addTrelloBoard(BOARD_ID, {
 						callback: function(res){
-							location.href = "boards.html";
+							location.href = "../";
 						},
 						errorHandler: Util.showAlertToDiv
 					});

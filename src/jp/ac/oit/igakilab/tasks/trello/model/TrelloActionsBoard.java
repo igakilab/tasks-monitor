@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionData;
 

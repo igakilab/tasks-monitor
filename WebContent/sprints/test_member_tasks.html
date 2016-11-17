@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>SPRINT TESTS</title>
+		<meta charset="utf-8"/>
+	</head>
+	<body>
+		<h1>MEMBER TASKS TEST</h1>
+
+		<h2>データ取得</h2>
+		<p>メンバーIDを指定してください</p>
+		<input id="memberIdInput" type="text"/>
+		<button type="button" id="initBtn">データ取得</button>
+
+		<hr/>
+
+		<h2>カード一覧</h2>
+		<table border="1">
+			<thead><tr>
+				<th>カードID</th><th>カード名</th><th>スプリントID</th><th>達成</th>
+			</tr></thead>
+			<tbody id="memberTasksTbody"></tbody>
+		</table>
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/interface/SprintMemberHistory.js"></script>
+
+		<script>
+		function showMemberTasks(list){
+			var $tbody = $("#memberTasksTbody");
+
+			$tbody.empty();
+
+			for(var i=0; i<list.length; i++){
+				$tbody.append(
+					$("<tr></tr>").append(
+						$("<td></td>").text(list[i].id),
+						$("<td></td>").text(list[i].name),
+						$("<td></td>").text(list[i].sprintId),
+						$("<td></td>").text(list[i].finished ? "達成" : "未達成")
+					)
+				);
+			}
+		}
+
+		$(document).ready(function(){
+			$("#initBtn").on('click', function(){
+				var mid = $("#memberIdInput").val();
+				SprintMemberHistory.getTaskCardsByMemberId(mid, function(data){
+					console.log(data);
+					showMemberTasks(data);
+				});
+			});
+		});
+		</script>
+	</body>
+</html>

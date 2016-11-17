@@ -17,11 +17,11 @@ import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardDataFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardUrl;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class BoardMenu {

@@ -11,6 +11,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
 public class TrelloBoardsDB {
@@ -22,14 +23,17 @@ public class TrelloBoardsDB {
 			Board board = new Board();
 			board.id = doc.getString("id");
 			board.lastUpdate = doc.getDate("lastUpdate");
+			board.slackNotifyEnabled = doc.getBoolean("slackNotifyEnabled", false);
 			return board;
 		}
 
 		private String id;
 		private Date lastUpdate;
+		private boolean slackNotifyEnabled;
 
 		public String getId(){return id;}
 		public Date getLastUpdate(){return lastUpdate;}
+		public boolean getSlackNotifyEnabled(){return slackNotifyEnabled;}
 	}
 
 	private MongoClient client;
@@ -57,6 +61,12 @@ public class TrelloBoardsDB {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean removeBoard(String boardId){
+		Bson filter = Filters.eq("id", boardId);
+		DeleteResult res = getCollection().deleteOne(filter);
+		return res.getDeletedCount() > 0;
 	}
 
 	public Document getBoardById(String boardId){
@@ -99,5 +109,18 @@ public class TrelloBoardsDB {
 
 		UpdateResult result = getCollection().updateMany(filter,  update);
 		return (int)result.getModifiedCount();
+	}
+
+	public boolean getSlackNotifyEnabled(String boardId){
+		Document doc = getBoardById(boardId);
+		return Board.convert(doc).getSlackNotifyEnabled();
+	}
+
+	public boolean setSlackNotifyEnabled(String boardId, boolean b){
+		Bson filter = Filters.eq("id", boardId);
+		Bson update = Updates.set("slackNotifyEnabled", b);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+		return res.getModifiedCount() > 0;
 	}
 }

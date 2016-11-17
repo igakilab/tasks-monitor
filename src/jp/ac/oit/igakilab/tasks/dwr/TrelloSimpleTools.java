@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 import org.json.simple.JSONObject;
 
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardDataFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 
 public class TrelloSimpleTools {
 	public String getBoardIdByShortLink(String shortLink){

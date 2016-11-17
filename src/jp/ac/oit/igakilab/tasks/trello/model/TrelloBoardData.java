@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.trello;
+package jp.ac.oit.igakilab.tasks.trello.model;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -8,6 +8,7 @@
 		<title>top page</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/bootstrap-datepicker3.css" rel="stylesheet"/>
 	</head>
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
@@ -32,45 +33,47 @@
 		<div class="container">
 			<div style="padding: 40px 15px; text-align: center;">
 				<div class="row">
-					<div class="col-md-3">
-						<h2>スプリントの登録</h2>
+					<div class="col-md-9 text-left">
+						<h2>スプリントの登録 <small class="regist-type">読み込み中...</small></h2>
 					</div>
 				</div>
 
-				<div class="row">
-					<div class="col-md-12">
-						<h3>次の目標日</h3>
-						<form name="deadline">
-							<input type="text" name="date" size="12">
-							<button class="btn btn-default btn-xs">
-								<span class="glyphon glyphicon-arrow-right">決定</span>
-							</button>
-						</form>
-					</div>
+				<div class="row alert-div"></div>
+
+				<div class="row row-eq-height">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<h3 class="col-sm-2">目標日</h3>
+							<div class="col-sm-10">
+								<input class="form-control datepicker"
+									id="finishDateInput" placeholder="yyyy/mm/dd"
+									style="margin-top: 15px;"/>
+							</div>
+						</div>
+					</form>
 				</div>
 
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-5">
 						<h2>ToDo未登録タスク</h2>
 						<table id="non-assign" class="table" style="text-align: left">
-							<tr>
+							<thead><tr>
 								<th>
 									タスク名
 								</th>
-								<th>
-									担当者
-								</th>
-							<tr>
+								<th></th>
+							</tr></thead>
+							<tbody class="unselected-card-list">
+							<!-- <tr>
 								<td>
 									ああああああああああ
 								</td>
 								<td>
-									<form name="assign-1">
-										<input type="text" name="assign-name-1" size="20">
-										<button class="btn btn-default btn-xs" style="float:right">
-											<span class="glyphon glyphicon-arrow-right">決定</span>
-										</button>
-									</form>
+									<button class="btn btn-primary btn-sm" style="float:right">
+										移動
+										<span class="glyphicon glyphicon-arrow-right" aria-hidden="true">
+										</span>
+									</button>
 								</td>
 							</tr>
 							<tr>
@@ -78,68 +81,170 @@
 									いいいいいいいいいい
 								</td>
 								<td>
-									<form name="assign-2">
-										<input type="text" name="assign-name-2" size="20">
-										<button class="btn btn-default btn-xs" style="float:right">
-											<span class="glyphon glyphicon-arrow-right">決定</span>
-										</button>
-									</form>
+									<button class="btn btn-primary btn-sm" style="float:right">
+										移動
+										<span class="glyphicon glyphicon-arrow-right" aria-hidden="true">
+										</span>
+									</button>
 								</td>
-							</tr>
+							</tr> -->
+							</tbody>
 						</table>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-7">
 						<h2>登録済タスク</h2>
 						<table id="assigned" class="table" style="text-align: left">
-							<tr>
+							<thead><tr>
+								<th></th>
 								<th>
 									タスク名
 								</th>
 								<th>
-									期限
-								</th>
-								<th>
 									担当者
 								</th>
-							</tr>
-							<tr>
+							</tr></thead>
+							<tbody class="selected-card-list">
+							<!-- <tr>
+								<td>
+									<button class="btn btn-danger btn-sm">
+										<span class="glyphicon glyphicon-arrow-left" aria-hidden="true">
+										</span>取消
+									</button>
+								</td>
 								<td>
 									うううううううううう
 								</td>
 								<td>
-									9999/99/99
-								</td>
-								<td>
-									AAAAA
-									<button class="btn btn-default btn-xs" style="float:right">
-										<span class="glyphon glyphicon-arrow-right">取消</span>
-									</button>
+									<div class="btn-group" role="group" aria-label="...">
+										<button type="button" class="btn btn-default btn-sm">member1</button>
+										<button type="button" class="btn btn-primary btn-sm">member2</button>
+										<button type="button" class="btn btn-default btn-sm">member3</button>
+									</div>
 								</td>
 							</tr>
 							<tr>
 								<td>
+									<button class="btn btn-danger btn-sm">
+										<span class="glyphicon glyphicon-arrow-left" aria-hidden="true">
+										</span>取消
+									</button>
+								</td>
+								<td>
 									ええええええええええ
 								</td>
 								<td>
-									9999/99/99
+									<div class="btn-group" role="group" aria-label="...">
+										<button type="button" class="btn btn-default btn-sm">member1</button>
+										<button type="button" class="btn btn-default btn-sm">member2</button>
+										<button type="button" class="btn btn-primary btn-sm">member3</button>
+									</div>
 								</td>
-								<td>
-									BBBBB
-									<button class="btn btn-default btn-xs" style="float:right">
-										<span class="glyphon glyphicon-arrow-right">取消</span>
-									</button>
-								</td>
-							</tr>
+							</tr> -->
+							</tbody>
 						</table>
 					</div>
+				</div>
+
+				<div class="row text-right">
+					<button type="button" class="btn btn-default to-dashboard-btn">
+					ダッシュボードへ戻る</button>
+					<button type="button" class="btn btn-success create-btn">
+					スプリント開始</button>
 				</div>
 			</div>
 		</div>
 
+		<div class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">担当者編集</h4>
+					</div>
+				<div class="modal-body">
+					<p>One fine body&hellip;</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
-		<script>
-			
+		<script src="js/bootstrap-datepicker.js"></script>
+		<script src="js/bootstrap-datepicker.ja.min.js"></script>
+		<script src="js/util.js"></script>
+		<script src="js/sprint-builder.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintPlanner.js"></script>
+		<script src="sprint.js"></script>
+		<script>$(document).ready(function(){
+			//ボードidを取得
+			var boardId = Util.getUrlParameters().boardId;
+
+			if( Util.isNull(boardId) ){
+				Util.showAlertToDiv("ボードIDを指定してください");
+				return;
+			}
+
+			//datepickerを初期化
+			$(".datepicker").datepicker({
+				language:"ja",
+				format:"yyyy/mm/dd"
+			});
+
+			//仮の目標日を設定
+			var dt = new Date();
+			dt.setDate(dt.getDate() + 7);
+			$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
+
+			//エラーハンドラーを設定
+			SprintBuilder.defaultErrorHandler = function(msg){
+				Util.showAlertToDiv(msg);
+			};
+
+			//スプリントのデータを取得
+			var builder = new SprintBuilder(boardId);
+			builder.fetch(function(){
+				setCardList(builder);
+				if( builder.getCurrentSprint() != null ){
+					$(".regist-type").text("変更(ID: " + builder.getCurrentSprint().id + ")");
+					$(".create-btn").text("変更を保存");
+				}else{
+					$(".regist-type").text("新規");
+					$(".create-btn").text("スプリント開始");
+				}
+			});
+
+			//新規作成ボタンを設定
+			$(".create-btn").on('click', function(){
+				//日付のパース
+				var ds = $("#finishDateInput").val();
+				var fd = Date.parse(ds);
+				//フォーマット確認
+				if( isNaN(fd) ){
+					Util.showAlertToDiv("無効な目標日です: " +
+						ds + " (yyyy/mm/dd形式で入力してください)");
+					return;
+				}
+
+				builder.setFinishDate(fd);
+
+				builder.regist(function(sid){
+					location.href = "index.html?boardId=" + boardId;
+				});
+			});
+
+			//ダッシュボードへ移動ボタンを設定
+			$(".to-dashboard-btn").on('click', function(){
+				location.href = "index.html?boardId=" + boardId;
+			});
+		});
+
 		</script>
 	</body>
 </html>
