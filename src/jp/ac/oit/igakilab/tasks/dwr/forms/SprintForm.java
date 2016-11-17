@@ -1,6 +1,8 @@
 package jp.ac.oit.igakilab.tasks.dwr.forms;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
@@ -15,6 +17,7 @@ public class SprintForm {
 		form.setFinishDate(sprint.getFinishDate());
 		form.setClosed(sprint.isClosed());
 		form.setClosedDate(sprint.getClosedDate());
+		form.getTrelloCardIds().addAll(sprint.getTrelloCardIds());
 
 		return form;
 	}
@@ -26,6 +29,7 @@ public class SprintForm {
 	private Date finishDate;
 	private boolean isClosed;
 	private Date closedDate;
+	private List<String> trelloCardIds;
 
 	public SprintForm(){
 		id = null;
@@ -33,6 +37,7 @@ public class SprintForm {
 		beginDate = null;
 		finishDate = null;
 		isClosed = false;
+		trelloCardIds = new ArrayList<String>();
 	}
 
 	public String getId() {
@@ -81,5 +86,13 @@ public class SprintForm {
 
 	public void setClosedDate(Date closedDate) {
 		this.closedDate = closedDate;
+	}
+
+	public List<String> getTrelloCardIds() {
+		return trelloCardIds;
+	}
+
+	public void setTrelloCardIds(List<String> trelloCardIds) {
+		this.trelloCardIds = trelloCardIds;
 	}
 }

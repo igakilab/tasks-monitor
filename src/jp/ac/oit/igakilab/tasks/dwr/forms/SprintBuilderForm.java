@@ -7,7 +7,7 @@ import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
 public class SprintBuilderForm {
 	public static SprintBuilderForm getInstance
-	(Sprint currentSprint, List<TrelloCardForm> trelloCards, List<String> memberIds){
+	(Sprint currentSprint, List<TrelloCardForm> trelloCards, List<MemberForm> members){
 		SprintBuilderForm form = new SprintBuilderForm();
 
 		//進行中スプリントがある場合はフォームに指定
@@ -19,19 +19,19 @@ public class SprintBuilderForm {
 		form.getCards().addAll(trelloCards);
 
 		//ボードに所属するメンバー一覧を設定する
-		form.getMemberIds().addAll(memberIds);
+		form.getMembers().addAll(members);
 
 		return form;
 	}
 
 	private SprintForm currentSprint;
 	private List<TrelloCardForm> cards;
-	private List<String> memberIds;
+	private List<MemberForm> members;
 
 	public SprintBuilderForm(){
 		currentSprint = null;
 		cards = new ArrayList<TrelloCardForm>();
-		memberIds = new ArrayList<String>();
+		members = new ArrayList<MemberForm>();
 	}
 
 	public SprintForm getCurrentSprint() {
@@ -50,11 +50,11 @@ public class SprintBuilderForm {
 		this.cards = cards;
 	}
 
-	public List<String> getMemberIds() {
-		return memberIds;
+	public List<MemberForm> getMembers() {
+		return members;
 	}
 
-	public void setMemberIds(List<String> memberIds) {
-		this.memberIds = memberIds;
+	public void setMembers(List<MemberForm> memberIds) {
+		this.members = memberIds;
 	}
 }

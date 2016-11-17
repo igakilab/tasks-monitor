@@ -98,10 +98,16 @@ public class SprintPlanner {
 			TasksTrelloClientBuilder.REGEX_DOING).forEach(collector);
 
 		//メンバーリストを生成
-		List<String> memberIds = ttb.getMemberIdAll(board.getMemberIds());
+		List<MemberForm> members = new ArrayList<MemberForm>();
+		board.getMemberIds().forEach((tmid) -> {
+			Member m = ttb.getMember(tmid);
+			if( m != null ){
+				members.add(MemberForm.getInstance(m));
+			}
+		});
 
 		//formを生成
-		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards, memberIds);
+		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards, members);
 
 		client.close();
 		return form;
