@@ -23,6 +23,17 @@ public class TrelloCard {
 		isClosed = false;
 	}
 
+	public TrelloCard(TrelloCard card){
+		id = card.getId();
+		listId = card.getListId();
+		name = card.getName();
+		desc = card.getDesc();
+		due = new Date(card.getDue().getTime());
+		memberIds = new HashSet<String>();
+		memberIds.addAll(card.getMemberIds());
+		isClosed = card.isClosed();
+	}
+
 	public TrelloCard(String id){
 		this();
 		setId(id);
