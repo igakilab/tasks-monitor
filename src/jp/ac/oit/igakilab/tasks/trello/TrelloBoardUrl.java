@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 
 public class TrelloBoardUrl {
 	public static String URL_HEAD = "http://trello.com/b/";

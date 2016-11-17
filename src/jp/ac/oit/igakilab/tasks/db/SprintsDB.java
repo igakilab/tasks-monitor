@@ -22,6 +22,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.DocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 import jp.ac.oit.igakilab.tasks.util.RandomIdGenerator;
 
 public class SprintsDB {
@@ -134,6 +135,24 @@ public class SprintsDB {
 		getCollection().insertOne(doc);
 
 		return newId;
+	}
+
+	public boolean updateSprintCards(Sprint id, List<String> cardIds){
+		Bson filter = Filters.eq("id", id);
+		Bson update = Updates.set("trelloCardIds", cardIds);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+
+		return res.getModifiedCount() > 0;
+	}
+
+	public String getBoardIdBySprintId(String id){
+		Bson filter = Filters.eq("id", id);
+
+		Document doc = getCollection().find(filter).first();
+		DocumentValuePicker picker = new DocumentValuePicker(doc);
+
+		return doc == null ? null : picker.getString("boardId", null);
 	}
 
 	public <T> T getSprintById(String id, DocumentParser<T> converter){

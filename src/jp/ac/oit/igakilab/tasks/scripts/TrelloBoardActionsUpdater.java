@@ -143,7 +143,11 @@ public class TrelloBoardActionsUpdater {
 	}
 
 	public UpdateResult updateBoardActions(String boardId){
-		return updateBoardActions( boardId, null);
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
+		Date lastUpdateDate = bdb.getLastUpdateDate(boardId);
+		if( lastUpdateDate == null ) return new UpdateResult(boardId, null, 0, 0);
+
+		return updateBoardActions(boardId, lastUpdateDate);
 	}
 
 	public List<UpdateResult> updateAllBoardActions(){

@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 
 import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 
 public class TrelloBoardDataFetcher {
 	static String FIELDS = "name,desc,closed,shortLink";
