@@ -18,12 +18,17 @@ public class CardResult{
 	getInstance(TrelloCard card, MemberTrelloIdTable ttb, boolean finished){
 		CardResult cres = new CardResult();
 		cres.setCardId(card.getId());
-		cres.getMemberIds().forEach((tmid) -> {
+		card.getMemberIds().forEach((tmid) -> {
 			if( ttb != null ){
-				cres.addMemberId(tmid);
+				String mid = ttb.getMemberId(tmid);
+				if( mid != null ){
+					cres.addMemberId(mid);
+				}
 			}
 		});
 		cres.setFinished(finished);
+		System.out.println(card.getMemberIds().toString());
+		System.out.println(cres.getMemberIds().toString());
 		return cres;
 	}
 
