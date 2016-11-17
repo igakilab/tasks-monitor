@@ -97,8 +97,11 @@ public class SprintPlanner {
 		board.getCardsByListNameMatches(
 			TasksTrelloClientBuilder.REGEX_DOING).forEach(collector);
 
+		//メンバーリストを生成
+		List<String> memberIds = ttb.getMemberIdAll(board.getMemberIds());
+
 		//formを生成
-		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards);
+		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards, memberIds);
 
 		client.close();
 		return form;

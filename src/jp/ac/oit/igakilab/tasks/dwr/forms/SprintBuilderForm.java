@@ -3,29 +3,11 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class SprintBuilderForm {
 	public static SprintBuilderForm getInstance
-	(Sprint currentSprint, List<TrelloCard> trelloCards, MemberTrelloIdTable ttb){
-		SprintBuilderForm form = new SprintBuilderForm();
-
-		//進行中スプリントがある場合はフォームに指定
-		if( currentSprint != null ){
-			form.setCurrentSprint(SprintForm.getInstance(currentSprint));
-		}
-
-		//対象カードを指定する
-		trelloCards.forEach((tc) ->
-			form.getCards().add(TrelloCardForm.getInstance(tc, ttb)));
-
-		return form;
-	}
-
-	public static SprintBuilderForm getInstance
-	(Sprint currentSprint, List<TrelloCardForm> trelloCards){
+	(Sprint currentSprint, List<TrelloCardForm> trelloCards, List<String> memberIds){
 		SprintBuilderForm form = new SprintBuilderForm();
 
 		//進行中スプリントがある場合はフォームに指定
@@ -36,15 +18,20 @@ public class SprintBuilderForm {
 		//対象カードを指定する
 		form.getCards().addAll(trelloCards);
 
+		//ボードに所属するメンバー一覧を設定する
+		form.getMemberIds().addAll(memberIds);
+
 		return form;
 	}
 
 	private SprintForm currentSprint;
 	private List<TrelloCardForm> cards;
+	private List<String> memberIds;
 
 	public SprintBuilderForm(){
 		currentSprint = null;
 		cards = new ArrayList<TrelloCardForm>();
+		memberIds = new ArrayList<String>();
 	}
 
 	public SprintForm getCurrentSprint() {
@@ -61,5 +48,13 @@ public class SprintBuilderForm {
 
 	public void setCards(List<TrelloCardForm> cards) {
 		this.cards = cards;
+	}
+
+	public List<String> getMemberIds() {
+		return memberIds;
+	}
+
+	public void setMemberIds(List<String> memberIds) {
+		this.memberIds = memberIds;
 	}
 }
