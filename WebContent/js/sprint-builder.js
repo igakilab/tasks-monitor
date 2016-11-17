@@ -323,7 +323,7 @@ SprintBuilder = (function() {
 		var selectedList = this.getSelectedCards();
 		for(var i=0; i<selectedList.length; i++){
 			cardAndMembers.push({
-				trelloCardId: selectedList[i].id,
+				cardId: selectedList[i].id,
 				memberIds: selectedList[i].memberIds
 			});
 		}

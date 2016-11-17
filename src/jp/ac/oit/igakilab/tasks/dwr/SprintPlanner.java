@@ -19,7 +19,6 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
@@ -115,7 +114,7 @@ public class SprintPlanner {
 
 	//スプリントを新しく生成
 	//現在進行中のスプリントがあった場合、エラーを投げる
-	public String createSprint(String boardId, Date finishDate, List<TrelloCardMembersForm> cardsForm)
+	public String createSprint(String boardId, Date finishDate, List<CardMembersForm> cardsForm)
 	throws ExcuteFailedException{
 		//DBのクライアントと操作クラスの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -137,8 +136,7 @@ public class SprintPlanner {
 		List<CardMembers> cards = new ArrayList<CardMembers>();
 		if( cardsForm != null ){
 			cardsForm.forEach(
-				(card -> cards.add(CardMembers.getInstance(
-					TrelloCardMembersForm.convertToTrelloCardMembers(card)))));
+				(card -> cards.add(CardMembersForm.convert(card))));
 		}
 		//DB登録
 		String newId = null;
@@ -162,6 +160,8 @@ public class SprintPlanner {
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 		SprintManager manager = new SprintManager(client, api);
+
+		cardForm.forEach((c -> System.out.format("i:%s, m:%s\n", c.getCardId(), c.getMemberIds())));
 
 		//スプリントデータを取得
 		SprintDocumentConverter converter = new SprintDocumentConverter();
