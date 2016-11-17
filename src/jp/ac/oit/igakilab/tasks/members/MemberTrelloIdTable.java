@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.members;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,5 +48,16 @@ public class MemberTrelloIdTable{
 	public String getMemberId(String trelloId){
 		Member m = getMember(trelloId);
 		return m != null ? m.getId() : null;
+	}
+
+	public List<String> getMemberIdAll(Collection<String> trelloIds){
+		List<String> memberIds = new ArrayList<String>();
+		for(String tid : trelloIds){
+			String mid = getMemberId(tid);
+			if( mid != null ){
+				memberIds.add(mid);
+			}
+		}
+		return memberIds;
 	}
 }

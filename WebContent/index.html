@@ -111,6 +111,12 @@
 				</div>
 				</div>
 
+				<div class="row text-right">
+					<a class="btn btn-default sprint-plan-btn" role="button">
+					スプリント作成&変更</a>
+					<a class="btn btn-primary sprint-close-btn disabled" role="button">
+					振り返りへ</a>
+				</div>
 
 				<div class="row">
 					<div class="col-md-4">
@@ -125,11 +131,6 @@
 						<h2>Done</h2>
 						<ul id="doneList" class="list-group"></ul>
 					</div>
-				</div>
-
-				<div class="row text-right">
-					<a class="btn btn-primary sprint-close-btn disabled" role="button">
-					振り返りへ</a>
 				</div>
 			</div>
 		</div>
@@ -184,6 +185,8 @@
 					 *  }, ...]
 					 * }
 					*/
+
+					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
 
 					//showDashBoardを呼ぶ
 					showDashBoard(data);
