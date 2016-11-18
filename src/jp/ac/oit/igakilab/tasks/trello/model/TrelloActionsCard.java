@@ -12,6 +12,35 @@ import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloActionsCard extends TrelloCard {
+	public static class ListMovement{
+		private Date timestamp;
+		private String before;
+		private String after;
+
+		ListMovement(Date ts, String before, String after){
+			timestamp = ts;
+			this.before = before;
+			this.after = after;
+		}
+
+		public Date getTimestamp() {
+			return timestamp;
+		}
+
+		public String getListIdBefore() {
+			return before;
+		}
+
+		public String getListIdAfter() {
+			return after;
+		}
+
+		public String toString(){
+			return String.format("%s %s: %s -> %s",
+				super.toString(), timestamp.toString(), before, after);
+		}
+	}
+
 	public List<TrelloAction> actions;
 
 	public TrelloActionsCard(){
@@ -99,6 +128,24 @@ public class TrelloActionsCard extends TrelloCard {
 
 	public List<TrelloAction> getActions(){
 		return actions;
+	}
+
+	public List<ListMovement> getListMovement(){
+		List<ListMovement> movements = new ArrayList<ListMovement>();
+
+		for(int i=0; i<actions.size(); i++){
+			TrelloAction act = actions.get(i);
+
+			if(
+				act.getData().containsKey("listBefore.id")
+				&& act.getData().containsKey("listAfter.id")
+			){
+				movements.add(new ListMovement(act.getDate(),
+					act.getData().get("listBefore.id"), act.getData().get("listAfter.id")));
+			}
+		}
+
+		return movements;
 	}
 
 
