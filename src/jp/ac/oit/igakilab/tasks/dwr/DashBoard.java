@@ -113,7 +113,7 @@ public class DashBoard {
 		return SprintForm.getInstance(sprint);
 	}
 
-	public boolean createCard(String boardId, TrelloCardForm card)
+	public TrelloCardForm createCard(String boardId, TrelloCardForm card)
 	throws ExcuteFailedException{
 		//操作インスタンスを初期化
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
@@ -127,9 +127,12 @@ public class DashBoard {
 		//カードデータ追加
 		TrelloBoard board = fetcher.getBoard();
 		List<TrelloList> lists = board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_TODO);
+		TrelloNumberedCard ncard;
 		if( lists.size() > 0 ){
-			TrelloNumberedCard ncard = new TrelloNumberedCard(TrelloCardForm.convert(card));
-			ncard.applyNumber(board.getCards());
+			ncard = new TrelloNumberedCard(TrelloCardForm.convert(card));
+			if( !ncard.isNumbered() ){
+				ncard.applyNumber(board.getCards());
+			}
 			if( !fetcher.addCard(lists.get(0), ncard) ){
 				throw new ExcuteFailedException("カードの追加に失敗しました");
 			}
@@ -137,8 +140,6 @@ public class DashBoard {
 			throw new ExcuteFailedException("todoのリストがありません");
 		}
 
-		return true;
+		return TrelloCardForm.getInstance(ncard);
 	}
-
-
 }

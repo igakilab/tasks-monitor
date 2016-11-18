@@ -28,7 +28,7 @@ public class TrelloCard {
 		listId = card.getListId();
 		name = card.getName();
 		desc = card.getDesc();
-		due = new Date(card.getDue().getTime());
+		due = card.getDue() != null ? new Date(card.getDue().getTime()) : null;
 		memberIds = new HashSet<String>();
 		memberIds.addAll(card.getMemberIds());
 		isClosed = card.isClosed();
