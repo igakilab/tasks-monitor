@@ -134,7 +134,8 @@ SprintResultAnalyzer = (function() {
 					listId: val.listId,
 					memberIds: memberIds,
 					closed: val.closed,
-					finished: finished
+					finished: finished,
+					workingMinutes: (finished ? val.workingMinutes : null)
 				});console.log(thisp.cards);
 			}
 		});
