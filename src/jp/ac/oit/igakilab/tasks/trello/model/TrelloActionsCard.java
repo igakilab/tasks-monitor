@@ -130,6 +130,16 @@ public class TrelloActionsCard extends TrelloCard {
 		return actions;
 	}
 
+	public Date getCreatedAt(){
+		if( actions.size() > 0 ){
+			TrelloAction act = actions.get(0);
+			if( act.getActionType() == TrelloAction.ACTION_CREATE ){
+				return act.getDate();
+			}
+		}
+		return null;
+	}
+
 	public List<ListMovement> getListMovement(Date begin, Date end){
 		List<ListMovement> movements = new ArrayList<ListMovement>();
 		int i = 0;
