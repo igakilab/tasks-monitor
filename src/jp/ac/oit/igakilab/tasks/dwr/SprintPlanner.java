@@ -17,6 +17,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.CardMembersForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm.SBTrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
@@ -82,13 +83,13 @@ public class SprintPlanner {
 
 
 		//対象カードリストを生成
-		List<TrelloCardForm> fcards = new ArrayList<TrelloCardForm>();
+		List<SBTrelloCardForm> fcards = new ArrayList<SBTrelloCardForm>();
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
 		Consumer<TrelloCard> collector = (card) -> {
 			if( sprint != null && sprint.getTrelloCardIds().contains(card.getId()) ){
-				fcards.add(TrelloCardForm.getInstance(card, ttb));
+				fcards.add(SBTrelloCardForm.getInstance(card, client, ttb));
 			}else{
-				fcards.add(TrelloCardForm.getInstance(card));
+				fcards.add(SBTrelloCardForm.getInstance(card, client, null));
 			}
 		};
 		board.getCardsByListNameMatches(

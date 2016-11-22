@@ -64,7 +64,13 @@ function generateUnselectedCardRow(card, builder){
 
 	return $("<tr></tr>").append(
 		//タスク名
-		$("<td></td>").text(card.name),
+		$("<td></td>").append(
+			card.name,
+			(card.remainedTimes > 0 ?
+				$("<span></span>").addClass("label label-danger").text("未達成:" + card.remainedTimes) :
+				null
+			)
+		),
 		//移動ボタン
 		$("<td></td>").append(
 			$("<button></button>").on('click', onButtonPressed)

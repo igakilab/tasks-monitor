@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.dwr.forms;
 
+import static jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,10 +10,10 @@ import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardUrl;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard.ListMovement;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class DashBoardForms {
 	/**
@@ -28,64 +30,25 @@ public class DashBoardForms {
 			//完了フラグを無効にしておく
 			form.setFinished(false);
 
-			//対象となるリストidを取得する
-			List<String> listsDoing = new ArrayList<String>();
-			board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_DOING).forEach((list) ->
-				listsDoing.add(list.getId()));
-			List<String> listsDone = new ArrayList<String>();
-			board.getListsByNameMatches(TasksTrelloClientBuilder.REGEX_DONE).forEach((list) ->
-				listsDone.add(list.getId()));
+			//リスト移動履歴を取得
+			List<ListMovement> movements = card.getListMovement();
 
-			//アクションの解析
-			for(TrelloAction act : card.getActions()){
-				if( act.getActionType() == TrelloAction.ACTION_CREATE ){
-					form.setCreatedAt(act.getDate());
-				}
-				//リスト移動が発生したアクションデータを取得
-				String after = act.getData().get("listAfter.id");
+			for(int i=0; i<movements.size(); i++){
+				ListMovement m = movements.get(i);
+				TrelloList after = board.getListById(m.getListIdAfter());
 
-				//移動チェック
 				if( after != null ){
-					//doingへの移動かどうかチェック
-					if( listsDoing.contains(after) ){
-						//現在登録されている値よりも新しいものかチェック
-						if(
-							form.getMovedDoingAt() == null
-							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0
-						){
-							form.setMovedDoingAt(act.getDate());
-
-							//doneに設定された値よりあたらしい場合、doneの移動時刻を削除
-							if(
-								form.getMovedDoneAt() != null
-								&& form.getMovedDoingAt().compareTo(form.getMovedDoneAt()) > 0
-							){
-								form.setMovedDoneAt(null);
-								form.setFinished(false);
-							}
-						}
-
-					//doneへの移動かどうかチェック
-					}else if( listsDone.contains(after) ){
-						//既に設定されている値がないか、その値よりもあとの日時かどうか
-						if(
-							( form.getMovedDoneAt() == null
-							|| act.getDate().compareTo(form.getMovedDoneAt()) > 0 )
-							&& ( form.getMovedDoingAt() == null
-							|| act.getDate().compareTo(form.getMovedDoingAt()) > 0 )
-						){
-							form.setMovedDoneAt(act.getDate());
-							form.setFinished(true);
-						}
-
-					//その他の移動で、doneより後の移動の場合はフラグを下げる
-					}else{
-						if( form.getMovedDoneAt() != null
-							&& act.getDate().compareTo(form.getMovedDoneAt()) > 0 ){
-							form.setFinished(false);
-						}
+					if( after.getName().matches(REGEX_DOING) && form.getMovedDoingAt() == null ){
+						form.setMovedDoingAt(m.getDate());
+						form.setMovedDoneAt(null);
+					}else if( after.getName().matches(REGEX_DONE) && form.getMovedDoingAt() != null ){
+						form.setMovedDoneAt(m.getDate());
 					}
 				}
+			}
+
+			if( form.getMovedDoneAt() != null ){
+				form.setFinished(true);
 			}
 
 			return form;

@@ -12,6 +12,35 @@ import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class TrelloActionsCard extends TrelloCard {
+	public static class ListMovement{
+		private Date date;
+		private String before;
+		private String after;
+
+		ListMovement(Date ts, String before, String after){
+			date = ts;
+			this.before = before;
+			this.after = after;
+		}
+
+		public Date getDate() {
+			return date;
+		}
+
+		public String getListIdBefore() {
+			return before;
+		}
+
+		public String getListIdAfter() {
+			return after;
+		}
+
+		public String toString(){
+			return String.format("%s %s: %s -> %s",
+				super.toString(), date.toString(), before, after);
+		}
+	}
+
 	public List<TrelloAction> actions;
 
 	public TrelloActionsCard(){
@@ -101,5 +130,49 @@ public class TrelloActionsCard extends TrelloCard {
 		return actions;
 	}
 
+	public Date getCreatedAt(){
+		if( actions.size() > 0 ){
+			TrelloAction act = actions.get(0);
+			if( act.getActionType() == TrelloAction.ACTION_CREATE ){
+				return act.getDate();
+			}
+		}
+		return null;
+	}
 
+	public List<ListMovement> getListMovement(Date begin, Date end){
+		List<ListMovement> movements = new ArrayList<ListMovement>();
+		int i = 0;
+
+		while(
+			i < actions.size() &&
+			begin != null &&
+			begin.compareTo(actions.get(i).getDate()) > 0
+		){ i++; }
+
+		while(
+			i < actions.size() && (
+				end == null ||
+				end.compareTo(actions.get(i).getDate()) > 0
+			)
+		){
+			TrelloAction act = actions.get(i);
+
+			if(
+				act.getData().containsKey("listBefore.id")
+				&& act.getData().containsKey("listAfter.id")
+			){
+				movements.add(new ListMovement(act.getDate(),
+					act.getData().get("listBefore.id"), act.getData().get("listAfter.id")));
+			}
+
+			i++;
+		}
+
+		return movements;
+	}
+
+	public List<ListMovement> getListMovement(){
+		return getListMovement(null, null);
+	}
 }
