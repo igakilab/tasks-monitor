@@ -35,7 +35,7 @@
 		<div class="container">
 			<!-- タイトル部 -->
 			<h1>メンバー別 タスク一覧表</h1>
-			<h2>メンバーID: koike</h2>
+			<h2 id="memId">メンバーID: koike</h2>
 
 			<!-- テーブル部 -->
 			<table class="table">
@@ -87,7 +87,7 @@
 
 			//ボードIDの値をパラメータから取り出す
 			var memberId = params.memberId;
-
+			$("#memId").text("メンバーID: "+memberId);
 			//取得のサンプル
 			SprintMemberHistory.getTaskCardsByMemberId(memberId, function(data){
 				console.log(data);
