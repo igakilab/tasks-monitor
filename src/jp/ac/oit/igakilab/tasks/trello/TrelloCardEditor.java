@@ -57,6 +57,21 @@ public class TrelloCardEditor {
 		return true;
 	}
 
+	public boolean setDueComplete(String cardId, boolean complete){
+		String url = "/1/cards/" + cardId + "/dueComplete";
+		Map<String, String> params = new HashMap<String,String>();
+
+		params.put("value", (complete ? "true" : "false"));
+
+		try{
+			client.put(url, params);
+		}catch(TrelloApiConnectionFailedException e0){
+			return false;
+		}
+
+		return true;
+	}
+
 	public boolean setDueAndMembers(String cardId, Date due, List<String> trelloMemberIds){
 		String url = "/1/cards/" + cardId;
 		Map<String,String> params = new HashMap<String,String>();

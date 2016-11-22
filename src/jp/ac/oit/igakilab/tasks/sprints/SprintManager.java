@@ -218,6 +218,14 @@ public class SprintManager {
 			}
 		}
 
+		//完了カードにdueCompleteを付加する
+		TrelloCardEditor editor = new TrelloCardEditor(trelloApi);
+		result.getAllCards().forEach((cr) -> {
+			if( cr.isFinished() ){
+				editor.setDueComplete(cr.getCardId(), true);
+			}
+		});
+
 		//スプリントをクローズ
 		smdb.closeSprint(currSpr.getId());
 
