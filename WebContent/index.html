@@ -193,7 +193,10 @@
 
 			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
 			if( typeof boardId === 'undefined' ){
-				Util.showAlertToDiv("ボードIDを指定してください");
+				Util.showAlertToDiv($("<span></span>").append(
+					"ボードIDを指定してください  ",
+					$("<a></a>").attr("href", "boards.html").text("ボード一覧へ"))
+				);
 				return;
 			}
 
@@ -232,7 +235,18 @@
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")
 							.removeClass("disabled")
-							.attr("href", "feedback.html?boardId=" + data.boardId);
+							.on('click', function(){
+								DashBoard.closeCurrentSprint(boardId, {
+									//正常に終了した時の動作
+									callback: function(sid) {
+										location.href = "feedback.html?sprintId=" + sid;
+									},
+									//異常終了した時の動作
+									errorHandler: function(msg){
+										alert(msg);
+									}
+								});
+							});
 					}
 				},
 

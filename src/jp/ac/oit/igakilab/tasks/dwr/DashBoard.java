@@ -14,6 +14,8 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -113,6 +115,7 @@ public class DashBoard {
 		return SprintForm.getInstance(sprint);
 	}
 
+	//カードを新しく作成する
 	public TrelloCardForm createCard(String boardId, TrelloCardForm card)
 	throws ExcuteFailedException{
 		//操作インスタンスを初期化
@@ -141,5 +144,32 @@ public class DashBoard {
 		}
 
 		return TrelloCardForm.getInstance(ncard);
+	}
+
+	//進行中のスプリントを終了する
+	public String closeCurrentSprint(String boardId)
+	throws ExcuteFailedException{
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		SprintsManageDB smdb = new SprintsManageDB(client);
+
+		//現在進行中のスプリントを取得
+		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
+		if( currSpr == null ){
+			client.close();
+			throw new ExcuteFailedException("現在進行中のスプリントはありません");
+		}
+
+		//クローズ処理
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		SprintManager manager = new SprintManager(client, api);
+		SprintResult res = manager.closeSprint(currSpr.getId());
+
+		if( res == null ){
+			client.close();
+			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
+		}
+
+		client.close();
+		return currSpr.getId();
 	}
 }
