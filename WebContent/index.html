@@ -229,9 +229,6 @@
 
 					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
 
-					//showDashBoardを呼ぶ
-					showDashBoard(data);
-
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")
 							.removeClass("disabled")
@@ -248,6 +245,9 @@
 								});
 							});
 					}
+
+					//showDashBoardを呼ぶ
+					showDashBoard(data);
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数
