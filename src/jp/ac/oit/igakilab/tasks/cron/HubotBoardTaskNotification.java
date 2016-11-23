@@ -33,11 +33,10 @@ public class HubotBoardTaskNotification extends CronTask{
 		HubotSendMessage msg = new HubotSendMessage(hubotUrl);
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
-		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
-
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 3);
-		notifer.setNotifyLine(cal.getTime());
+
+		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg, cal.getTime());
 
 		notifer.execute();
 

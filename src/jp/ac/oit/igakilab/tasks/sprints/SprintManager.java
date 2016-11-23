@@ -13,12 +13,12 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
-import jp.ac.oit.igakilab.tasks.trello.TrelloDateFormat;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -30,14 +30,54 @@ public class SprintManager {
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
+	private SprintDocumentConverter converter;
 
+	/**
+	 * スプリントマネージャを初期化します
+	 * @param dbClient MongoClient
+	 * @param api TrelloApiClient
+	 */
 	public SprintManager(MongoClient dbClient, TrelloApi<Object> api){
 		this.dbClient = dbClient;
 		this.trelloApi = api;
+		this.converter = new SprintDocumentConverter();
 	}
 
+	/**
+	 * トレロのカードに期限とメンバーを一度に設定します
+	 * @param tce
+	 * @param trelloCardId
+	 * @param dueDate
+	 * @param memberIds
+	 * @param ttb
+	 * @return
+	 */
+	protected boolean setTrelloCardDueAndMembers
+	(TrelloCardEditor tce, String trelloCardId,
+	Date dueDate, List<String> memberIds, MemberTrelloIdTable ttb){
+		//メンバーid変換
+		List<String> trelloMemberIds = new ArrayList<String>();
+		memberIds.forEach((mid) -> {
+			String tmid = ttb.getTrelloId(mid);
+			if( tmid != null ){
+				trelloMemberIds.add(tmid);
+			}
+		});
+		//処理
+		return tce.setDueAndMembers(trelloCardId, dueDate, trelloMemberIds);
+	}
+
+	/**
+	 * 新しくスプリントを作成し、dbに登録、trelloにカードを設定します
+	 * @param boardId
+	 * @param beginDate
+	 * @param finishDate
+	 * @param cardAndMembers
+	 * @return
+	 * @throws SprintManagementException
+	 */
 	public String createSprint(String boardId,
-		Date beginDate, Date finishDate, List<TrelloCardMembers> cardAndMembers)
+		Date beginDate, Date finishDate, List<CardMembers> cardAndMembers)
 	throws SprintManagementException
 	{
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
@@ -71,33 +111,65 @@ public class SprintManager {
 		Calendar dueDate = Calendar.getInstance();
 		dueDate.setTime(finishDate);
 		dueDate.set(Calendar.HOUR, 18);
-		for(TrelloCardMembers cm : cardAndMembers){
+		for(CardMembers cm : cardAndMembers){
 			//カードIDを読み出し
 			String cardId= cm.getCardId();
-
-			//担当者設定、mdbからtrelloIdを取得し設定
-			for(String memberId : cm.getMemberIds()){
-				String trelloId = mtable.getTrelloId(memberId);
-				if( trelloId != null ){
-					if( DEBUG )
-						System.out.format("TCEDIT: addMember %s(%s) to %s\n",
-								memberId, trelloId, cardId);
-					tceditor.addMember(cardId, trelloId);
-				}else{
-					if( DEBUG )
-						System.out.format("TCEDIT: addMember FAILED {memberId:%s} to %s\n",
-								memberId, cardId);
-				}
-			}
-
-			//期限を設定
-			if( DEBUG )
-				System.out.format("TCEDIT: addDue %s to %s",
-					new TrelloDateFormat().format(dueDate.getTime()), cardId);
-			tceditor.setDueDate(cardId, dueDate.getTime());
+			//カードに期限と担当者を設定
+			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
+			//dueCompleteを解除
+			tceditor.setDueComplete(cardId, false);
 		}
 
 		return newId;
+	}
+
+
+	public String updateSprint(String sprintId, Date finishDate, List<CardMembers> cardAndMembers)
+	throws SprintManagementException
+	{
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
+		SprintDocumentConverter converter = new SprintDocumentConverter();
+
+		//スプリントのチェック
+		Sprint sprint = smdb.getSprintById(sprintId, converter);
+		if( sprint == null ){
+			throw new SprintManagementException("既存スプリントが見つかりません");
+		}
+
+		//終了日の設定
+		if( finishDate != null ){
+			if( sprint.getFinishDate().compareTo(Sprint.roundDate(finishDate).getTime()) != 0 ){
+				//終了日のチェックには期間の有効判定が必要である
+				throw new SprintManagementException("終了日の変更はサポートしていません");
+			}
+		}
+
+		//カードの設定
+		if( cardAndMembers != null ){
+			sprint.clearTrelloCardId();
+			cardAndMembers.forEach((cam -> sprint.addTrelloCardId(cam.getCardId())));
+		}
+
+		//Sprintのデータを登録
+		smdb.updateSprintCards(sprint.getId(), sprint.getTrelloCardIds());
+
+
+		//Trelloの担当者と期限を設定
+		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
+		MemberTrelloIdTable mtable = new MemberTrelloIdTable(dbClient);
+		Calendar dueDate = Calendar.getInstance();
+		dueDate.setTime(sprint.getFinishDate());
+		dueDate.set(Calendar.HOUR, 18);
+		for(CardMembers cm : cardAndMembers){
+			//カードIDを読み出し
+			String cardId= cm.getCardId();
+			//カードに期限と担当者を設定
+			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
+			//dueCompleteを解除
+			tceditor.setDueComplete(cardId, false);
+		}
+
+		return sprint.getId();
 	}
 
 	public SprintResult closeSprint(String sprintId){
@@ -106,7 +178,7 @@ public class SprintManager {
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(dbClient);
 
 		//現在のスプリントの情報を取得
-		Sprint currSpr = smdb.getSprintById(sprintId, new SprintDocumentConverter());
+		Sprint currSpr = smdb.getSprintById(sprintId, converter);
 		if( currSpr == null ){
 			//throw new SprintManagementException("スプリントが見つかりません");
 			return null;
@@ -136,17 +208,27 @@ public class SprintManager {
 			if( c != null ){
 				TrelloList list = board.getListById(c.getListId());
 				if( list != null ){
-					if( list.getName().matches("(?i)done") ){
-						result.addFinishedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+					if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
+						result.addSprintCard(
+							CardResult.getInstance(c, mtable, true));
 					}else if(
-						list.getName().matches("(?i)doing") ||
-						list.getName().matches("(?i)to\\s*do")
+						list.getName().matches(TasksTrelloClientBuilder.REGEX_DOING) ||
+						list.getName().matches(TasksTrelloClientBuilder.REGEX_TODO)
 					){
-						result.addRemainedCard(TrelloCardMembers.getInstance(board, mtable, c.getId()));
+						result.addSprintCard(
+							CardResult.getInstance(c, mtable, false));
 					}
 				}
 			}
 		}
+
+		//完了カードにdueCompleteを付加する
+		TrelloCardEditor editor = new TrelloCardEditor(trelloApi);
+		result.getAllCards().forEach((cr) -> {
+			if( cr.isFinished() ){
+				editor.setDueComplete(cr.getCardId(), true);
+			}
+		});
 
 		//スプリントをクローズ
 		smdb.closeSprint(currSpr.getId());
@@ -156,6 +238,12 @@ public class SprintManager {
 		resdb.addSprintResult(result, new SprintResultDocumentConverter());
 
 		return result;
+	}
+
+	public List<Sprint> getSprintsByBoardId(String boardId){
+		SprintsDB sdb = new SprintsDB(dbClient);
+
+		return sdb.getSprintsByBoardId(boardId, converter);
 	}
 
 	public List<SprintResult> getSprintResultsByBoardId(String boardId){

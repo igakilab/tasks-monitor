@@ -1,5 +1,7 @@
 package jp.ac.oit.igakilab.tasks.cron;
 
+import java.util.Date;
+
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
 
@@ -35,13 +37,13 @@ public class CronTask implements Runnable{
 	}
 
 	@Override
-	public void run(){
+	public final void run(){
 		log(DebugLog.LS_INFO, "CRON TASK TRIGGERED");
 		execute();
 		log(DebugLog.LS_INFO, "CRON TASK FINISHED");
 	}
 
 	public void execute(){
-		System.out.println("hello cron4j!");
+		System.out.println("<CRON> hello cron4j! (" + new Date() + ")");
 	}
 }

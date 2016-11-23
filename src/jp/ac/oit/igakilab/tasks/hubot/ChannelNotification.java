@@ -107,6 +107,9 @@ public class ChannelNotification {
 	}
 
 	public boolean taskNotification(String dest, String head, List<NotifyTrelloCard> cards){
+		//カードがない場合は終了する
+		if( cards.size() <= 0 ) return true;
+
 		//メッセージを作成
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(head + "\n");

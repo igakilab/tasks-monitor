@@ -2,7 +2,7 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 
 import java.util.Set;
 
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardData;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 
 public class TrelloBoardDataForm {
 	public static TrelloBoardDataForm getInstance(TrelloBoardData data){

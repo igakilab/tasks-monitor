@@ -52,6 +52,9 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="alert-div"></div>
+
 				<div class="sprint-cards">
 				<div class="row">
 					<section class="cd-horizontal-timeline">
@@ -111,10 +114,18 @@
 				</div>
 				</div>
 
+				<div class="row text-right">
+					<a class="btn btn-default sprint-plan-btn" role="button">
+					スプリント作成&変更</a>
+					<a class="btn btn-primary sprint-close-btn disabled" role="button">
+					振り返りへ</a>
+				</div>
 
 				<div class="row">
 					<div class="col-md-4">
-						<h2>ToDo</h2>
+						<h2>ToDo
+							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal">追加</button>
+						</h2>
 						<ul id="todoList" class="list-group"></ul>
 					</div>
 					<div class="col-md-4">
@@ -126,17 +137,39 @@
 						<ul id="doneList" class="list-group"></ul>
 					</div>
 				</div>
+			</div>
+		</div>
 
-				<div class="row text-right">
-					<a class="btn btn-primary sprint-close-btn disabled" role="button">
-					振り返りへ</a>
+		<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modallabel" aria-hidden="true">
+			<div class="modal-dialog" role="dodument">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modallabel">新しいタスクの追加</h4>
+					</div>
+					<div class="modal-body">
+						<form id="newCardForm">
+							<div class="form-group">
+								<label for="newCardNameInput">カード名</label>
+								<input type="text" class="form-control" id="newCardNameInput" name="name"/>
+							</div>
+							<div class="form-group">
+								<label for="newCardDescInput">説明</label>
+								<input type="text" class="form-control" id="newCardDescInput" name="desc"/>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success add-new-card-btn"
+							data-dismiss="modal">新規追加</button>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<script src="js/jquery-2.1.4.min.js"></script>
+		<script src="js/jquery.serialize.js"></script>
 		<script src="js/bootstrap.min.js"></script>
-		<!-- <script src="js/jquery.mobile.custom.min.js"></script> -->
+		<script src="js/jquery.mobile.custom.min.js"></script>
 		<script src="js/htimeline.js"></script> <!-- Resource jQuery -->
 		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
@@ -144,6 +177,12 @@
 		<script src="dwr/interface/DashBoard.js"></script>
 
 		<script src="dashboard.js"></script>
+
+		<script src="js/sprint-builder.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintPlanner.js"></script>
+		<script src="sprint.js"></script>
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
@@ -154,7 +193,10 @@
 
 			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
 			if( typeof boardId === 'undefined' ){
-				Util.showAlertToDiv("ボードIDを指定してください");
+				Util.showAlertToDiv($("<span></span>").append(
+					"ボードIDを指定してください  ",
+					$("<a></a>").attr("href", "boards.html").text("ボード一覧へ"))
+				);
 				return;
 			}
 
@@ -185,14 +227,27 @@
 					 * }
 					*/
 
-					//showDashBoardを呼ぶ
-					showDashBoard(data);
+					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
 
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")
 							.removeClass("disabled")
-							.attr("href", "feedback.html?boardId=" + data.boardId);
+							.on('click', function(){
+								DashBoard.closeCurrentSprint(boardId, {
+									//正常に終了した時の動作
+									callback: function(sid) {
+										location.href = "feedback.html?sprintId=" + sid;
+									},
+									//異常終了した時の動作
+									errorHandler: function(msg){
+										alert(msg);
+									}
+								});
+							});
 					}
+
+					//showDashBoardを呼ぶ
+					showDashBoard(data);
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数
@@ -200,6 +255,83 @@
 				errorHandler: function(msg){
 					Util.showAlertToDiv("通信エラー: " + msg);
 				}
+			});
+
+// 			SprintPlanner.getCurrentSprint(boardId, function(spr){
+// 				/*if( spr != null ){
+// 					//スプリントがあればエラーを表示
+// 					Util.showAlertToDiv($("<span></span>").append(
+// 						"現在進行中のスプリントがあります",
+// 						$("<a></a>").text("ダッシュボードへ")
+// 							.attr("href", "index.html?boardId=" + boardId)
+// 					));
+// 				}else{*/
+// 					//スプリントがなければ続行
+// 					//datepickerを初期化
+// 					$(".datepicker").datepicker({
+// 						language:"ja",
+// 						format:"yyyy/mm/dd"
+// 					});
+
+// 					//仮の目標日を設定
+// 					var dt = new Date();
+// 					//dt.setDate(dt.getDate() + 7);
+// 					$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
+
+// 					//エラーハンドラーを設定
+// 					SprintBuilder.defaultErrorHandler = function(msg){
+// 						Util.showAlertToDiv(msg);
+// 					};
+
+// 					//スプリントのデータを取得
+// 					var builder = new SprintBuilder(boardId);
+// 					builder.fetch(function(){
+// 						setCardList(builder);
+// 					});
+
+// 					//新規作成ボタンを設定
+// 					$(".create-btn").on('click', function(){
+// 						//日付のパース
+// 						var ds = Util.getUrlParameters().finishDate;
+// 						var fd = Date.parse(ds);
+// 						//フォーマット確認
+// 						if( isNaN(fd) ){
+// 							Util.showAlertToDiv("無効な目標日です: " +
+// 								ds + " (yyyy/mm/dd形式で入力してください)");
+// 							return;
+// 						}
+
+// 						builder.setFinishDate(fd);
+
+// 						builder.regist(function(sid){
+// 							location.href = "index.html?boardId=" + boardId;
+// 						});
+// 					});
+
+// 					//ダッシュボードへ移動ボタンを設定
+// 					/*$(".to-dashboard-btn").on('click', function(){
+// 						location.href = "index.html?boardId=" + boardId;
+// 					});
+// 				}*/
+// 			});
+
+
+			//modalの設定
+			$("#modal").on('show.bs.modal', function(){
+				$("#newCardNameInput").val("");
+				$("#newCardDescInput").val("");
+				$("#newCardNameInput").focus();
+			});
+
+			$(".add-new-card-btn").on('click', function(){
+		        var formData = $('#newCardForm').serializeJson();
+		        console.log(formData);
+				DashBoard.createCard(boardId, formData, {
+					callback: function(ncard){
+						Util.showAlertToDiv(ncard.name + "を追加しました", "success");
+					},
+					errorHandler: Util.showAlertToDiv
+				});
 			});
 		});
 		</script>

@@ -1,6 +1,9 @@
 package jp.ac.oit.igakilab.tasks.trello.model.actions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class TrelloAction {
@@ -15,51 +18,85 @@ public class TrelloAction {
 	public static final int ACTION_REMOVEMEMBER = 212;
 	public static final int ACTION_UNKNOWN = 291;
 
+	static class Type{
+		private int code;
+		private List<String> labels;
+
+		Type(int c0, List<String> l0){
+			code = c0;
+			labels = l0;
+		}
+
+		int getCode(){ return code; }
+		List<String> getLabels(){ return labels; }
+
+		boolean labelContains(String l0){
+			return labels.contains(l0);
+		}
+	}
+
+	public static Type[] targetTypes = {
+		new Type(TARGET_CARD, Arrays.asList(
+			"createCard", "updateCard", "addMemberToCard", "removeMemberToCard", "deleteCard")),
+		new Type(TARGET_LIST, Arrays.asList(
+			"createList", "updateList")),
+		new Type(TARGET_BOARD, Arrays.asList(
+			"createBoard", "updateBoard", "addMemberToBoard", "removeMemberFromBoard"))
+	};
+
+	public static List<String> getTargetTypeLabels(int code){
+		for(Type tobj : targetTypes){
+			if( tobj.getCode() == code ){
+				return tobj.getLabels();
+			}
+		}
+		return new ArrayList<String>();
+	}
+
 	public static int parseTargetType(String type){
 		if( type == null ) return TARGET_UNKNOWN;
-		if( type.equals("createCard") ||
-			type.equals("updateCard") ||
-			type.equals("addMemberToCard") ||
-			type.equals("removeMemberFromCard") ||
-			type.equals("deleteCard") ){
-			return TARGET_CARD;
-		}else
-		if( type.equals("createList") ||
-			type.equals("updateList") ){
-			return TARGET_LIST;
-		}else
-		if( type.equals("createBoard") ||
-			type.equals("updateBoard") ||
-			type.equals("addMemberToBoard") ||
-			type.equals("removeMemberFromBoard") ){
-			return TARGET_BOARD;
+
+		for(Type tobj : targetTypes){
+			if( tobj.labelContains(type) ){
+				return tobj.getCode();
+			}
 		}
+
 		return TARGET_UNKNOWN;
 	}
 
+	public static Type[] actionTypes = {
+		new Type(ACTION_CREATE, Arrays.asList(
+			"createCard", "createList", "createBoard")),
+		new Type(ACTION_UPDATE, Arrays.asList(
+			"updateCard", "updateList", "updateBoard")),
+		new Type(ACTION_DELETE, Arrays.asList(
+			"deleteCard")),
+		new Type(ACTION_ADDMEMBER, Arrays.asList(
+			"addMemberToCard", "addMemberToBoard")),
+		new Type(ACTION_REMOVEMEMBER, Arrays.asList(
+			"removeMemberFromCard", "removeMemberFromBoard"))
+	};
+
+	public static List<String> getActionTypeLabels(int code){
+		for(Type tobj : actionTypes){
+			if( tobj.getCode() == code ){
+				return tobj.getLabels();
+			}
+		}
+		return new ArrayList<String>();
+	}
+
+
 	public static int parseActionType(String type){
 		if( type == null ) return ACTION_UNKNOWN;
-		if( type.equals("createCard") ||
-			type.equals("createList") ||
-			type.equals("createBoard") ){
-			return ACTION_CREATE;
-		}else
-		if( type.equals("updateCard") ||
-			type.equals("updateList") ||
-			type.equals("updateBoard") ){
-			return ACTION_UPDATE;
-		}else
-		if( type.equals("deleteCard") ){
-			return ACTION_DELETE;
-		}else
-		if( type.equals("addMemberToCard") ||
-			type.equals("addMemberToBoard") ){
-			return ACTION_ADDMEMBER;
-		}else
-		if( type.equals("removeMemberFromCard") ||
-			type.equals("removeMemberFromBoard") ){
-			return ACTION_REMOVEMEMBER;
+
+		for(Type tobj : actionTypes){
+			if( tobj.labelContains(type) ){
+				return tobj.getCode();
+			}
 		}
+
 		return ACTION_UNKNOWN;
 	}
 

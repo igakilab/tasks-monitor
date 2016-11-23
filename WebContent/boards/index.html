@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>Board Viewer - Boards</title>
+
+		<link href="../css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse" data-target="#navbar"
+						aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<span class="navbar-brand">Tasks Monitor</span>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a>ボードリスト</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<div class="alert-area alert alert-danger hidden" style="margin-top: 30px;"></div>
+			<h1>Board 一覧</h1>
+
+			<div class="alert-div"></div>
+
+			<a class="btn btn-success" href="add/">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+				新規追加</a>
+
+			<div class="list-group board-list" style="margin-top: 5px;">
+			</div>
+
+
+		</div>
+
+		<script src="../js/jquery-2.1.4.min.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script src="../js/util.js"></script>
+
+		<script src="../dwr/engine.js"></script>
+		<script src="../dwr/util.js"><</script>
+		<script src="../dwr/interface/BoardMenu.js"></script>
+		<script>
+		function updateButtonPressed(boardId){
+			alert("board: " + boardId + " update.");
+		}
+
+		function addBoardInfo(boardinf){
+			var head_title = boardinf.data.name;
+			var content =
+				"ボードID: " + boardinf.data.id + "<br/>" +
+				"最終更新: " + Util.formatDate(boardinf.lastUpdate, "YYYY/MM/DD hh:mm:ss") + "<br/>" +
+				"参加メンバー: " + Util.arrayToString(boardinf.members);
+			var updateBtn = $("<button></button>").addClass("btn btn-default")
+				.append(Util.bsGlyphicon("refresh"), "更新")
+				.on('click', function(){
+					BoardMenu.updateTrelloBoardActions(boardinf.data.id, function(res){
+						if( res ){
+							Util.showAlertToDiv(boardinf.data.name + "の更新が完了しました", "success");
+							reloadBoardList(function(){});
+						}else{
+							Util.showAlertToDiv("更新に失敗しました", "warning");
+						}
+					});
+				});
+			var settingBtn = $("<a></a>").addClass("btn btn-default")
+				.append(Util.bsGlyphicon("wrench"), "設定")
+				.attr("href", "settings/?boardId=" + boardinf.data.id);
+			var openBtn = $("<a></a>").addClass("btn btn-primary")
+				.append("ダッシュボード", Util.bsGlyphicon("chevron-right"))
+				.attr("href", "../index.html?boardId=" + boardinf.data.id);
+
+			$(".board-list").append(
+				$("<div></div>").append(
+					$("<div></div>").addClass("col-sm-8").append(
+						$("<h3></h3>").addClass("list-group-item-heading")
+							.html(head_title),
+						$("<p></p>").addClass("list-group-item-text")
+							.html(content)),
+					$("<div></div>").addClass("col-sm-4 text-right").append(
+						updateBtn, " ", settingBtn, " ", openBtn)
+				).addClass("list-group-item container")
+			);
+		}
+
+		function reloadBoardList(callback){
+			BoardMenu.getBoardList(function(data){
+				$(".board-list").empty();
+				for(var i=0; i<data.length; i++){
+					addBoardInfo(data[i]);
+				}
+				if( !Util.isNull(callback) ) callback();
+			});
+		}
+
+		$(document).ready(function(){
+			Util.showAlertToDiv("読み込み中...", "info");
+			reloadBoardList(function(){
+				Util.showAlertToDiv();
+			});
+		});
+		</script>
+	</body>
+</html>

@@ -6,10 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -151,7 +153,10 @@ public class HttpRequest {
 			if( buffer.length() > 0 ){
 				buffer.append('&');
 			}
-			buffer.append(key).append('=').append(params.get(key));
+			try{
+				String value = URLEncoder.encode(params.get(key), "UTF-8");
+				buffer.append(key).append('=').append(value);
+			}catch(UnsupportedEncodingException e0){}
 		}
 		return buffer.toString();
 	}
