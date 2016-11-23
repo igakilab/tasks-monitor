@@ -33,6 +33,8 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 					form.movedDoneAt = null;
 				}else if( after.getName().matches(REGEX_DONE) && form.movedDoingAt != null ){
 					form.movedDoneAt = move.getDate();
+				}else{
+					form.movedDoneAt = null;
 				}
 			}
 		}

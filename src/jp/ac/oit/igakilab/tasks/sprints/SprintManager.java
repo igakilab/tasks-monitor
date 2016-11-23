@@ -116,6 +116,8 @@ public class SprintManager {
 			String cardId= cm.getCardId();
 			//カードに期限と担当者を設定
 			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
+			//dueCompleteを解除
+			tceditor.setDueComplete(cardId, false);
 		}
 
 		return newId;
@@ -163,6 +165,8 @@ public class SprintManager {
 			String cardId= cm.getCardId();
 			//カードに期限と担当者を設定
 			setTrelloCardDueAndMembers(tceditor, cardId, dueDate.getTime(), cm.getMemberIds(), mtable);
+			//dueCompleteを解除
+			tceditor.setDueComplete(cardId, false);
 		}
 
 		return sprint.getId();

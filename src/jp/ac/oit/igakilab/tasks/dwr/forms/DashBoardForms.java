@@ -43,6 +43,8 @@ public class DashBoardForms {
 						form.setMovedDoneAt(null);
 					}else if( after.getName().matches(REGEX_DONE) && form.getMovedDoingAt() != null ){
 						form.setMovedDoneAt(m.getDate());
+					}else{
+						form.setMovedDoneAt(null);
 					}
 				}
 			}
