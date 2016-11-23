@@ -35,7 +35,7 @@
 		<div class="container">
 			<!-- タイトル部 -->
 			<h1>メンバー別 タスク一覧表</h1>
-			<h2>メンバーID: koike</h2>
+			<h2 id="memId">メンバーID: koike</h2>
 
 			<!-- テーブル部 -->
 			<table class="table">
@@ -45,7 +45,7 @@
 
 				<!-- タスクリスト部 -->
 				<!-- tr要素のclassに"success"などを付けることで行の色を変更できる -->
-				<tbody>
+				<tbody id="memberTasksTbody">
 					<tr class="success">
 						<td>123456789abcd</td>
 						<td><strong>タスク1</strong></td>
@@ -79,6 +79,7 @@
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/SprintMemberHistory.js"></script>
 		<script src="sprint.js"></script>
+		<script src="membertasks.js"></script>
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
@@ -86,10 +87,11 @@
 
 			//ボードIDの値をパラメータから取り出す
 			var memberId = params.memberId;
-
+			$("#memId").text("メンバーID: "+memberId);
 			//取得のサンプル
-			SprintMemberHistory.getTaskCardsByMemberId("koike", function(data){
+			SprintMemberHistory.getTaskCardsByMemberId(memberId, function(data){
 				console.log(data);
+				DispMemberTasks(data);
 			});
 		});
 		</script>
