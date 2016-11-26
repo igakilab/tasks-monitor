@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule;
 
 import java.util.ArrayList;
 import java.util.Date;

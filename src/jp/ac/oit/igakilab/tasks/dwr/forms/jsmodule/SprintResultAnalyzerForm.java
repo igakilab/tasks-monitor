@@ -1,10 +1,11 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.AnalyzedTrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintResultForm;

@@ -13,7 +13,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintHistoryForms;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultAnalyzerForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintResultAnalyzerForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
