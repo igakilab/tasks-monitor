@@ -8,17 +8,17 @@ import java.util.function.Consumer;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
@@ -237,19 +237,13 @@ public class SprintResultAnalyzerForm {
 		form.setSprint(SprintForm.getInstance(sprint));
 
 		//スプリントリザルトデータの取得
-		SprintResultsDB srdb = new SprintResultsDB(client);
-		List<String> sprintIds = new ArrayList<String>();
-		sdb.getLatestFinishedSprintByBoardId(
-			sprint.getBoardId(), sprint.getId(), RESULT_HISTORY_CNT, sdc).forEach(
-				(s -> sprintIds.add(s.getId()))
-			);
-		System.out.println(sprintIds);
-		List<SprintResult> sprintResults =
-			srdb.getSprintResultsBySprintIds(sprintIds, new SprintResultDocumentConverter());
-		sprintResults.sort((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()));
+		SprintResultProvider provider = new SprintResultProvider(client);
+		List<SprintDataContainer> results =
+			provider.getLatestSprintResultsByBoardId(
+				sprint.getBoardId(), sprint.getId(), RESULT_HISTORY_CNT);
 
 		//スプリントリザルトデータの設定
-		SprintResult result = sprintResults.get(0);
+		SprintResult result = results.get(0).getSprintResult();
 		form.setResult(SprintResultForm.getInstance(result));
 
 		//スプリント対象カードの取得
@@ -280,7 +274,7 @@ public class SprintResultAnalyzerForm {
 		List<MemberHistory> histories = new ArrayList<>();
 		for(MemberForm m : form.getMembers()){
 			MemberHistory mh = new MemberHistory(m.getId());
-			sprintResults.forEach((res -> mh.applySprintResult(res)));
+			results.forEach((c -> mh.applySprintResult(c.getSprintResult())));
 			histories.add(mh);
 		}
 		form.setMemberHistories(histories);

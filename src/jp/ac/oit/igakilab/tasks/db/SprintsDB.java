@@ -201,7 +201,7 @@ public class SprintsDB {
 	 * @param boardId 指定されたボードidのスプリントのデータが取得されます(必須)
 	 * @param originSprintId 起点となるスプリントで、これ以降に終了されたスプリントは対象になりません。　
 	 *                       このスプリントが閉じられていない場合や、nullが指定された場合は、無効になるフィルタです。
-	 * @param cnt 最新のスプリントをいくつ取得するか指定します(必須)
+	 * @param cnt 最新のスプリントをいくつ取得するか指定します 0未満の数字を指定するとこの制限はなくなります
 	 * @param parser ドキュメントパーザーです(必須)
 	 * @return 対象のスプリントのリスト
 	 */
@@ -229,7 +229,7 @@ public class SprintsDB {
 		//データをぱーずする
 		List<T> result = new ArrayList<>();
 		Iterator<Document> itr = cur.iterator();
-		for(int i=0; (itr.hasNext() && i < cnt); i++){
+		for(int i=0; (itr.hasNext() && (cnt < 0 || i < cnt)); i++){
 			Document doc = itr.next();
 			result.add(parser.parse(doc));
 		}
