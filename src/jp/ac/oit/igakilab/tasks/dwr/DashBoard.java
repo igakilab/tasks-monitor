@@ -10,7 +10,6 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.DashBoardForms;
-import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
@@ -59,37 +58,6 @@ public class DashBoard {
 
 		DashBoardForms.DashBoardData form =
 			DashBoardForms.DashBoardData.getInstance(board, sprint);
-
-		client.close();
-		return form;
-	}
-
-
-	//ボードのタスクをtodo,doing,doneの形式で取得する
-	//もし目的のボードがない場合はerrorが返却される
-	public KanbanForm getKanban(String boardId)
-	throws ExcuteFailedException{
-		//クライアントの生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
-		//アクションdbの操作クラスを生成
-		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
-
-		//アクション一覧を取得
-		List<TrelloAction> actions = adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
-		//アクションの有無をチェック、ボードがない場合、要素なしのリストが返されている
-		if( actions.size() <= 0 ){
-			client.close();
-			throw new ExcuteFailedException("ボードのデータがありません");
-		}
-
-		//ボードのデータ構造クラスを生成、アクションを登録、buildでボードを内部で構築
-		TrelloActionsBoard board = new TrelloActionsBoard();
-		board.addActions(actions);
-		board.build();
-
-		//フォームに変換
-		//ここでボードをtodo,doing,doneのみのボードに成型する
-		KanbanForm form = KanbanForm.getInstance(board);
 
 		client.close();
 		return form;
