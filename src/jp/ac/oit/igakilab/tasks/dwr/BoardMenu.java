@@ -12,7 +12,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB.Board;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.BoardMenuForms.BoardInfo;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardDataForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater;

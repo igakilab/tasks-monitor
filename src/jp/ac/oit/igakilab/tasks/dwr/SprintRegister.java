@@ -13,7 +13,7 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
 public class SprintRegister {

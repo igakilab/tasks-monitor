@@ -3,6 +3,8 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloListForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
