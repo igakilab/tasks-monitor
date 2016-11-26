@@ -23,7 +23,7 @@ public class SprintMemberHistory {
 	 * @return
 	 */
 	public List<AssignedCard> getTaskCardsByMemberId(String memberId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//クライアントの初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
@@ -53,7 +53,7 @@ public class SprintMemberHistory {
 				board = builder.buildTrelloBoardFromTrelloActions(boardId);
 				if( board == null ){
 					client.close();
-					throw new ExcuteFailedException("ボード取得中にエラーが発生しました");
+					throw new ExecuteFailedException("ボード取得中にエラーが発生しました");
 				}
 				trelloBoardCache.add(board);
 			}

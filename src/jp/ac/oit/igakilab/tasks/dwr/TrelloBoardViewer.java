@@ -52,9 +52,9 @@ public class TrelloBoardViewer {
 	}
 
 	public TrelloBoardForm getBoardData(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		if( boardId == null ){
-			throw new ExcuteFailedException("ボードidを指定してください");
+			throw new ExecuteFailedException("ボードidを指定してください");
 		}
 
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -73,7 +73,7 @@ public class TrelloBoardViewer {
 
 		}else{
 			client.close();
-			throw new ExcuteFailedException("ボードがみつかりません");
+			throw new ExecuteFailedException("ボードがみつかりません");
 		}
 	}
 

@@ -51,7 +51,7 @@ public class SprintHistory {
 	}
 
 	public SprintHistoryForms.SprintResultData getSprintResult(String sprintId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//各種クライアントを初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
@@ -63,7 +63,7 @@ public class SprintHistory {
 		Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 		if( sprint == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントがみつかりません");
+			throw new ExecuteFailedException("スプリントがみつかりません");
 		}
 
 		//スプリントリザルトを取得
@@ -71,7 +71,7 @@ public class SprintHistory {
 			sprint.getId(), new SprintResultDocumentConverter());
 		if( result == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントリザルトが見つかりません");
+			throw new ExecuteFailedException("スプリントリザルトが見つかりません");
 		}
 
 		//ボード情報を取得
@@ -86,7 +86,7 @@ public class SprintHistory {
 	}
 
 	public SprintResultAnalyzerForm getSprintResultAnalyzerData(String sprintId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
 		//スプリントを取得
@@ -94,7 +94,7 @@ public class SprintHistory {
 		Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 		if( sprint == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントが見つかりません");
+			throw new ExecuteFailedException("スプリントが見つかりません");
 		}
 
 		//スプリントリザルトを取得
@@ -102,7 +102,7 @@ public class SprintHistory {
 		SprintResult result = srdb.getSprintResultBySprintId(sprintId, new SprintResultDocumentConverter());
 		if( result == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントリザルトが見つかりません");
+			throw new ExecuteFailedException("スプリントリザルトが見つかりません");
 		}
 
 		//ボードを取得
@@ -112,7 +112,7 @@ public class SprintHistory {
 		board.build();
 		if( board.getId() == null ){
 			client.close();
-			throw new ExcuteFailedException("ボードを生成できませんでした");
+			throw new ExecuteFailedException("ボードを生成できませんでした");
 		}
 
 		//メンバー表を作成

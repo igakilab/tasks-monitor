@@ -100,18 +100,18 @@ public class BoardMenu {
 	 * trelloのボードurlからボードidやボード名を取得します
 	 */
 	public TrelloBoardDataForm getBoardDataByUrl(String url)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//urlを解析
 		TrelloBoardUrl burl = new TrelloBoardUrl(url);
 		if( !burl.isValid() ){
-			throw new ExcuteFailedException("不正なURLです");
+			throw new ExecuteFailedException("不正なURLです");
 		}
 
 		//データを取得
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardData data = burl.fetchTrelloBoardData(api);
 		if( data == null ){
-			throw new ExcuteFailedException("ボードデータの取得に失敗しました");
+			throw new ExecuteFailedException("ボードデータの取得に失敗しました");
 		}
 
 		return TrelloBoardDataForm.getInstance(data);
@@ -123,13 +123,13 @@ public class BoardMenu {
 	 * 追加時にボード情報の動機を自動的に行います
 	 */
 	public boolean addTrelloBoard(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//ボード情報の取得(ボードが取得できるかどうかテスト)
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardDataFetcher fetcher = new TrelloBoardDataFetcher(api);
 		TrelloBoardData data = fetcher.getTrelloBoardData(boardId);
 		if( data == null ){
-			throw new ExcuteFailedException("ボードデータの取得に失敗しました");
+			throw new ExecuteFailedException("ボードデータの取得に失敗しました");
 		}
 
 		//データベースにボードの新規登録

@@ -27,7 +27,7 @@ import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 public class DashBoard {
 
 	public DashBoardForms.DashBoardData getDashBoardData(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//クライアントの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		//dbの操作クラスを生成
@@ -41,7 +41,7 @@ public class DashBoard {
 		//アクションの有無をチェック、ボードがない場合
 		if( actions.size() <= 0 ){
 			client.close();
-			throw new ExcuteFailedException("ボードのデータがありません");
+			throw new ExecuteFailedException("ボードのデータがありません");
 		}
 
 		//ボードのデータ構造クラスを生成、アクションを登録、buildでボードを内部で構築
@@ -85,14 +85,14 @@ public class DashBoard {
 
 	//カードを新しく作成する
 	public TrelloCardForm createCard(String boardId, TrelloCardForm card)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//操作インスタンスを初期化
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api, boardId);
 
 		//データを取得
 		if( !fetcher.fetch() ){
-			throw new ExcuteFailedException("ボードデータの取得に失敗しました");
+			throw new ExecuteFailedException("ボードデータの取得に失敗しました");
 		}
 
 		//カードデータ追加
@@ -105,10 +105,10 @@ public class DashBoard {
 				ncard.applyNumber(board.getCards());
 			}
 			if( !fetcher.addCard(lists.get(0), ncard) ){
-				throw new ExcuteFailedException("カードの追加に失敗しました");
+				throw new ExecuteFailedException("カードの追加に失敗しました");
 			}
 		}else{
-			throw new ExcuteFailedException("todoのリストがありません");
+			throw new ExecuteFailedException("todoのリストがありません");
 		}
 
 		return TrelloCardForm.getInstance(ncard);
@@ -116,7 +116,7 @@ public class DashBoard {
 
 	//進行中のスプリントを終了する
 	public String closeCurrentSprint(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
@@ -124,7 +124,7 @@ public class DashBoard {
 		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		if( currSpr == null ){
 			client.close();
-			throw new ExcuteFailedException("現在進行中のスプリントはありません");
+			throw new ExecuteFailedException("現在進行中のスプリントはありません");
 		}
 
 		//クローズ処理
@@ -134,7 +134,7 @@ public class DashBoard {
 
 		if( res == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
+			throw new ExecuteFailedException("スプリントのクローズ処理が失敗しました");
 		}
 
 		client.close();

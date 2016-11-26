@@ -58,7 +58,7 @@ public class SprintPlanner {
 
 	//SprintBuilderのためのデータを取得する
 	public SprintBuilderForm getSprintBuilderForm(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//dbのクライアント等生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
@@ -66,7 +66,7 @@ public class SprintPlanner {
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		if( !bdb.boardIdExists(boardId) ){
 			client.close();
-			throw new ExcuteFailedException("ボードが見つかりません");
+			throw new ExecuteFailedException("ボードが見つかりません");
 		}
 
 		//現在進行中のスプリント取得
@@ -78,7 +78,7 @@ public class SprintPlanner {
 		TrelloBoard board = builder.buildTrelloBoardFromTrelloActions(boardId);
 		if( board == null ){
 			client.close();
-			throw new ExcuteFailedException("ボードの生成に失敗しました");
+			throw new ExecuteFailedException("ボードの生成に失敗しました");
 		}
 
 
@@ -116,7 +116,7 @@ public class SprintPlanner {
 	//スプリントを新しく生成
 	//現在進行中のスプリントがあった場合、エラーを投げる
 	public String createSprint(String boardId, Date finishDate, List<CardMembersForm> cardsForm)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//DBのクライアントと操作クラスの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
@@ -128,7 +128,7 @@ public class SprintPlanner {
 		//進行中スプリントがあった場合、クローズする
 		if( current != null ){
 			client.close();
-			throw new ExcuteFailedException("現在進行中のスプリントがあります");
+			throw new ExecuteFailedException("現在進行中のスプリントがあります");
 		}
 
 		//日付の取得
@@ -145,7 +145,7 @@ public class SprintPlanner {
 			newId = smanager.createSprint(boardId, today, finishDate, cards);
 		}catch(SprintManagementException e0){
 			client.close();
-			throw new ExcuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
+			throw new ExecuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
 		}
 
 		//DBをクローズ、登録されたidを返却
@@ -156,7 +156,7 @@ public class SprintPlanner {
 	//スプリントを更新
 	// 指定されたスプリントidがない場合はエラーを投げる
 	public String updateSprint(String sprintId, Date finishDate, List<CardMembersForm> cardForm)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
@@ -171,11 +171,11 @@ public class SprintPlanner {
 		//スプリントデータを検証
 		if( sprint == null ){
 			client.close();
-			throw new ExcuteFailedException("指定されたスプリントがありません");
+			throw new ExecuteFailedException("指定されたスプリントがありません");
 		}
 		if( sprint.isClosed() ){
 			client.close();
-			throw new ExcuteFailedException("指定されたスプリントはすでに閉じられています");
+			throw new ExecuteFailedException("指定されたスプリントはすでに閉じられています");
 		}
 
 		//スプリントデータ更新作業
@@ -185,7 +185,7 @@ public class SprintPlanner {
 			manager.updateSprint(sprintId, finishDate, members);
 		}catch(SprintManagementException e0){
 			client.close();
-			throw new ExcuteFailedException("登録に失敗しました: " + e0.getMessage());
+			throw new ExecuteFailedException("登録に失敗しました: " + e0.getMessage());
 		}
 
 		client.close();

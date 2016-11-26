@@ -83,14 +83,14 @@ public class SprintFinisher {
 	 * スプリントのクローズに成功したら、SprintResultFormのオブジェクトを返却します。
 	 */
 	public ClosedSprintResult closeCurrentSprint(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在進行中のスプリントを取得
 		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		if( currSpr == null ){
-			throw new ExcuteFailedException("現在進行中のスプリントはありません");
+			throw new ExecuteFailedException("現在進行中のスプリントはありません");
 		}
 
 		//クローズ処理
@@ -99,7 +99,7 @@ public class SprintFinisher {
 		SprintResult res = manager.closeSprint(currSpr.getId());
 
 		if( res == null ){
-			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
+			throw new ExecuteFailedException("スプリントのクローズ処理が失敗しました");
 		}
 
 		//リザルトの取得
