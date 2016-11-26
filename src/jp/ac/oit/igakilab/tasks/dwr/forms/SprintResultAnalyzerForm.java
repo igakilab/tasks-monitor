@@ -230,10 +230,12 @@ public class SprintResultAnalyzerForm {
 		List<String> sprintIds = new ArrayList<String>();
 		sdb.getLatestFinishedSprintByBoardId(
 			sprint.getBoardId(), sprint.getId(), RESULT_HISTORY_CNT, sdc).forEach(
-				(s -> sprintIds.add(s.getId())));
+				(s -> sprintIds.add(s.getId()))
+			);
+		System.out.println(sprintIds);
 		List<SprintResult> sprintResults =
 			srdb.getSprintResultsBySprintIds(sprintIds, new SprintResultDocumentConverter());
-		sprintResults.sort((r1, r2) -> r1.getCreatedAt().compareTo(r2.getCreatedAt()));
+		sprintResults.sort((r1, r2) -> r2.getCreatedAt().compareTo(r1.getCreatedAt()));
 
 		//スプリントリザルトデータの設定
 		SprintResult result = sprintResults.get(0);

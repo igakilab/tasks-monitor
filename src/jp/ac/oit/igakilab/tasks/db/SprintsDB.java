@@ -214,11 +214,11 @@ public class SprintsDB {
 		}
 
 		//フィルタを形成する
-		List<Bson> elements = Arrays.asList(
-			Filters.eq("boardId", boardId),
-			Filters.ne("closedDate", null));
+		List<Bson> elements = new ArrayList<>();
+		elements.add(Filters.eq("boardId", boardId));
+		elements.add(Filters.ne("closedDate", null));
 		if( originSprint != null && originSprint.getClosedDate() != null ){
-			elements.add(Filters.lte("closedDate", originSprint.getClosedDate()));
+			elements.add(Filters.lte("closedDate", originSprint.getClosedAt()));
 		}
 		Bson filter = Filters.and(elements);
 

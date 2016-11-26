@@ -1,6 +1,5 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.mongodb.MongoClient;
@@ -14,8 +13,6 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintHistoryForms;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultAnalyzerForm;
-import jp.ac.oit.igakilab.tasks.members.Member;
-import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
@@ -89,45 +86,13 @@ public class SprintHistory {
 	throws ExcuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
-		//スプリントを取得
-		SprintsDB sdb = new SprintsDB(client);
-		Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
-		if( sprint == null ){
+		SprintResultAnalyzerForm form = null;
+		try{
+			form = SprintResultAnalyzerForm.buildInstance(client, sprintId);
+		}catch(ExcuteFailedException e0){
 			client.close();
-			throw new ExcuteFailedException("スプリントが見つかりません");
+			throw e0;
 		}
-
-		//スプリントリザルトを取得
-		SprintResultsDB srdb = new SprintResultsDB(client);
-		SprintResult result = srdb.getSprintResultBySprintId(sprintId, new SprintResultDocumentConverter());
-		if( result == null ){
-			client.close();
-			throw new ExcuteFailedException("スプリントリザルトが見つかりません");
-		}
-
-		//ボードを取得
-		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
-		TrelloActionsBoard board = new TrelloActionsBoard();
-		board.addActions(adb.getTrelloActions(sprint.getBoardId(), new TrelloActionDocumentParser()));
-		board.build();
-		if( board.getId() == null ){
-			client.close();
-			throw new ExcuteFailedException("ボードを生成できませんでした");
-		}
-
-		//メンバー表を作成
-		List<Member> members = new ArrayList<Member>();
-		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
-		board.getMemberIds().forEach((tmid) -> {
-			Member m = ttb.getMember(tmid);
-			if( m != null ){
-				members.add(m);
-			}
-		});
-
-		//フォームに変換
-		SprintResultAnalyzerForm form =
-			SprintResultAnalyzerForm.getInstance(board, sprint, result, members);
 
 		client.close();
 		return form;
