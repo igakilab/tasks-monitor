@@ -4,13 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardMembers {
-	public static CardMembers getInstance(TrelloCardMembers tcm){
-		CardMembers cm = new CardMembers();
-		cm.setCardId(tcm.getCardId());
-		tcm.getMemberIds().forEach((mid -> cm.addMemberId(mid)));
-		return cm;
-	}
-
 	private String cardId;
 	private List<String> memberIds;
 

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.CardResultForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardMembersForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
@@ -158,11 +158,11 @@ public class SprintHistoryForms {
 			if( res == null ) return form;
 			//スプリントの結果情報を格納
 			form.setClosedDate(spr.getClosedDate());
-			List<TrelloCardMembersForm> rtmp = new ArrayList<TrelloCardMembersForm>();
-			res.getRemainedCards().forEach(c -> rtmp.add(TrelloCardMembersForm.getInstance(c)));
+			List<CardResultForm> rtmp = new ArrayList<CardResultForm>();
+			res.getRemainedCards().forEach(c -> rtmp.add(CardResultForm.getInstance(c)));
 			form.setRemainedCards(rtmp);
-			List<TrelloCardMembersForm> ftmp = new ArrayList<TrelloCardMembersForm>();
-			res.getFinishedCards().forEach(c -> ftmp.add(TrelloCardMembersForm.getInstance(c)));
+			List<CardResultForm> ftmp = new ArrayList<CardResultForm>();
+			res.getFinishedCards().forEach(c -> ftmp.add(CardResultForm.getInstance(c)));
 			form.setFinishedCards(ftmp);
 
 			//返却
@@ -193,8 +193,8 @@ public class SprintHistoryForms {
 		private Date finishDate;
 
 		private Date closedDate;
-		private List<TrelloCardMembersForm> remainedCards;
-		private List<TrelloCardMembersForm> finishedCards;
+		private List<CardResultForm> remainedCards;
+		private List<CardResultForm> finishedCards;
 
 		public String getId() {
 			return id;
@@ -226,16 +226,16 @@ public class SprintHistoryForms {
 		public void setClosedDate(Date closedDate) {
 			this.closedDate = closedDate;
 		}
-		public List<TrelloCardMembersForm> getRemainedCards() {
+		public List<CardResultForm> getRemainedCards() {
 			return remainedCards;
 		}
-		public void setRemainedCards(List<TrelloCardMembersForm> remainedCards) {
+		public void setRemainedCards(List<CardResultForm> remainedCards) {
 			this.remainedCards = remainedCards;
 		}
-		public List<TrelloCardMembersForm> getFinishedCards() {
+		public List<CardResultForm> getFinishedCards() {
 			return finishedCards;
 		}
-		public void setFinishedCards(List<TrelloCardMembersForm> finishedCards) {
+		public void setFinishedCards(List<CardResultForm> finishedCards) {
 			this.finishedCards = finishedCards;
 		}
 	}
