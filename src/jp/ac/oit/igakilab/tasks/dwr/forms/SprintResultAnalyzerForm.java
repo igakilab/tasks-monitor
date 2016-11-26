@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -56,11 +57,12 @@ public class SprintResultAnalyzerForm {
 
 	public static class MemberSprintResult{
 		public static MemberSprintResult getInstance
-		(String sprintId, List<CardResult> cards){
+		(String sprintId, Date closedDate, List<CardResult> cards){
 			MemberSprintResult res = new MemberSprintResult();
 
-			//スプリントid設定
+			//スプリント設定
 			res.setSprintId(sprintId);
+			res.setClosedDate(closedDate);
 
 			//カードをカウント
 			int rem = 0;
@@ -80,6 +82,7 @@ public class SprintResultAnalyzerForm {
 		}
 
 		private String sprintId;
+		private Date closedDate;
 		private int remainedCount;
 		private int finishedCount;
 		private List<CardIdAndFinished> cards;
@@ -97,6 +100,14 @@ public class SprintResultAnalyzerForm {
 
 		public void setSprintId(String sprintId) {
 			this.sprintId = sprintId;
+		}
+
+		public Date getClosedDate() {
+			return closedDate;
+		}
+
+		public void setClosedDate(Date closedDate) {
+			this.closedDate = closedDate;
 		}
 
 		public int getRemainedCount() {
@@ -156,7 +167,7 @@ public class SprintResultAnalyzerForm {
 
 		public void applySprintResult(SprintResult res){
 			List<CardResult> cards = res.getCardsByMemberIdContains(memberId);
-			results.add(MemberSprintResult.getInstance(res.getSprintId(), cards));
+			results.add(MemberSprintResult.getInstance(res.getSprintId(), res.getCreatedAt(), cards));
 		}
 	}
 

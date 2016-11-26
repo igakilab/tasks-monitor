@@ -31,6 +31,7 @@ SprintResultAnalyzer = (function() {
 		this.sprintData = null;
 		this.cards = [];
 		this.members = [];
+		this.memberHistories = null;
 	}
 
 
@@ -162,6 +163,10 @@ SprintResultAnalyzer = (function() {
 				finishedCount: fin
 			});
 		});
+
+		//*****
+		//メンバーの達成カード数履歴情報を格納する
+		this.memberHistories = data.memberHistories;
 	}
 
 
@@ -245,6 +250,17 @@ SprintResultAnalyzer = (function() {
 		}
 
 		return cards;
+	}
+
+	/*
+	 * midに指定されたメンバーのスプリント履歴情報を返します。
+	 */
+	_class.prototype.getMemberHistory = function(mid){
+		for(var i=0; i<this.memberHistories.length; i++){
+			if( this.memberHistories[i].memberId == mid ){
+				return this.memberHistories[i];
+			}
+		}
 	}
 
 	return _class;
