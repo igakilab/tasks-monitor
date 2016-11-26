@@ -5,7 +5,16 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.mongodb.MongoClient;
+
+import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
+import jp.ac.oit.igakilab.tasks.db.SprintsDB;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
+import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
 import jp.ac.oit.igakilab.tasks.members.Member;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
@@ -15,6 +24,8 @@ import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class SprintResultAnalyzerForm {
+	public static int RESULT_HISTORY_CNT = 5;
+
 	public static class CardIdAndFinished{
 		private String id;
 		private boolean finished;
@@ -149,6 +160,8 @@ public class SprintResultAnalyzerForm {
 		}
 	}
 
+
+	@Deprecated
 	public static SprintResultAnalyzerForm getInstance
 	(TrelloActionsBoard board, Sprint sprint, SprintResult result, List<Member> members){
 		SprintResultAnalyzerForm form = new SprintResultAnalyzerForm();
@@ -186,10 +199,80 @@ public class SprintResultAnalyzerForm {
 
 		return form;
 	}
-	
-	
-	public static void setMemberHistory(SprintResultAnalyzerForm form, ){
-		
+
+	public static SprintResultAnalyzerForm buildInstance
+	(MongoClient client, String sprintId)
+	throws ExcuteFailedException{
+		SprintResultAnalyzerForm form = new SprintResultAnalyzerForm();
+
+		//スプリントデータの取得
+		SprintsDB sdb = new SprintsDB(client);
+		SprintDocumentConverter sdc = new SprintDocumentConverter();
+		Sprint sprint = sdb.getSprintById(sprintId, sdc);
+		if( sprint == null ){
+			throw new ExcuteFailedException("対象スプリントが見つかりません");
+		}
+		if( !sprint.isClosed() ){
+			throw new ExcuteFailedException("このスプリントは閉じられていません");
+		}
+
+		//ボードデータの設定
+		TrelloBoardBuilder builder = new TrelloBoardBuilder(client);
+		TrelloActionsBoard board =
+			builder.buildTrelloActionsBoardFromTrelloActions(sprint.getBoardId());
+		form.setBoardData(TrelloBoardDataForm.getInstance(board));
+
+		//スプリントデータの設定
+		form.setSprint(SprintForm.getInstance(sprint));
+
+		//スプリントリザルトデータの取得
+		SprintResultsDB srdb = new SprintResultsDB(client);
+		List<String> sprintIds = new ArrayList<String>();
+		sdb.getLatestFinishedSprintByBoardId(
+			sprint.getBoardId(), sprint.getId(), RESULT_HISTORY_CNT, sdc).forEach(
+				(s -> sprintIds.add(s.getId())));
+		List<SprintResult> sprintResults =
+			srdb.getSprintResultsBySprintIds(sprintIds, new SprintResultDocumentConverter());
+		sprintResults.sort((r1, r2) -> r1.getCreatedAt().compareTo(r2.getCreatedAt()));
+
+		//スプリントリザルトデータの設定
+		SprintResult result = sprintResults.get(0);
+		form.setResult(SprintResultForm.getInstance(result));
+
+		//スプリント対象カードの取得
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
+		Calendar end = Calendar.getInstance();
+		end.setTime(sprint.getFinishDate());
+		end.add(Calendar.DATE, 1);
+		List<AnalyzedTrelloCardForm> cards = new ArrayList<AnalyzedTrelloCardForm>();
+		result.getAllCards().forEach((cr) -> {
+			TrelloCard tmp0 = board.getCardById(cr.getCardId());
+			TrelloActionsCard card = (tmp0 instanceof TrelloActionsCard) ? (TrelloActionsCard)tmp0 : null;
+			if( card != null ){
+				cards.add(AnalyzedTrelloCardForm
+					.getInstance(card, board, sprint.getBeginDate(), end.getTime(), ttb));
+			}
+		});
+		form.setSprintCards(cards);
+
+		//メンバーリスト設定
+		List<MemberForm> members = new ArrayList<>();
+		board.getMemberIds().forEach((tmid) -> {
+			Member m = ttb.getMember(tmid);
+			if( m != null ) members.add(MemberForm.getInstance(m));
+		});
+		form.setMembers(members);
+
+		//メンバーヒストリー設定
+		List<MemberHistory> histories = new ArrayList<>();
+		for(MemberForm m : form.getMembers()){
+			MemberHistory mh = new MemberHistory(m.getId());
+			sprintResults.forEach((res -> mh.applySprintResult(res)));
+			histories.add(mh);
+		}
+		form.setMemberHistories(histories);
+
+		return form;
 	}
 
 

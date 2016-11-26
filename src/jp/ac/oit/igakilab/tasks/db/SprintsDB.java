@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.bson.Document;
@@ -11,10 +12,12 @@ import org.bson.conversions.Bson;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 
@@ -72,9 +75,11 @@ public class SprintsDB {
 		Filters.eq("closedDate", null));
 
 	private MongoClient client;
+	private MongoCollection<Document> collection;
 
 	public SprintsDB(MongoClient client){
 		this.client = client;
+		collection = getCollection();
 	}
 
 	protected MongoCollection<Document> getCollection(){
@@ -185,6 +190,48 @@ public class SprintsDB {
 
 		for(Document doc : getCollection().find(filter)){
 			result.add(doc.getString("id"));
+		}
+
+		return result;
+	}
+
+	/**
+	 * すでに終了しているスプリントを新しい順に取得します。
+	 * 引数に各フィルタを指定して、目的のデータを取得します
+	 * @param boardId 指定されたボードidのスプリントのデータが取得されます(必須)
+	 * @param originSprintId 起点となるスプリントで、これ以降に終了されたスプリントは対象になりません。　
+	 *                       このスプリントが閉じられていない場合や、nullが指定された場合は、無効になるフィルタです。
+	 * @param cnt 最新のスプリントをいくつ取得するか指定します(必須)
+	 * @param parser ドキュメントパーザーです(必須)
+	 * @return 対象のスプリントのリスト
+	 */
+	public <T> List<T> getLatestFinishedSprintByBoardId
+	(String boardId, String originSprintId, int cnt, DocumentParser<T> parser){
+		//originSprintを取得する
+		Sprint originSprint = null;
+		if( originSprintId != null ){
+			originSprint = getSprintById(originSprintId, new SprintDocumentConverter());
+		}
+
+		//フィルタを形成する
+		List<Bson> elements = Arrays.asList(
+			Filters.eq("boardId", boardId),
+			Filters.ne("closedDate", null));
+		if( originSprint != null && originSprint.getClosedDate() != null ){
+			elements.add(Filters.lte("closedDate", originSprint.getClosedDate()));
+		}
+		Bson filter = Filters.and(elements);
+
+		//データを取得する
+		Bson sorts = Sorts.descending("closedDate");
+		FindIterable<Document> cur = collection.find(filter).sort(sorts);
+
+		//データをぱーずする
+		List<T> result = new ArrayList<>();
+		Iterator<Document> itr = cur.iterator();
+		for(int i=0; (itr.hasNext() && i < cnt); i++){
+			Document doc = itr.next();
+			result.add(parser.parse(doc));
 		}
 
 		return result;
