@@ -94,6 +94,18 @@ public class SprintResultsDB{
 		return result;
 	}
 
+	public int countCardRemainedTimes(String cardId){
+		Bson filter = Filters.or(
+			Filters.eq("remainedCards.cardId", cardId),
+			Filters.and(
+				Filters.eq("sprintCards.cardId", cardId),
+				Filters.eq("sprintCards.finished", false)
+			)
+		);
+
+		return (int)collection.count(filter);
+	}
+
 	public <T> List<T> getAllSprintResults(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 

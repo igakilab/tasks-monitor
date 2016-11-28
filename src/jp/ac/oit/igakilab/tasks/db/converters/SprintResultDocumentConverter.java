@@ -35,6 +35,7 @@ implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 		cres.getMemberIds().forEach((memberId ->
 			memberIds.add(memberId)));
 		doc.append("memberIds", memberIds);
+		doc.append("finished", cres.isFinished());
 		return doc;
 	}
 
