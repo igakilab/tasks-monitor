@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.scripts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -92,12 +93,14 @@ public class SprintEditor {
 			}
 		}
 
-		//trelloの変更
+		//trelloのデータクリア
 		if( trelloParamClear ){
-			if( !asset.tce.setDueAndMembers(cardId, null, null) ){
-
+			if( !asset.tce.setDueAndMembers(cardId, null, Arrays.asList()) ){
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 
@@ -136,6 +139,7 @@ public class SprintEditor {
 			throw new SprintEditException("不正な機関です");
 		}
 
+
 		//*****
 		//スプリントデータ登録
 		//*****
@@ -152,32 +156,28 @@ public class SprintEditor {
 			throw new SprintEditException("DB登録エラー: " + e0.getMessage());
 		}
 
+
 		//*****
-		//Trelloに担当者と期限を設定
+		//データベースにカードを追加
 		//*****
 
 		//オブジェクト初期化
 		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
+		CardEditAsset asset = new CardEditAsset(sdb, tceditor, ttb, newId);
 
 		//期限の生成
 		Calendar dueDate = Calendar.getInstance();
 		dueDate.setTime(finishDate);
 		dueDate.set(Calendar.HOUR, DEFAULT_DUE_HOUR);
 
-		//Trelloに設定
-		List<String> tmp = new ArrayList<String>(); //メンバーID変換時の一時保存配列
+		//スプリントにカードを追加
 		for(CardMembers cm : sprintCards){
-			//メンバーID変換
-			tmp.clear();
-			cm.getMemberIds().forEach((mid) -> {
-				String tmp0 = ttb.getTrelloId(mid);
-				if( tmp0 != null ) tmp.add(tmp0);
-			});
-
-			//設定する
-			tceditor.setDueAndMembers(cm.getCardId(), dueDate.getTime(), tmp, true);
+			if( !addSprintCard(asset, cm.getCardId(), dueDate.getTime(), cm.getMemberIds()) ){
+				throw new SprintEditException("スプリントカードの追加に失敗しました");
+			}
 		}
+
 
 		//*****
 		//Slackに通知を送信する
