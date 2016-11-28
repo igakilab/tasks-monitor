@@ -73,12 +73,20 @@ public class TrelloCardEditor {
 	}
 
 	public boolean setDueAndMembers(String cardId, Date due, List<String> trelloMemberIds){
+		return setDueAndMembers(cardId, due, trelloMemberIds, false);
+	}
+
+	public boolean setDueAndMembers(String cardId, Date due, List<String> trelloMemberIds, boolean dueCompleteRemove){
 		String url = "/1/cards/" + cardId;
 		Map<String,String> params = new HashMap<String,String>();
 
 		TrelloDateFormat df = new TrelloDateFormat();
 		String dateStr = (due != null ? df.format(due) : "null");
 		params.put("due", dateStr);
+
+		if( dueCompleteRemove ){
+			params.put("dueComplete", "false");
+		}
 
 		if( trelloMemberIds != null && trelloMemberIds.size() > 0 ){
 			params.put("idMembers", commaSeparated(trelloMemberIds));
