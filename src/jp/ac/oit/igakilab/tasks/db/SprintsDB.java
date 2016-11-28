@@ -137,9 +137,38 @@ public class SprintsDB {
 		return newId;
 	}
 
+	@Deprecated
 	public boolean updateSprintCards(String id, List<String> cardIds){
 		Bson filter = Filters.eq("id", id);
 		Bson update = Updates.set("trelloCardIds", cardIds);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+
+		return res.getModifiedCount() > 0;
+	}
+
+	public boolean isTrelloCardIdRegisted(String id, String cardId){
+		Bson filter = Filters.and(
+			Filters.eq("id", id),
+			Filters.eq("trelloCardIds", cardId));
+
+		Document doc = getCollection().find(filter).first();
+
+		return doc != null;
+	}
+
+	public boolean addTrelloCardId(String id, String cardId){
+		Bson filter = Filters.eq("id", id);
+		Bson update = Updates.push("trelloCardIds", cardId);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+
+		return res.getModifiedCount() > 0;
+	}
+
+	public boolean removeTrelloCardId(String id, String cardId){
+		Bson filter = Filters.eq("id", id);
+		Bson update = Updates.pull("trelloCardIds", cardId);
 
 		UpdateResult res = getCollection().updateOne(filter, update);
 
@@ -202,31 +231,5 @@ public class SprintsDB {
 		});
 
 		return list;
-	}
-
-	public boolean addTrelloCardId(String id, String cardId){
-		if( !sprintIdExists(id) ) return false;
-
-		MongoCollection<Document> col = getCollection();
-
-		Bson checkRegistedFilter = Filters.and(
-			Filters.eq("id", id),
-			Filters.eq("trelloCardIds", cardId));
-		if( col.count(checkRegistedFilter) > 0 ) return false;
-
-		Bson filter = Filters.eq("id", id);
-		Bson updates = Updates.push("trelloCardIds", cardId);
-		UpdateResult result = col.updateOne(filter, updates);
-
-		return result.getModifiedCount() == 1;
-	}
-
-	public boolean removeTrelloCardId(String id, String cardId){
-		Bson filter = Filters.eq("id", id);
-		Bson updates = Updates.pull("trelloCardIds", cardId);
-
-		UpdateResult result = getCollection().updateOne(filter, updates);
-
-		return result.getModifiedCount() == 1;
 	}
 }

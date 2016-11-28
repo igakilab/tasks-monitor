@@ -26,6 +26,21 @@ import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 public class SprintEditor {
 	public static int DEFAULT_DUE_HOUR = 18;
 
+	static class CardEditAsset{
+		public SprintsDB sdb;
+		public TrelloCardEditor tce;
+		public MemberTrelloIdTable ttb;
+		public String sprintId;
+
+		public CardEditAsset
+		(SprintsDB sdb, TrelloCardEditor tce, MemberTrelloIdTable ttb, String sprintId){
+			this.sdb = sdb;
+			this.tce = tce;
+			this.ttb = ttb;
+			this.sprintId = sprintId;
+		}
+	}
+
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
 	private HubotSendMessage hubotMsg;
@@ -37,12 +52,62 @@ public class SprintEditor {
 	}
 
 
+	private boolean addSprintCard(CardEditAsset asset, String cardId, Date dueDate, List<String> memberIds){
+		//データベース登録
+		if( !asset.sdb.isTrelloCardIdRegisted(asset.sprintId, cardId) ){
+			if( !asset.sdb.addTrelloCardId(asset.sprintId, cardId) ){
+				return false;
+			}
+		}
+
+		//trelloに登録
+		List<String> trelloMemberIds = (memberIds != null) ? asset.ttb.getTrelloIdAll(memberIds) : null;
+		if( trelloMemberIds != null && dueDate != null ){
+			if( !asset.tce.setDueAndMembers(cardId, dueDate, trelloMemberIds, true) ){
+				return false;
+			}
+		}else if( trelloMemberIds != null ){
+			for(String tmid : trelloMemberIds){
+				if( !asset.tce.addMember(cardId, tmid) ){
+					return false;
+				}
+			}
+		}else if( dueDate != null ){
+			if( !asset.tce.setDueDate(cardId, dueDate) ){
+				return false;
+			}
+			if( !asset.tce.setDueComplete(cardId, false) ){
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private boolean removeSprintCard(CardEditAsset asset, String cardId, boolean trelloParamClear){
+		//データベース変更
+		if( asset.sdb.isTrelloCardIdRegisted(asset.sprintId, cardId) ){
+			if( !asset.sdb.removeTrelloCardId(asset.sprintId, cardId) ){
+				return false;
+			}
+		}
+
+		//trelloの変更
+		if( trelloParamClear ){
+			if( !asset.tce.setDueAndMembers(cardId, null, null) ){
+
+			}
+		}
+	}
+
+
 	/**
 	 * スプリントを新規作成します。
 	 * - スプリントデータベースに問い合わせ
-	 * - データベースにデータを追加
-	 * - Trelloに担当者と期限を設定
-	 * - slackに通知
+	 * - データベースにスプリントを追加
+	 * - カードを追加
+	 * -   データベースにカードを追加
+	 * -   trelloに担当者と期限を設定
 	 * @param boardId
 	 * @param beginDate
 	 * @param endDate
