@@ -60,4 +60,21 @@ function setSprintResult(result){
 	result.getCards().forEach(function(val, idx, ary){
 		addCardToTaskTable(val, val.finished);
 	});
+
+	//メンバー別スプリント達成履歴
+	$(".member-history-tbody").empty();
+	result.getMembers().forEach(function(val, idx, ary){
+		var mh = result.getMemberHistory(val.id);
+		mh.results.forEach(function(val0, idx0, ary0){
+			var $tr = $("<tr></tr>");
+			if( idx0 == 0 ){
+				$tr.append($("<td></td>").attr("rowspan", ary0.length).text(val.name));
+			}
+			$tr.append($("<td></td>").html("<code>" + val0.sprintId + "</code>"));
+			$tr.append($("<td></td>").text(Util.formatDate(val0.closedDate, "MM/DD")));
+			$tr.append($("<td></td>").text(val0.finishedCount));
+			$tr.append($("<td></td>").text(val0.remainedCount));
+			$(".member-history-tbody").append($tr);
+		});
+	});
 }
