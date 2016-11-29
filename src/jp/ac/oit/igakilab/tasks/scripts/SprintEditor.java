@@ -143,12 +143,17 @@ public class SprintEditor {
 			throw new SprintEditException("ボードが登録されていません");
 		}
 
+		//スプリント進行中チェック
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
+		if( smdb.getCurrentSprint(boardId, new SprintDocumentConverter()) != null ){
+			throw new SprintEditException("進行中のスプリントがあります");
+		}
+
 		//スプリント期間チェック
-		SprintsDB sdb = new SprintsDB(dbClient);
 		//日付データの正規化
 		beginDate = Sprint.roundDate(beginDate).getTime();
 		finishDate = Sprint.roundDate(finishDate).getTime();
-		if( !sdb.isValidPeriod(boardId, beginDate, finishDate) ){
+		if( !smdb.isValidPeriod(boardId, beginDate, finishDate) ){
 			throw new SprintEditException("不正な機関です");
 		}
 
@@ -161,7 +166,6 @@ public class SprintEditor {
 		List<String> cardIds = new ArrayList<String>();
 		sprintCards.forEach(cm -> cardIds.add(cm.getCardId()));
 		//データベースに登録
-		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		String newId;
 		try{
 			newId = smdb.createSprint(boardId, beginDate, finishDate, cardIds);
@@ -177,7 +181,7 @@ public class SprintEditor {
 		//オブジェクト初期化
 		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
-		CardEditAsset asset = new CardEditAsset(sdb, tceditor, ttb, newId);
+		CardEditAsset asset = new CardEditAsset(smdb, tceditor, ttb, newId);
 
 		//期限の生成
 		Calendar dueDate = Calendar.getInstance();
@@ -195,7 +199,7 @@ public class SprintEditor {
 		//*****
 		//Slackに通知を送信する
 		//*****
-		if( bdb.getSlackNotifyEnabled(boardId) ){
+		if( hubotMsg != null && bdb.getSlackNotifyEnabled(boardId) ){
 			//ボードデータを取得
 			TrelloBoardFetcher fetcher = new TrelloBoardFetcher(trelloApi, boardId);
 			TrelloBoard board = fetcher.getBoard();
