@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.dwr.forms;
 
+import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 
 public class TrelloCardMembersForm {
@@ -7,6 +8,14 @@ public class TrelloCardMembersForm {
 		TrelloCardMembersForm form = new TrelloCardMembersForm();
 		form.setTrelloCardId(data.getCardId());
 		form.setMemberIds(data.getMemberIds().toArray(new String[0]));
+
+		return form;
+	}
+
+	public static TrelloCardMembersForm getInstance(CardResult result){
+		TrelloCardMembersForm form = new TrelloCardMembersForm();
+		form.setTrelloCardId(result.getCardId());
+		form.setMemberIds(result.getMemberIds().toArray(new String[0]));
 
 		return form;
 	}
