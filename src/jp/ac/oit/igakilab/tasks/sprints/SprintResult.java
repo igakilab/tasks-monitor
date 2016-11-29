@@ -54,18 +54,6 @@ public class SprintResult {
 		col.forEach(c -> addRemainedCard(c));
 	}
 
-	public List<TrelloCardMembers> getRemainedCards(){
-		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
-		sprintCards.forEach((sc) -> {
-			if( !sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
-				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
-				cards.add(tcm);
-			}
-		});
-		return cards;
-	}
-
 	@Deprecated
 	public void addFinishedCard(TrelloCardMembers card){
 		addSprintCard(card.getCardId(), card.getMemberIds(), false);
@@ -76,16 +64,16 @@ public class SprintResult {
 		col.forEach(c -> addFinishedCard(c));
 	}
 
-	public List<TrelloCardMembers> getFinishedCards(){
-		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
-		sprintCards.forEach((sc) -> {
-			if( sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
-				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
-				cards.add(tcm);
-			}
-		});
-		return cards;
+	public List<CardResult> getRemainedCards(){
+		return sprintCards.stream()
+			.filter(c -> !c.isFinished())
+			.collect(Collectors.toList());
+	}
+
+	public List<CardResult> getFinishedCards(){
+		return sprintCards.stream()
+			.filter(c -> c.isFinished())
+			.collect(Collectors.toList());
 	}
 
 	public List<CardResult> getCardsByMemberIdContains(String mid){

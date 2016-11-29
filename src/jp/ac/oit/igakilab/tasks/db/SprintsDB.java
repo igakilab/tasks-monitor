@@ -70,6 +70,9 @@ public class SprintsDB {
 	protected static Bson FILTER_NOT_CLOSED = Filters.or(
 		Filters.exists("closedDate", false),
 		Filters.eq("closedDate", null));
+	protected static Bson FILTER_CLOSED = Filters.and(
+		Filters.exists("closedDate", true),
+		Filters.ne("closedDate", null));
 
 	private MongoClient client;
 
@@ -87,7 +90,18 @@ public class SprintsDB {
 		return getCollection().count(filter) > 0;
 	}
 
+	public boolean isSprintClosed(String id){
+		if( id == null ) return false;
+		Bson filter = Filters.and(
+			Filters.eq("id", id), FILTER_CLOSED);
+		return getCollection().find(filter).first() != null;
+	}
+
 	public boolean isValidPeriod(String boardId, Date begin, Date finish){
+		return isValidPeriod(boardId, begin, finish, null);
+	}
+
+	public boolean isValidPeriod(String boardId, Date begin, Date finish, String excludeSprintId){
 		if( boardId == null || begin == null || finish == null ){
 			return false;
 		}
@@ -95,10 +109,15 @@ public class SprintsDB {
 			return false;
 		}
 
+		Bson filter = Filters.and(
+			Filters.eq("boardId", boardId), FILTER_NOT_CLOSED);
+
+		if( excludeSprintId != null ){
+			filter = Filters.and(filter, Filters.ne("id", excludeSprintId));
+		}
+
 		List<Bson> query = Arrays.asList(
-			Aggregates.match(Filters.and(
-				Filters.eq("boardId", boardId),
-				FILTER_NOT_CLOSED)),
+			Aggregates.match(filter),
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();
@@ -108,6 +127,18 @@ public class SprintsDB {
 		}
 
 		return true;
+	}
+
+	public boolean canUpdateFinishDate(String sprintId, Date finishDate){
+		MongoCollection<Document> col = getCollection();
+
+		Document target = col.find(Filters.eq("id", sprintId)).first();
+		if( target == null ) return false;
+
+		String boardId = target.getString("boardId");
+		Date begin = target.getDate("begin");
+
+		return isValidPeriod(boardId, begin, finishDate, sprintId);
 	}
 
 	public <T> String addSprint(T data, DocumentConverter<T> converter)
@@ -155,6 +186,17 @@ public class SprintsDB {
 		Document doc = getCollection().find(filter).first();
 
 		return doc != null;
+	}
+
+	public boolean updateFinishDate(String id, Date finish){
+		if( canUpdateFinishDate(id, finish) ){
+			Bson filter = Filters.eq("id", id);
+			Bson updates = Updates.set("finishDate", finish);
+
+			return getCollection().updateOne(filter, updates).getModifiedCount() > 0;
+		}else{
+			return false;
+		}
 	}
 
 	public boolean addTrelloCardId(String id, String cardId){
