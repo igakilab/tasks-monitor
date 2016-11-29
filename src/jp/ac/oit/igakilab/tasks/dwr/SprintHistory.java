@@ -12,7 +12,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintHistoryForms;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultAnalyzerForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintResultAnalyzerForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
@@ -20,6 +20,7 @@ import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
+
 
 public class SprintHistory {
 	public SprintHistoryForms.SprintList getSprintList(String boardId){
@@ -48,7 +49,7 @@ public class SprintHistory {
 	}
 
 	public SprintHistoryForms.SprintResultData getSprintResult(String sprintId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//各種クライアントを初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
@@ -60,7 +61,7 @@ public class SprintHistory {
 		Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 		if( sprint == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントがみつかりません");
+			throw new ExecuteFailedException("スプリントがみつかりません");
 		}
 
 		//スプリントリザルトを取得
@@ -68,7 +69,7 @@ public class SprintHistory {
 			sprint.getId(), new SprintResultDocumentConverter());
 		if( result == null ){
 			client.close();
-			throw new ExcuteFailedException("スプリントリザルトが見つかりません");
+			throw new ExecuteFailedException("スプリントリザルトが見つかりません");
 		}
 
 		//ボード情報を取得
@@ -83,13 +84,13 @@ public class SprintHistory {
 	}
 
 	public SprintResultAnalyzerForm getSprintResultAnalyzerData(String sprintId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
 		SprintResultAnalyzerForm form = null;
 		try{
 			form = SprintResultAnalyzerForm.buildInstance(client, sprintId);
-		}catch(ExcuteFailedException e0){
+		}catch(ExecuteFailedException e0){
 			client.close();
 			throw e0;
 		}

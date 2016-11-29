@@ -5,6 +5,7 @@ import static jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder.*;
 import java.util.Date;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard.ListMovement;

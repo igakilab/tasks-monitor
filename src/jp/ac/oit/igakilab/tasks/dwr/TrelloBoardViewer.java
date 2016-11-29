@@ -9,8 +9,8 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloBoardInfoForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardForm;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -52,9 +52,9 @@ public class TrelloBoardViewer {
 	}
 
 	public TrelloBoardForm getBoardData(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		if( boardId == null ){
-			throw new ExcuteFailedException("ボードidを指定してください");
+			throw new ExecuteFailedException("ボードidを指定してください");
 		}
 
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -73,7 +73,7 @@ public class TrelloBoardViewer {
 
 		}else{
 			client.close();
-			throw new ExcuteFailedException("ボードがみつかりません");
+			throw new ExecuteFailedException("ボードがみつかりません");
 		}
 	}
 

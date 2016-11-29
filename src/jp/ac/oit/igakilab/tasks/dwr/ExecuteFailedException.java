@@ -1,9 +1,9 @@
 package jp.ac.oit.igakilab.tasks.dwr;
 
-public class ExcuteFailedException extends Exception {
+public class ExecuteFailedException extends Exception {
 	private static final long serialVersionUID = 1L;
 
-	public ExcuteFailedException(String msg){
+	public ExecuteFailedException(String msg){
 		super(msg);
 	}
 }

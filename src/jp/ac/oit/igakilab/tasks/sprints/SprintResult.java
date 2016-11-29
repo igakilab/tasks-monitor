@@ -1,7 +1,6 @@
 package jp.ac.oit.igakilab.tasks.sprints;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,49 +43,19 @@ public class SprintResult {
 		sprintCards.add(cr);
 	}
 
-	@Deprecated
-	public void addRemainedCard(TrelloCardMembers card){
-		addSprintCard(card.getCardId(), card.getMemberIds(), false);
-	}
-
-	@Deprecated
-	public void addRemainedCards(Collection<TrelloCardMembers> col){
-		col.forEach(c -> addRemainedCard(c));
-	}
-
-	public List<TrelloCardMembers> getRemainedCards(){
-		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
-		sprintCards.forEach((sc) -> {
-			if( !sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
-				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
-				cards.add(tcm);
-			}
-		});
+	public List<CardResult> getRemainedCards(){
+		List<CardResult> cards = sprintCards.stream()
+			.filter((sc -> !sc.isFinished()))
+			.collect(Collectors.toList());
 		return cards;
 	}
 
-	@Deprecated
-	public void addFinishedCard(TrelloCardMembers card){
-		addSprintCard(card.getCardId(), card.getMemberIds(), false);
-	}
-
-	@Deprecated
-	public void addFinishedCards(Collection<TrelloCardMembers> col){
-		col.forEach(c -> addFinishedCard(c));
-	}
-
-	public List<TrelloCardMembers> getFinishedCards(){
-		List<TrelloCardMembers> cards = new ArrayList<TrelloCardMembers>();
-		sprintCards.forEach((sc) -> {
-			if( sc.isFinished() ){
-				TrelloCardMembers tcm = new TrelloCardMembers(sc.getCardId());
-				sc.getMemberIds().forEach((mid -> tcm.addMemberId(mid)));
-				cards.add(tcm);
-			}
-		});
-		return cards;
-	}
+	public List<CardResult> getFinishedCards(){
+		List<CardResult> cards = sprintCards.stream()
+				.filter((sc -> sc.isFinished()))
+				.collect(Collectors.toList());
+			return cards;
+		}
 
 	public List<CardResult> getCardsByMemberIdContains(String mid){
 		return sprintCards.stream()

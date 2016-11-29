@@ -9,8 +9,8 @@ import jp.ac.oit.igakilab.tasks.db.DBEditException;
 import jp.ac.oit.igakilab.tasks.db.MembersDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.MemberDocumentConverter;
-import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
-import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.ExecuteFailedException;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloMemberInfo;
@@ -46,11 +46,11 @@ public class AdminMemberEditor {
 	}
 
 	public void addMember(MemberForm form)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		if( form != null ){
 			//データ変換
 			Member member = MemberForm.convertToMember(form);
-			if( member == null ) throw new ExcuteFailedException(ERR_INVALID_DATA);
+			if( member == null ) throw new ExecuteFailedException(ERR_INVALID_DATA);
 
 			//DBのオープン
 			MongoClient client = TasksMongoClientBuilder.createClient();
@@ -58,28 +58,28 @@ public class AdminMemberEditor {
 
 			//登録可能チェック
 			if( !canAddMemberId(member.getId()) ){
-				throw new ExcuteFailedException(ERR_INVALID_MEMBERID);
+				throw new ExecuteFailedException(ERR_INVALID_MEMBERID);
 			}
 
 			//登録動作
 			try{
 				mdb.addMember(member, new MemberDocumentConverter());
 			}catch(DBEditException e0){
-				throw new ExcuteFailedException(e0.getMessage());
+				throw new ExecuteFailedException(e0.getMessage());
 			}finally{
 				client.close();
 			}
 		}else{
-			throw new ExcuteFailedException(ERR_INVALID_DATA);
+			throw new ExecuteFailedException(ERR_INVALID_DATA);
 		}
 	}
 
 	public void updateMember(MemberForm form)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		if( form != null ){
 			//データ変換
 			Member member = MemberForm.convertToMember(form);
-			if( member == null ) throw new ExcuteFailedException(ERR_INVALID_DATA);
+			if( member == null ) throw new ExecuteFailedException(ERR_INVALID_DATA);
 
 			//DBのオープン
 			MongoClient client = TasksMongoClientBuilder.createClient();
@@ -91,22 +91,22 @@ public class AdminMemberEditor {
 				mdb.updateMember(member, new MemberDocumentConverter());
 			}catch(DBEditException e0){
 				if( e0.getType() == DBEditException.ID_NOTDEFINED ){
-					throw new ExcuteFailedException(ERR_INVALID_DATA);
+					throw new ExecuteFailedException(ERR_INVALID_DATA);
 				}else if( e0.getType() == DBEditException.ID_NOT_REGISTED ){
-					throw new ExcuteFailedException(ERR_INVALID_MEMBERID);
+					throw new ExecuteFailedException(ERR_INVALID_MEMBERID);
 				}else{
-					throw new ExcuteFailedException(e0.getMessage());
+					throw new ExecuteFailedException(e0.getMessage());
 				}
 			}finally{
 				client.close();
 			}
 		}else{
-			throw new ExcuteFailedException(ERR_INVALID_DATA);
+			throw new ExecuteFailedException(ERR_INVALID_DATA);
 		}
 	}
 
 	public void deleteMemberById(String mid)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		if( mid != null ){
 			//DBオープン
 			MongoClient client = TasksMongoClientBuilder.createClient();
@@ -117,17 +117,17 @@ public class AdminMemberEditor {
 				mdb.deleteMemberById(mid);
 			}catch(DBEditException e0){
 				if( e0.getType() == DBEditException.ID_NOTDEFINED ){
-					throw new ExcuteFailedException(ERR_INVALID_DATA);
+					throw new ExecuteFailedException(ERR_INVALID_DATA);
 				}else if( e0.getType() == DBEditException.ID_NOT_REGISTED ){
-					throw new ExcuteFailedException(ERR_INVALID_MEMBERID);
+					throw new ExecuteFailedException(ERR_INVALID_MEMBERID);
 				}else{
-					throw new ExcuteFailedException(e0.getMessage());
+					throw new ExecuteFailedException(e0.getMessage());
 				}
 			}finally{
 				client.close();
 			}
 		}else{
-			throw new ExcuteFailedException(ERR_INVALID_DATA);
+			throw new ExecuteFailedException(ERR_INVALID_DATA);
 		}
 	}
 

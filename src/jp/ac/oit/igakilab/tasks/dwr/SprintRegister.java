@@ -13,17 +13,17 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
 public class SprintRegister {
 	public String testCreateSprint(String boardId, String bDateStr, String fDateStr, List<String> cardIds)
-	throws SprintsDBEditException, ExcuteFailedException, ParseException{
+	throws SprintsDBEditException, ExecuteFailedException, ParseException{
 		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 		Date beginDate = df.parse(bDateStr);
 		Date finishDate = df.parse(fDateStr);
 		if( beginDate == null || finishDate == null ){
-			throw new ExcuteFailedException("dateの変換に失敗");
+			throw new ExecuteFailedException("dateの変換に失敗");
 		}
 
 		Sprint sprint = new Sprint();

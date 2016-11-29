@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,7 +10,12 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.dwr.ExcuteFailedException;
+import jp.ac.oit.igakilab.tasks.dwr.ExecuteFailedException;
+import jp.ac.oit.igakilab.tasks.dwr.forms.AnalyzedTrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintResultForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
@@ -19,7 +24,6 @@ import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -191,7 +195,7 @@ public class SprintResultAnalyzerForm {
 		end.setTime(sprint.getFinishDate());
 		end.add(Calendar.DATE, 1);
 		List<AnalyzedTrelloCardForm> tmp = new ArrayList<AnalyzedTrelloCardForm>();
-		Consumer<TrelloCardMembers> collector = (mc) -> {
+		Consumer<CardResult> collector = (mc) -> {
 			TrelloCard ctmp = board.getCardById(mc.getCardId());
 			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
 			if( card != null ){
@@ -213,7 +217,7 @@ public class SprintResultAnalyzerForm {
 
 	public static SprintResultAnalyzerForm buildInstance
 	(MongoClient client, String sprintId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		SprintResultAnalyzerForm form = new SprintResultAnalyzerForm();
 
 		//スプリントデータの取得
@@ -221,10 +225,10 @@ public class SprintResultAnalyzerForm {
 		SprintDocumentConverter sdc = new SprintDocumentConverter();
 		Sprint sprint = sdb.getSprintById(sprintId, sdc);
 		if( sprint == null ){
-			throw new ExcuteFailedException("対象スプリントが見つかりません");
+			throw new ExecuteFailedException("対象スプリントが見つかりません");
 		}
 		if( !sprint.isClosed() ){
-			throw new ExcuteFailedException("このスプリントは閉じられていません");
+			throw new ExecuteFailedException("このスプリントは閉じられていません");
 		}
 
 		//ボードデータの設定

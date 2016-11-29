@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.model;
 
 import java.util.ArrayList;
 import java.util.List;

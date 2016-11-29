@@ -3,6 +3,8 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 import java.util.Date;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
+
 public class BoardMenuForms {
 	public static class BoardInfo{
 		private TrelloBoardDataForm data;
