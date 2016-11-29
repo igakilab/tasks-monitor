@@ -31,6 +31,10 @@ public class TrelloBoardBuilder {
 	}
 
 	public TrelloBoard buildTrelloBoardFromTrelloActions(String boardId){
+		return buildTrelloActionsBoardFromTrelloActions(boardId);
+	}
+
+	public TrelloActionsBoard buildTrelloActionsBoardFromTrelloActions(String boardId){
 		//ボードデータの有無をチェック
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		if( !bdb.boardIdExists(boardId) ){
