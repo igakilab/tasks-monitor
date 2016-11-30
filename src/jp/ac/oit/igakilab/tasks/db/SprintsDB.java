@@ -126,6 +126,7 @@ public class SprintsDB {
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();
+		System.out.println(doc != null ? doc.toJson() : null);
 		if( doc != null && doc.get("lastDate") != null ){
 			Date last = doc.getDate("lastDate");
 			return last.compareTo(begin) <= 0;
@@ -138,7 +139,9 @@ public class SprintsDB {
 		MongoCollection<Document> col = getCollection();
 
 		Document target = col.find(Filters.eq("id", sprintId)).first();
-		if( target == null ) return false;
+		if( target == null ){
+			return false;
+		}
 
 		String boardId = target.getString("boardId");
 		Date begin = target.getDate("beginDate");
@@ -198,7 +201,9 @@ public class SprintsDB {
 			Bson filter = Filters.eq("id", id);
 			Bson updates = Updates.set("finishDate", finish);
 
-			return getCollection().updateOne(filter, updates).getModifiedCount() > 0;
+			getCollection().updateOne(filter, updates).getModifiedCount();
+
+			return true;
 		}else{
 			return false;
 		}
