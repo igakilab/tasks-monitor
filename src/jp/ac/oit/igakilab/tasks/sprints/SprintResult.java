@@ -43,6 +43,7 @@ public class SprintResult {
 		sprintCards.add(cr);
 	}
 
+
 	public List<CardResult> getRemainedCards(){
 		List<CardResult> cards = sprintCards.stream()
 			.filter((sc -> !sc.isFinished()))
@@ -56,6 +57,7 @@ public class SprintResult {
 				.collect(Collectors.toList());
 			return cards;
 		}
+
 
 	public List<CardResult> getCardsByMemberIdContains(String mid){
 		return sprintCards.stream()

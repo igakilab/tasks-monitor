@@ -107,4 +107,11 @@ public class Sprint {
 			trelloCardIds.add(cardId);
 		}
 	}
+
+	public boolean existsTrelloCardId(String trelloCardId){
+		for(String cid : trelloCardIds){
+			if( cid.equals(trelloCardId) ) return true;
+		}
+		return false;
+	}
 }

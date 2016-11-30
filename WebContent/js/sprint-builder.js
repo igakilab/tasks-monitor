@@ -17,6 +17,7 @@ var SprintBuilder;
     removeMemberFromCard - カードから指定されたメンバーを消去する
     clearMemberFromCard - カードのメンバーをすべて消去する
     setFinishDate - 目標日を設定する
+    getFinishDate - 目標日を取得する
     getSelectedCards - 選択されたカード一覧を取得する
     getUnselectedCards - 選択されていないカード一覧を取得する
     getMemberList - ボードに参加しているメンバーのリストを取得する
@@ -258,6 +259,14 @@ SprintBuilder = (function() {
 	_class.prototype.setFinishDate = function(finishDate){
 		//目標日を設定する
 		this.finishDate = finishDate;
+	}
+
+
+	/*
+	 * 目標日を取得する
+	 */
+	_class.prototype.getFinishDate = function(){
+		return this.finishDate;
 	}
 
 

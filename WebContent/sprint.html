@@ -214,6 +214,7 @@
 				if( builder.getCurrentSprint() != null ){
 					$(".regist-type").text("変更(ID: " + builder.getCurrentSprint().id + ")");
 					$(".create-btn").text("変更を保存");
+					$("#finishDateInput").val(Util.formatDate(builder.getFinishDate(), "YYYY/MM/DD"));
 				}else{
 					$(".regist-type").text("新規");
 					$(".create-btn").text("スプリント開始");
