@@ -136,7 +136,7 @@ public class SprintsDB {
 		if( target == null ) return false;
 
 		String boardId = target.getString("boardId");
-		Date begin = target.getDate("begin");
+		Date begin = target.getDate("beginDate");
 
 		return isValidPeriod(boardId, begin, finishDate, sprintId);
 	}
