@@ -51,7 +51,7 @@ function setSprintResult(result){
 	//メンバー別完了タスク数
 	$(".member-tasks-table").empty();
 	result.getMembers().forEach(function(val, idx, ary){
-		addMemberTaskCount(val.name, val.remainedCount,
+		addMemberTaskCount(val.name, val.finishedCount,
 			val.remainedCount + val.finishedCount);
 	});
 
