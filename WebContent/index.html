@@ -52,6 +52,12 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="container">
+					<div id="n-timeline">
+					</div>
+				</div>
+
 				<div class="sprint-cards">
 				<div class="row">
 					<section class="cd-horizontal-timeline">
@@ -204,6 +210,36 @@
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/SprintPlanner.js"></script>
 		<script src="sprint.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript">
+  google.charts.load("current", {packages:["timeline"]});
+  google.charts.setOnLoadCallback(drawChart);
+  function convDate(str){
+  	var ymd = str.split('/');
+  	return new Date(ymd[0],ymd[1]-1,ymd[2]);
+  }
+
+  function drawChart() {
+    var container = document.getElementById('n-timeline');
+    var chart = new google.visualization.Timeline(container);
+    var dataTable = new google.visualization.DataTable();
+
+    dataTable.addColumn({ type: 'string', id: 'TaskName' });
+    dataTable.addColumn({ type: 'string', id: 'Status' });
+    dataTable.addColumn({ type: 'date', id: 'Start' });
+    dataTable.addColumn({ type: 'date', id: 'End' });
+
+    dataTable.addRows([
+      [ 'あああああ', 'ToDo', convDate('2016/12/1'), convDate('2016/12/2') ], //[タスク名,タスク状態,開始日,終了日]　todoのend部は今日の日付を done未登録のdoingタスクも同様
+      [ 'あああああ', 'Doing', convDate('2016/12/2'), convDate('2016/12/6') ],//[str,str,Date,Date]　　　　　　　　　doingやdone登録時にend部を固定化
+      [ 'あああああ', 'Done', convDate('2016/12/6'), convDate('2016/12/7') ], //new Dateで直接入力すると月が1つずれるので,convDate関数で調整してます
+      ]);
+
+    chart.draw(dataTable);
+  }
+</script>
+
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)

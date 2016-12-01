@@ -91,8 +91,33 @@
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/SprintMemberHistory.js"></script>
 		<script src="sprint.js"></script>
-		<script src="Flotr2/flotr2.min.js"></script>
-		<script src="graph.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['メンバー名', '達成タスク数', '未達成タスク数'], //[str,num,num]
+          ['aaaaa', 10, 2],
+          ['bbbbb', 8, 1]
+        ]);
+
+        var options = {
+          width: 600,
+          height: 400,
+          legend: {position: 'top', maxLines: 3},
+          bar: {groupWidth: '75%'},
+          bars: 'horizontal',
+          isStacked: true
+        };
+
+        var chart = new google.visualization.BarChart(document.getElementById('graph'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
