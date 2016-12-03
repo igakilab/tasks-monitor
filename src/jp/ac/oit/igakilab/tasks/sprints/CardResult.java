@@ -27,10 +27,24 @@ public class CardResult{
 			}
 		});
 		cres.setFinished(finished);
-		System.out.println(card.getMemberIds().toString());
-		System.out.println(cres.getMemberIds().toString());
+		//System.out.println(card.getMemberIds().toString());
+		//System.out.println(cres.getMemberIds().toString());
 		return cres;
 	}
+
+	/**
+	 * SprintResultCardからCardResultを生成します
+	 * @param scr
+	 * @return
+	 */
+	public static CardResult getInstance(SprintResultCard src){
+		CardResult cres = new CardResult(src.getCardId());
+		cres.setFinished(src.isFinished());
+		cres.memberIds.addAll(src.getMemberIds());
+
+		return cres;
+	}
+
 
 	private String cardId;
 	private List<String> memberIds;

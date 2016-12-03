@@ -14,7 +14,6 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
-import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -130,9 +129,9 @@ public class DashBoard {
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintManager manager = new SprintManager(client, api);
-		SprintResult res = manager.closeSprint(currSpr.getId());
+		boolean res =  manager.closeSprint(currSpr.getId());
 
-		if( res == null ){
+		if( !res ){
 			client.close();
 			throw new ExecuteFailedException("スプリントのクローズ処理が失敗しました");
 		}

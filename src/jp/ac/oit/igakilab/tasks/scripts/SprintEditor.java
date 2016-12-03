@@ -14,22 +14,20 @@ import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
 import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
-import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 
 public class SprintEditor {
 	public static int DEFAULT_DUE_HOUR = 18;
@@ -312,8 +310,7 @@ public class SprintEditor {
 	/**
 	 * 指定されたスプリントIDのスプリントをクローズします
 	 * - db問い合わせ
-	 * - クローズ処理
-	 * - リザルト発行
+	 * - dbクローズ処理
 	 * - trelloにcompleteを貼る
 	 * @param id
 	 * @return
@@ -345,54 +342,13 @@ public class SprintEditor {
 		//*****
 
 		//dbインスタンス初期化
-		SprintsManageDB smdb = new SprintsManageDB(dbClient);
+		SprintManager manager = new SprintManager(dbClient, trelloApi);
 
-		//スプリントをクローズ
-		if( !smdb.closeSprint(sprintId) ){
-			throw new SprintEditException("スプリントのクローズに失敗しました");
-		}
-
-
-		//*****
-		//リザルト発行
-		//*****
-
-		//ボードの取得
-		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(trelloApi, sprint.getBoardId());
-		TrelloBoard board = fetcher.getBoard();
-		fetcher.fetch();
-
-		//リザルトを初期化
-		SprintResult result = new SprintResult(sprint.getId());
-		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
-
-		//カードの達成/未達成をチェック
-		for(String cardId : sprint.getTrelloCardIds()){
-			//カードとリストを取得
-			TrelloCard card = board.getCardById(cardId);
-			TrelloList list = board.getListById(card != null ? card.getListId() : null);
-
-			if( card != null && list != null ){
-				//CardResultに変換
-				CardResult cr = CardResult.getInstance(card, ttb, false);
-
-				//達成可否を登録
-				if( list.getName().matches(TasksTrelloClientBuilder.REGEX_DONE) ){
-					cr.setFinished(true);
-				}else{
-					cr.setFinished(false);
-				}
-
-				//リザルトに登録
-				result.addSprintCard(cr);
-			}
-		}
-
-		//DBに登録
-		SprintResultsDB srdb = new SprintResultsDB(dbClient);
-		if( !srdb.addSprintResult(result, new SprintResultDocumentConverter()) ){
+		//クローズ処理
+		if( !manager.closeSprint(sprint.getId()) ){
 			throw new SprintEditException("リザルトの登録に失敗しました");
 		}
+
 
 
 		//*****
@@ -402,8 +358,14 @@ public class SprintEditor {
 		//クライアント初期化
 		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 
+		//完了カードを取得
+		SprintResultsDB srdb = new SprintResultsDB(dbClient);
+		SprintResultCardDocumentConverter converter = new SprintResultCardDocumentConverter();
+		List<SprintResultCard> finishedCards =
+			srdb.getFinishedCardsBySprintId(sprint.getId(), converter);
+
 		//completeを付加
-		for(CardResult cr : result.getFinishedCards()){
+		for(SprintResultCard cr : finishedCards){
 			tce.setDueComplete(cr.getCardId(), true);
 		}
 

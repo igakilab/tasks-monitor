@@ -11,8 +11,8 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintMemberHistoryForms.AssignedCard;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
-import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
@@ -59,7 +59,7 @@ public class SprintMemberHistory {
 			}
 
 			//カードをビルドして返却リストに追加する
-			for(CardResult cres : res.getCardsByMemberIdContains(memberId)){
+			for(SprintResultCard cres : res.getCardsByMemberIdContains(memberId)){
 				TrelloCard c = board.getCardById(cres.getCardId());
 				if( c != null ){
 					cards.add(AssignedCard.getInstance(

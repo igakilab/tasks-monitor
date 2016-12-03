@@ -18,6 +18,7 @@ import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
@@ -53,7 +54,7 @@ public class SprintFinisher {
 		List<String> remained = new ArrayList<String>();
 		List<String> finished = new ArrayList<String>();
 
-		for(CardResult scard : res.getAllCards()){
+		for(CardResult scard : res.getAllCardResults()){
 			for(String mid : scard.getMemberIds()){
 				addCardToMemberCardsList(
 					memberTasks, mid, scard.getCardId(), scard.isFinished());
@@ -96,7 +97,11 @@ public class SprintFinisher {
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintManager manager = new SprintManager(client, api);
-		SprintResult res = manager.closeSprint(currSpr.getId());
+		SprintResult res = null;
+		if( manager.closeSprint(currSpr.getId()) ){
+			SprintResultProvider provider = new SprintResultProvider(client);
+			res = provider.getSprintResultBySprintId(currSpr.getId());
+		}
 
 		if( res == null ){
 			throw new ExecuteFailedException("スプリントのクローズ処理が失敗しました");

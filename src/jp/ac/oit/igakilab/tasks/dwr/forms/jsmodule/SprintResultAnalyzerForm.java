@@ -19,10 +19,10 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
-import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
@@ -61,7 +61,7 @@ public class SprintResultAnalyzerForm {
 
 	public static class MemberSprintResult{
 		public static MemberSprintResult getInstance
-		(String sprintId, Date closedDate, List<CardResult> cards){
+		(String sprintId, Date closedDate, List<SprintResultCard> cards){
 			MemberSprintResult res = new MemberSprintResult();
 
 			//スプリント設定
@@ -71,9 +71,9 @@ public class SprintResultAnalyzerForm {
 			//カードをカウント
 			int rem = 0;
 			int fin = 0;
-			for(CardResult cr : cards){
-				res.cards.add(new CardIdAndFinished(cr.getCardId(), cr.isFinished()));
-				if( cr.isFinished() ){
+			for(SprintResultCard src : cards){
+				res.cards.add(new CardIdAndFinished(src.getCardId(), src.isFinished()));
+				if( src.isFinished() ){
 					fin++;
 				}else{
 					rem++;
@@ -170,7 +170,7 @@ public class SprintResultAnalyzerForm {
 		}
 
 		public void applySprintResult(SprintResult res){
-			List<CardResult> cards = res.getCardsByMemberIdContains(memberId);
+			List<SprintResultCard> cards = res.getCardsByMemberIdContains(memberId);
 			results.add(MemberSprintResult.getInstance(res.getSprintId(), res.getCreatedAt(), cards));
 		}
 	}
@@ -195,7 +195,7 @@ public class SprintResultAnalyzerForm {
 		end.setTime(sprint.getFinishDate());
 		end.add(Calendar.DATE, 1);
 		List<AnalyzedTrelloCardForm> tmp = new ArrayList<AnalyzedTrelloCardForm>();
-		Consumer<CardResult> collector = (mc) -> {
+		Consumer<SprintResultCard> collector = (mc) -> {
 			TrelloCard ctmp = board.getCardById(mc.getCardId());
 			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
 			if( card != null ){

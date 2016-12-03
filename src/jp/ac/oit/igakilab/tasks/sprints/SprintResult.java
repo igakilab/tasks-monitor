@@ -57,6 +57,13 @@ public class SprintResult {
 		return sprintCards;
 	}
 
+	public List<CardResult> getAllCardResults(){
+		List<CardResult> results = new ArrayList<CardResult>();
+		sprintCards.forEach((sc -> results.add(CardResult.getInstance(sc))));
+
+		return results;
+	}
+
 	public void addSprintCard(SprintResultCard card){
 		sprintCards.add(card);
 	}

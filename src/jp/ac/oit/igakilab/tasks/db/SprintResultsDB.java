@@ -160,4 +160,18 @@ public class SprintResultsDB{
 
 		return results;
 	}
+
+	public <T> List<T> getFinishedCardsBySprintId(String sprintId, DocumentParser<T> parser) {
+		Bson filter = Filters.and(
+			Filters.exists("cardId", true),
+			Filters.eq("sprintId", sprintId));
+
+		List<T> cards = new ArrayList<T>();
+		for(Document doc : collection.find(filter)){
+			T data = parser.parse(doc);
+			if( data != null ) cards.add(data);
+		}
+
+		return cards;
+	}
 }
