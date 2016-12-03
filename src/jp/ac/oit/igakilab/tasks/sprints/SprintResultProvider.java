@@ -9,6 +9,7 @@ import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 
 public class SprintResultProvider {
@@ -27,6 +28,26 @@ public class SprintResultProvider {
 	public SprintResultProvider(MongoClient client){
 		sdb = new SprintsDB(client);
 		srdb = new SprintResultsDB(client);
+	}
+
+	public SprintResult getSprintResultBySprintId(String sprintId){
+		if( srdb.sprintIdExists(sprintId) ){
+			SprintResult result = new SprintResult(sprintId);
+
+			//メタ情報の取得
+			result.setCreatedAt(srdb.getCreatedDateBySprintId(sprintId));
+
+			//カード情報の取得
+			SprintResultCardDocumentConverter parser
+				= new SprintResultCardDocumentConverter();
+			for(SprintResultCard card : srdb.getSprintResultCardsBySprintId(sprintId, parser)){
+				if( card != null ) result.addSprintCard(card);
+			}
+
+			return result;
+		}else{
+			return null;
+		}
 	}
 
 	public List<SprintDataContainer> getLatestSprintResultsByBoardId

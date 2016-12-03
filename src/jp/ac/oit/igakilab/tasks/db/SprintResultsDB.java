@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,20 @@ public class SprintResultsDB{
 		return getCollection().count(filter) > 0;
 	}
 
+	public boolean createSprintResult(String sprintId, Date createdAt){
+		if( sprintId != null && !sprintIdExists(sprintId) ){
+			Document doc = new Document("sprintId", sprintId);
+			doc.append("createdAt",
+				(createdAt != null ? createdAt : Calendar.getInstance().getTime()));
+
+			collection.insertOne(doc);
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	@Deprecated
 	public <T> boolean addSprintResult(T data, DocumentConverter<T> converter){
 		Document doc = converter.convert(data);
 		if( doc == null || !doc.containsKey("sprintId") ){

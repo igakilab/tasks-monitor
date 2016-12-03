@@ -56,4 +56,8 @@ public class SprintResult {
 	public List<SprintResultCard> getAllCards(){
 		return sprintCards;
 	}
+
+	public void addSprintCard(SprintResultCard card){
+		sprintCards.add(card);
+	}
 }

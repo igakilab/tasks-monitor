@@ -10,10 +10,10 @@ public interface TrelloActionRawData {
 	public TrelloAction toTrelloAction();
 	public Object getRawInstance();
 
-	public class JsonObjectModel implements TrelloActionRawData{
+	public class JSONObjectModel implements TrelloActionRawData{
 		private JSONObject jsonObject;
 
-		public JsonObjectModel(JSONObject obj){
+		public JSONObjectModel(JSONObject obj){
 			this.jsonObject = obj;
 		}
 
