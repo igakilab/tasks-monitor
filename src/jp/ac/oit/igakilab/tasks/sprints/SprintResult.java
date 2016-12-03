@@ -55,8 +55,8 @@ public class SprintResult {
 		List<CardResult> cards = sprintCards.stream()
 				.filter((sc -> sc.isFinished()))
 				.collect(Collectors.toList());
-			return cards;
-		}
+		return cards;
+	}
 
 
 	public List<CardResult> getCardsByMemberIdContains(String mid){

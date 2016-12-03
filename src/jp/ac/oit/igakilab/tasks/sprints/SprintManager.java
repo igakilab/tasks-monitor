@@ -15,15 +15,14 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class SprintManager {
 	public static boolean DEBUG = false;
@@ -172,6 +171,13 @@ public class SprintManager {
 		return sprint.getId();
 	}
 
+	/**
+	 * スプリントをクローズします
+	 * - sprintDBのクローズ
+	 * - sprintResultの生成
+	 * @param sprintId
+	 * @return
+	 */
 	public SprintResult closeSprint(String sprintId){
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		SprintResultsDB resdb = new SprintResultsDB(dbClient);
@@ -189,11 +195,9 @@ public class SprintManager {
 		}
 
 		//TrelloBoardを取得
-		List<TrelloAction> actions = adb.getTrelloActions(currSpr.getBoardId(), new TrelloActionDocumentParser());
-		TrelloActionsBoard board = new TrelloActionsBoard();
-		board.addActions(actions);
-		board.build();
-		if( !currSpr.getBoardId().equals(board.getId()) ){
+		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(trelloApi, currSpr.getBoardId());
+		TrelloBoard board = fetcher.getBoard();
+		if( !fetcher.fetch() ){
 			//throw new SprintManagementException("ボードのビルドに失敗しました");
 			return null;
 		}
