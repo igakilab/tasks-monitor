@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
@@ -68,6 +69,13 @@ public class SprintResultsDB{
 
 		collection.replaceOne(filter, doc, opt);
 		return true;
+	}
+
+	public Date getCreatedDateBySprintId(String id){
+		Bson filter = Filters.eq("sprintId", id);
+		Document doc = collection.find(filter).first();
+
+		return doc != null ? doc.getDate("createdAt") : null;
 	}
 
 	public <T> T getSprintResultBySprintId(String id, DocumentParser<T> parser){

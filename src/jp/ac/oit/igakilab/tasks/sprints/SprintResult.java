@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 public class SprintResult {
 	private String sprintId;
 	private Date createdAt;
-	private List<CardResult> sprintCards;
+	private List<SprintResultCard> sprintCards;
 
 	public SprintResult(String sprintId){
 		this.sprintId = sprintId;
 		createdAt = null;
-		sprintCards = new ArrayList<CardResult>();
+		sprintCards = new ArrayList<SprintResultCard>();
 	}
 
 	public String getSprintId() {
@@ -32,40 +32,28 @@ public class SprintResult {
 		this.createdAt = createdAt;
 	}
 
-	public void addSprintCard(CardResult scard){
-		sprintCards.add(scard);
-	}
-
-	public void addSprintCard(String cardId, List<String> memberIds, boolean finished){
-		CardResult cr = new CardResult(cardId);
-		memberIds.forEach((mid -> cr.addMemberId(mid)));
-		cr.setFinished(finished);
-		sprintCards.add(cr);
-	}
-
-
-	public List<CardResult> getRemainedCards(){
-		List<CardResult> cards = sprintCards.stream()
+	public List<SprintResultCard> getRemainedCards(){
+		List<SprintResultCard> cards = sprintCards.stream()
 			.filter((sc -> !sc.isFinished()))
 			.collect(Collectors.toList());
 		return cards;
 	}
 
-	public List<CardResult> getFinishedCards(){
-		List<CardResult> cards = sprintCards.stream()
+	public List<SprintResultCard> getFinishedCards(){
+		List<SprintResultCard> cards = sprintCards.stream()
 				.filter((sc -> sc.isFinished()))
 				.collect(Collectors.toList());
 		return cards;
 	}
 
 
-	public List<CardResult> getCardsByMemberIdContains(String mid){
+	public List<SprintResultCard> getCardsByMemberIdContains(String mid){
 		return sprintCards.stream()
 			.filter((c -> c.containsMemberId(mid)))
 			.collect(Collectors.toList());
 	}
 
-	public List<CardResult> getAllCards(){
+	public List<SprintResultCard> getAllCards(){
 		return sprintCards;
 	}
 }
