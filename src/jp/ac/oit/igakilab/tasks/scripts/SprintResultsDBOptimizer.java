@@ -136,12 +136,15 @@ public class SprintResultsDBOptimizer {
 		/*
 		 * 変換処理
 		 */
+		long recordCount = source.count();
 		FindIterable<Document> sourceCursor = source.find();
 		int cnt = 0;
 
 		for(Document doc : sourceCursor){
+			verbose("");
+			verbose(String.format("optimze (%d / %d)", cnt+1, recordCount));
+			verbose("source: " + doc.toJson());
 			for(DataOptimizer optimizer : optimizers){
-				verbose("source: " + doc.toJson());
 				if( optimizer.isTargetData(doc) ){
 					verbose("replaced by " + optimizer.getClass().getSimpleName());
 					boolean res = optimizer.optimize(wrapper, doc);

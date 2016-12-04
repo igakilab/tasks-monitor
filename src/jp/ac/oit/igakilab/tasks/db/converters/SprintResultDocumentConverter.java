@@ -10,6 +10,7 @@ import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
 
+@Deprecated
 public class SprintResultDocumentConverter
 implements DocumentParser<SprintResult>, DocumentConverter<SprintResult>{
 	public CardResult parseCardResult(Document doc){
