@@ -52,6 +52,7 @@ implements DocumentParser<SprintResultCard>, DocumentConverter<SprintResultCard>
 					actions.add(adoc);
 				}
 			});
+			doc.append("trelloActions", actions);
 
 			return doc;
 		}else{
