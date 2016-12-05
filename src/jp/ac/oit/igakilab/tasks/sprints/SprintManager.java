@@ -16,7 +16,6 @@ import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
@@ -256,15 +255,13 @@ public class SprintManager {
 		return sdb.getSprintsByBoardId(boardId, converter);
 	}
 
+	@Deprecated
 	public List<SprintResult> getSprintResultsByBoardId(String boardId){
-		SprintsDB sdb = new SprintsDB(dbClient);
-		SprintResultsDB srdb = new SprintResultsDB(dbClient);
+		SprintResultProvider provider = new SprintResultProvider(dbClient);
 
-		//sprintsDBからボードIDに該当するスプリントIDの一覧を取得し、
-		//sprintResultsDBからSprintResultを取得する
-		List<SprintResult> results = srdb.getSprintResultsByBoardId(
-			sdb.getSprintIdsByBoardId(boardId), new SprintResultDocumentConverter());
+		List<SprintResult> list = new ArrayList<>();
+		provider.getSprintResultsByBoardId(boardId).forEach((c -> list.add(c.getSprintResult())));
 
-		return results;
+		return list;
 	}
 }

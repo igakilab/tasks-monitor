@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.bson.conversions.Bson;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
@@ -85,6 +87,33 @@ public class SprintResultsDB{
 		return true;
 	}
 
+	/* SprintRenewalによって無効化されたメソッド
+	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
+		Bson filter = Filters.and(
+			Filters.exists("cardId"),
+			Filters.eq("memberIds", memberId)
+		);
+
+		List<T> result = new ArrayList<T>();
+		FindIterable<Document> cursor = collection.find(filter);
+		for(Document doc : cursor){
+			T data = parser.parse(doc);
+			if( data != null ) result.add(data);
+		}
+
+		return result;
+	}
+	*/
+
+	public int countCardRemainedTimes(String cardId){
+		Bson filter = Filters.and(
+			Filters.eq("cardId", cardId),
+			Filters.eq("finished", false)
+		);
+
+		return (int)collection.count(filter);
+	}
+
 	public Date getCreatedDateBySprintId(String id){
 		Bson filter = Filters.eq("sprintId", id);
 		Document doc = collection.find(filter).first();
@@ -120,31 +149,17 @@ public class SprintResultsDB{
 		return cards;
 	}
 
-	/* SprintRenewalによって無効化されたメソッド
-	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
-		Bson filter = Filters.and(
-			Filters.exists("cardId"),
-			Filters.eq("memberIds", memberId)
-		);
+	public List<String> getSprintResultIdsByMemberId(String memberId){
+		List<Bson> query = Arrays.asList(
+			Aggregates.match(Filters.eq("memberIds", memberId)),
+			Aggregates.group("$sprintId"));
 
-		List<T> result = new ArrayList<T>();
-		FindIterable<Document> cursor = collection.find(filter);
-		for(Document doc : cursor){
-			T data = parser.parse(doc);
-			if( data != null ) result.add(data);
+		List<String> ids = new ArrayList<String>();
+		for(Document doc : collection.aggregate(query)){
+			ids.add(doc.getString("_id"));
 		}
 
-		return result;
-	}
-	*/
-
-	public int countCardRemainedTimes(String cardId){
-		Bson filter = Filters.and(
-			Filters.eq("cardId", cardId),
-			Filters.eq("finished", false)
-		);
-
-		return (int)collection.count(filter);
+		return ids;
 	}
 
 	/* SprintRenewalによって無効化されたメソッド

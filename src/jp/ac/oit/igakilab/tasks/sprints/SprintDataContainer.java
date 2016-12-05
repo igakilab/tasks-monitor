@@ -9,6 +9,12 @@ public class SprintDataContainer {
 		result = null;
 	}
 
+	public SprintDataContainer(Sprint sprint, SprintResult result){
+		this();
+		setSprint(sprint);
+		setSprintResult(result);
+	}
+
 	public void setSprint(Sprint sprint){
 		if( result == null || result.getSprintId().equals(sprint.getId()) ){
 			this.sprint = sprint;
