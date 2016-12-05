@@ -2,7 +2,6 @@ package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -121,6 +120,7 @@ public class SprintResultsDB{
 		return cards;
 	}
 
+	/* SprintRenewalによって無効化されたメソッド
 	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
 		Bson filter = Filters.and(
 			Filters.exists("cardId"),
@@ -136,6 +136,7 @@ public class SprintResultsDB{
 
 		return result;
 	}
+	*/
 
 	public int countCardRemainedTimes(String cardId){
 		Bson filter = Filters.and(
@@ -146,6 +147,7 @@ public class SprintResultsDB{
 		return (int)collection.count(filter);
 	}
 
+	/* SprintRenewalによって無効化されたメソッド
 	public <T> List<T> getSprintResultsBySprintIds
 	(Collection<String> sprintIds, DocumentParser<T> parser){
 		Bson filter = Filters.and(
@@ -160,6 +162,7 @@ public class SprintResultsDB{
 
 		return results;
 	}
+	*/
 
 	public <T> List<T> getFinishedCardsBySprintId(String sprintId, DocumentParser<T> parser) {
 		Bson filter = Filters.and(

@@ -262,7 +262,7 @@ public class SprintManager {
 
 		//sprintsDBからボードIDに該当するスプリントIDの一覧を取得し、
 		//sprintResultsDBからSprintResultを取得する
-		List<SprintResult> results = srdb.getSprintResultsBySprintIds(
+		List<SprintResult> results = srdb.getSprintResultsByBoardId(
 			sdb.getSprintIdsByBoardId(boardId), new SprintResultDocumentConverter());
 
 		return results;
