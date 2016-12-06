@@ -56,7 +56,7 @@ public class SprintResultProvider {
 			boardId, originSprintId, count, new SprintDocumentConverter());
 
 		List<SprintDataContainer> result = new ArrayList<SprintDataContainer>();
-		SprintResultDocumentConverter srdc = new SprintResultDocumentConverter();
+		SprintResultDocumentConverter srdc = new SprintResultDocumentConverter(srdb);
 		for(int i=0; i<sprints.size(); i++){
 			SprintDataContainer c = new SprintDataContainer();
 			c.setSprint(sprints.get(i));

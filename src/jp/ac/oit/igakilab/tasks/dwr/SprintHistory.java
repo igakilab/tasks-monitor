@@ -66,7 +66,7 @@ public class SprintHistory {
 
 		//スプリントリザルトを取得
 		SprintResult result = srdb.getSprintResultBySprintId(
-			sprint.getId(), new SprintResultDocumentConverter());
+			sprint.getId(), new SprintResultDocumentConverter(srdb));
 		if( result == null ){
 			client.close();
 			throw new ExecuteFailedException("スプリントリザルトが見つかりません");
