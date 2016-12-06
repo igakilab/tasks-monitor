@@ -30,6 +30,7 @@ implements DocumentParser<SprintResult>{
 
 			return data;
 		}else{
+			System.out.println("no sprint id: " + doc.toJson());
 			return null;
 		}
 	}

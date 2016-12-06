@@ -8,6 +8,7 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.model.CardResultForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
@@ -120,6 +121,17 @@ public class SprintHistoryForms {
 		public static SprintList getInstance
 		(TrelloBoardData bdata, List<Sprint> slist, List<SprintResult> rlist){
 			return getInstance(bdata, SprintData.getInstances(slist, rlist));
+		}
+
+		public static SprintList getInstanceByDataContainer
+		(TrelloBoardData bdata, List<SprintDataContainer> source){
+			List<SprintData> data = new ArrayList<SprintData>();
+
+			for(SprintDataContainer c : source){
+				data.add(SprintData.getInstance(c.getSprint(), c.getSprintResult()));
+			}
+
+			return getInstance(bdata, data);
 		}
 
 

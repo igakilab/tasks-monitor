@@ -125,7 +125,7 @@ public class SprintResultsDBOptimizer {
 			new OldSprintResultDataOptimizer(new TrelloCardFetcher(trelloApi), logger)
 		};
 		CollectionWrapper wrapper = new CollectionWrapper(){
-			boolean testMode = true;
+			boolean testMode = false;
 			@Override
 			public void insert(Document doc){
 				verbose("insert: " + doc.toJson());

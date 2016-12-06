@@ -14,10 +14,9 @@ import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintHistoryForms;
 import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintResultAnalyzerForm;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
+import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoardData;
 
@@ -26,7 +25,6 @@ public class SprintHistory {
 	public SprintHistoryForms.SprintList getSprintList(String boardId){
 		//各種クライアントを初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
 		//ボード情報を取得
 		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
@@ -35,17 +33,14 @@ public class SprintHistory {
 		TrelloBoardData bdata = board.buildBoardData();
 
 		//マネージャを初期化
-		SprintManager sm = new SprintManager(client, api);
+		SprintResultProvider provider = new SprintResultProvider(client);
 
 		//リストを取得
-		List<Sprint> sl = sm.getSprintsByBoardId(boardId);
-		List<SprintResult> rl = sm.getSprintResultsByBoardId(boardId);
-		System.out.println(sl.size() + " " + sl.toString());
-		System.out.println(rl.size() + " " + rl.toString());
+		List<SprintDataContainer> list = provider.getSprintResultsByBoardId(boardId);
 
 		client.close();
 		//リストを変換して返却
-		return SprintHistoryForms.SprintList.getInstance(bdata, sl, rl);
+		return SprintHistoryForms.SprintList.getInstanceByDataContainer(bdata, list);
 	}
 
 	public SprintHistoryForms.SprintResultData getSprintResult(String sprintId)
