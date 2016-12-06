@@ -126,7 +126,6 @@ public class SprintResultsDB{
 		Document doc = getCollection().find(filter).first();
 
 		if( doc != null ){
-			System.out.println("SRDB_FIND: " + doc.toString());
 			T data = parser.parse(doc);
 			return data;
 		}else{

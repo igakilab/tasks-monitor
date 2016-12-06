@@ -78,6 +78,8 @@ public class SprintResultCard {
 		}
 
 		actions.sort((v1, v2) -> v1.getDate().compareTo(v2.getDate()));
+		System.out.println("TRELLO ACTIONS ---");
+		actions.forEach((act -> System.out.println("\t" + act.toString())));
 
 		return actions;
 	}
@@ -85,6 +87,7 @@ public class SprintResultCard {
 	public TrelloActionsCard getTrelloActionsCard(Function<TrelloActionRawData,TrelloAction> parser){
 		TrelloActionsCard card = new TrelloActionsCard();
 		getTrelloActions(parser).forEach((act -> card.applyAction(act)));
+		System.out.println("\tbuilt->" + card.toString());
 		return card;
 	}
 

@@ -54,7 +54,6 @@ public class SprintResultProvider {
 	(String boardId, String originSprintId, int count){
 		List<Sprint> sprints = sdb.getLatestFinishedSprintByBoardId(
 			boardId, originSprintId, count, new SprintDocumentConverter());
-		sprints.forEach((sp -> System.out.println(sp.getId())));
 
 		List<SprintDataContainer> result = new ArrayList<SprintDataContainer>();
 		SprintResultDocumentConverter srdc = new SprintResultDocumentConverter(srdb);
