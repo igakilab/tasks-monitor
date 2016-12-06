@@ -2,7 +2,10 @@ package jp.ac.oit.igakilab.tasks.sprints;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionRawData;
 
 public class SprintResultCard {
@@ -62,6 +65,27 @@ public class SprintResultCard {
 
 	public List<TrelloActionRawData> getTrelloActions() {
 		return trelloActions;
+	}
+
+	public List<TrelloAction> getTrelloActions(Function<TrelloActionRawData, TrelloAction> parser){
+		List<TrelloAction> actions = new ArrayList<TrelloAction>();
+
+		for(TrelloActionRawData raw : trelloActions){
+			TrelloAction parsed = parser.apply(raw);
+			if( parsed != null ){
+				actions.add(parsed);
+			}
+		}
+
+		actions.sort((v1, v2) -> v1.getDate().compareTo(v2.getDate()));
+
+		return actions;
+	}
+
+	public TrelloActionsCard getTrelloActionsCard(Function<TrelloActionRawData,TrelloAction> parser){
+		TrelloActionsCard card = new TrelloActionsCard();
+		getTrelloActions(parser).forEach((act -> card.applyAction(act)));
+		return card;
 	}
 
 	public void setTrelloActions(List<TrelloActionRawData> trelloActions) {

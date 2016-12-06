@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
+
+import org.bson.Document;
 
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
+import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.ExecuteFailedException;
 import jp.ac.oit.igakilab.tasks.dwr.forms.AnalyzedTrelloCardForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
@@ -26,7 +29,8 @@ import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
+import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloActionRawData;
 
 public class SprintResultAnalyzerForm {
 	public static int RESULT_HISTORY_CNT = 5;
@@ -176,45 +180,6 @@ public class SprintResultAnalyzerForm {
 	}
 
 
-	@Deprecated
-	public static SprintResultAnalyzerForm getInstance
-	(TrelloActionsBoard board, Sprint sprint, SprintResult result, List<Member> members){
-		SprintResultAnalyzerForm form = new SprintResultAnalyzerForm();
-
-		//ボードデータの設定
-		form.setBoardData(TrelloBoardDataForm.getInstance(board));
-
-		//スプリントデータの設定
-		form.setSprint(SprintForm.getInstance(sprint));
-
-		//スプリントリザルトデータの設定
-		form.setResult(SprintResultForm.getInstance(result));
-
-		//スプリント対象カードの設定
-		Calendar end = Calendar.getInstance();
-		end.setTime(sprint.getFinishDate());
-		end.add(Calendar.DATE, 1);
-		List<AnalyzedTrelloCardForm> tmp = new ArrayList<AnalyzedTrelloCardForm>();
-		Consumer<SprintResultCard> collector = (mc) -> {
-			TrelloCard ctmp = board.getCardById(mc.getCardId());
-			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
-			if( card != null ){
-				tmp.add(AnalyzedTrelloCardForm
-					.getInstance(card, board, sprint.getBeginDate(), end.getTime(), null));
-			}
-		};
-		result.getFinishedCards().forEach(collector);
-		result.getRemainedCards().forEach(collector);
-		form.setSprintCards(tmp);
-
-		//メンバーリスト設定
-		form.setMembers(new ArrayList<MemberForm>());
-		members.forEach((member ->
-			form.getMembers().add(MemberForm.getInstance(member))));
-
-		return form;
-	}
-
 	public static SprintResultAnalyzerForm buildInstance
 	(MongoClient client, String sprintId)
 	throws ExecuteFailedException{
@@ -255,16 +220,29 @@ public class SprintResultAnalyzerForm {
 		Calendar end = Calendar.getInstance();
 		end.setTime(sprint.getFinishDate());
 		end.add(Calendar.DATE, 1);
-		List<AnalyzedTrelloCardForm> cards = new ArrayList<AnalyzedTrelloCardForm>();
-		result.getAllCards().forEach((cr) -> {
-			TrelloCard tmp0 = board.getCardById(cr.getCardId());
-			TrelloActionsCard card = (tmp0 instanceof TrelloActionsCard) ? (TrelloActionsCard)tmp0 : null;
-			if( card != null ){
-				cards.add(AnalyzedTrelloCardForm
-					.getInstance(card, board, sprint.getBeginDate(), end.getTime(), ttb));
+
+		TrelloActionDocumentParser docParser = new TrelloActionDocumentParser();
+		Function<TrelloActionRawData,TrelloAction> parser = (raw) -> {
+			if( raw != null ){
+				if( raw.getRawInstance() instanceof Document ){
+					return docParser.parse((Document)raw.getRawInstance());
+				}else{
+					return docParser.parse(Document.parse(raw.toJsonString()));
+				}
+			}else{
+				return null;
 			}
-		});
-		form.setSprintCards(cards);
+		};
+
+		form.sprintCards = new ArrayList<AnalyzedTrelloCardForm>();
+		for(SprintResultCard card : result.getAllCards()){
+			TrelloActionsCard acard = card.getTrelloActionsCard(parser);
+			AnalyzedTrelloCardForm analyzed = AnalyzedTrelloCardForm
+				.getInstance(acard, board, sprint.getBeginDate(), end.getTime(), ttb);
+
+			analyzed.setFinished(card.isFinished());
+			form.sprintCards.add(analyzed);
+		}
 
 		//メンバーリスト設定
 		List<MemberForm> members = new ArrayList<>();
