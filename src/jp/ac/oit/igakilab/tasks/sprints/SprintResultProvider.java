@@ -71,16 +71,18 @@ public class SprintResultProvider {
 	public List<SprintDataContainer> getSprintResultsByBoardId(String boardId){
 		return getLatestSprintResultsByBoardId(boardId, null, -1);
 	}
-	
+
 	public List<SprintDataContainer> getSprintResultsByCardMemberId(String memberId){
 		List<String> ids = srdb.getSprintResultIdsByMemberId(memberId);
 		List<SprintDataContainer> result = new ArrayList<SprintDataContainer>();
-		
+
 		for(String sid : ids){
 			SprintDocumentConverter sdc = new SprintDocumentConverter();
 			Sprint spr = sdb.getSprintById(sid, sdc);
 			SprintResult res = getSprintResultBySprintId(sid);
-			
+			result.add(new SprintDataContainer(spr, res));
 		}
+
+		return result;
 	}
 }
