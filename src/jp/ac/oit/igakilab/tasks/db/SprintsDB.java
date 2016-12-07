@@ -176,7 +176,6 @@ public class SprintsDB {
 		return newId;
 	}
 
-	@Deprecated
 	public boolean updateSprintCards(String id, List<String> cardIds){
 		Bson filter = Filters.eq("id", id);
 		Bson update = Updates.set("trelloCardIds", cardIds);

@@ -31,7 +31,9 @@ public class SprintsManageDB extends SprintsDB{
 			sprint.setBoardId(boardId);
 			sprint.setBeginDate(beginDate);
 			sprint.setFinishDate(finishDate);
-			cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
+			if( cardIds != null ){
+				cardIds.forEach(cardId -> sprint.addTrelloCardId(cardId));
+			}
 
 			newId = addSprint(sprint, new SprintDocumentConverter());
 		}else{
@@ -40,6 +42,11 @@ public class SprintsManageDB extends SprintsDB{
 		}
 
 		return newId;
+	}
+
+	public String createSprint(String boardId, Date beginDate, Date finishDate)
+	throws SprintsDBEditException{
+		return createSprint(boardId, beginDate, finishDate, null);
 	}
 
 	public <T> T getCurrentSprint(String boardId, Date point, DocumentParser<T> converter){
