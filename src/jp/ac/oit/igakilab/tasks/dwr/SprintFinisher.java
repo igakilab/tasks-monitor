@@ -12,7 +12,6 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.MemberCards;
-import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintResultForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
@@ -122,19 +121,19 @@ public class SprintFinisher {
 	/*
 	 * ボードIDで指定されたボードの、SprintResultを一覧取得します。
 	 */
-	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
-		MongoClient client = TasksMongoClientBuilder.createClient();
-		SprintManager manager = new SprintManager(client, null);
-
-		//返却する配列を初期化
-		List<SprintResultForm> forms = new ArrayList<SprintResultForm>();
-
-		//結果を取得、変換して返却配列に格納
-		manager.getSprintResultsByBoardId(boardId).forEach((result ->
-			forms.add(SprintResultForm.getInstance(result))));
-
-		//結果を返却
-		client.close();
-		return forms;
-	}
+//	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
+//		MongoClient client = TasksMongoClientBuilder.createClient();
+//		SprintManager manager = new SprintManager(client, null);
+//
+//		//返却する配列を初期化
+//		List<SprintResultForm> forms = new ArrayList<SprintResultForm>();
+//
+//		//結果を取得、変換して返却配列に格納
+//		manager.getSprintResultsByBoardId(boardId).forEach((result ->
+//			forms.add(SprintResultForm.getInstance(result))));
+//
+//		//結果を返却
+//		client.close();
+//		return forms;
+//	}
 }
