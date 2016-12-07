@@ -307,6 +307,7 @@ public class SprintResultsDBOptimizer {
 				if( actions != null && actions.size() > 0 ){
 					actions.forEach((act) ->
 						converted.addTrelloAction(new TrelloActionRawData.JSONObjectModel(act)));
+					log("--complete received " + actions.size() + " record(s)");
 				}else{
 					log("<ERROR> fetching error " + cardId);
 					return null;

@@ -63,6 +63,7 @@ public class TrelloCardFetcher {
 		String url = "/1/card/" + cardId + "/actions";
 
 		Map<String,String> params = new HashMap<>();
+		params.put("filter", "all");
 		params.put("limit", "1000");
 		if( since != null || before != null ){
 			TrelloDateFormat tdf = new TrelloDateFormat();

@@ -67,4 +67,10 @@ public class SprintResult {
 	public void addSprintCard(SprintResultCard card){
 		sprintCards.add(card);
 	}
+
+	public String toString(){
+		return String.format("SprintResult %s fin:%d, rem:%d",
+			this.sprintId.substring(this.sprintId.length()-4, this.sprintId.length()),
+			getRemainedCards().size(), getFinishedCards().size());
+	}
 }

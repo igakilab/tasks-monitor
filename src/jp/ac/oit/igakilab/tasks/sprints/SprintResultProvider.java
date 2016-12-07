@@ -62,7 +62,7 @@ public class SprintResultProvider {
 			c.setSprint(sprints.get(i));
 			SprintResult res = srdb.getSprintResultBySprintId(c.getSprintId(), srdc);
 			c.setSprintResult(res);
-			result.add(c);
+			if( c.getSprintResult() != null ) result.add(c);
 		}
 
 		System.out.println(result.size());
