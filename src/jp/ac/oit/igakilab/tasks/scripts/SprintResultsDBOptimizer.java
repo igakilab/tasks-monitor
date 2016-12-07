@@ -42,16 +42,45 @@ public class SprintResultsDBOptimizer {
 			new TrelloApi<>(TRELLO_API_KEY, TRELLO_API_TOKEN, new SimpleJsonResponseTextParser());
 		SprintResultsDBOptimizer optimizer = new SprintResultsDBOptimizer(client, api);
 
-		int count = optimizer.optimize(TARGET_DBNAME, TARGET_COLNAME);
+		int count = 0;
+		if( optimizer.needsOptimize(TARGET_DBNAME, TARGET_COLNAME) ){
+			System.out.println("最適化の必要があります");
+			count = optimizer.optimize(TARGET_DBNAME, TARGET_COLNAME, false);
+		}else{
+			System.out.println("最適化の必要はありません");
+		}
 
 		System.out.println("replaced " + count + "record(s)");
 		client.close();
 	}
 
 
+	public static boolean autoOptimize
+	(Consumer<String> logger, SprintResultsDBOptimizer optimizer, String dbName, String colName){
+		optimizer.setLogger(logger);
+		logger.accept("Auto Optimize Managerを起動します...");
+		logger.accept("Optimizeのチェックをしています");
+
+		if( optimizer.needsOptimize(dbName, colName) ){
+			logger.accept("最適化の必要があります");
+			logger.accept("最適化を実行します");
+
+			int count = optimizer.optimize(dbName, colName, false);
+
+			logger.accept("最適化が終了しました");
+			logger.accept(count + "個のレコードが最適化されました");
+			return true;
+		}else{
+			logger.accept("最適化の必要はありません");
+			return false;
+		}
+	}
+
+
 	private MongoClient client;
 	private TrelloApi<Object> trelloApi;
 	public boolean printVerbose;
+	private Consumer<String> logger;
 
 	/**
 	 * コンストラクタです
@@ -62,11 +91,18 @@ public class SprintResultsDBOptimizer {
 		this.client = client;
 		this.trelloApi = trelloApi;
 		this.printVerbose = true;
+		this.logger = null;
 	}
 
 
 	private void verbose(String msg){
 		if( printVerbose ) System.out.println(msg);
+		if( logger != null ) logger.accept(msg);
+	}
+
+
+	private void setLogger(Consumer<String> logger){
+		this.logger = logger;
 	}
 
 
@@ -88,13 +124,41 @@ public class SprintResultsDBOptimizer {
 	}
 
 
+	public boolean needsOptimize(String dbName, String colName){
+		verbose("CHECKING OPTIMIZE NEEDS...");
+		verbose("TARGET_DB: " + dbName);
+		verbose("TARGET_COLLECTION: " + colName);
+		MongoCollection<Document> source = client.getDatabase(dbName).getCollection(colName);
+
+		Consumer<String> logger = (msg -> verbose(msg));
+		DataOptimizer[] optimizers = {
+			new SprintResultMetaDataOptimizer(),
+			new SprintResultCardDataOptimizer(),
+			new OldSprintResultDataOptimizer(new TrelloCardFetcher(trelloApi), logger)
+		};
+
+		for(Document doc : source.find()){
+			for(DataOptimizer optimizer : optimizers){
+				if( optimizer.isTargetData(doc) ){
+					if( optimizer.needsOptimize(doc) ){
+						return true;
+					}
+					break;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
 	/**
 	 * 最適化作業を行うメソッドです。
 	 * @param dbName
 	 * @param colName
 	 * @return
 	 */
-	public int optimize(String dbName, String colName){
+	public int optimize(String dbName, String colName, boolean dryrun){
 		verbose("TARGET_DB: " + dbName);
 		verbose("TARGET_COLLECTION: " + colName);
 		MongoDatabase db = client.getDatabase(dbName);
@@ -125,7 +189,7 @@ public class SprintResultsDBOptimizer {
 			new OldSprintResultDataOptimizer(new TrelloCardFetcher(trelloApi), logger)
 		};
 		CollectionWrapper wrapper = new CollectionWrapper(){
-			boolean testMode = false;
+			boolean testMode = dryrun;
 			@Override
 			public void insert(Document doc){
 				verbose("insert: " + doc.toJson());
@@ -146,17 +210,24 @@ public class SprintResultsDBOptimizer {
 			verbose("source: " + doc.toJson());
 			for(DataOptimizer optimizer : optimizers){
 				if( optimizer.isTargetData(doc) ){
-					verbose("replaced by " + optimizer.getClass().getSimpleName());
-					boolean res = optimizer.optimize(wrapper, doc);
-					if( !res ){
-						System.err.println("<ERROR> data optimize error");
-						System.err.println("optimizer: " + optimizer.toString());
-						System.err.println("data: " + doc.toJson());
-					}else{
-						cnt++;
+					if( optimizer.needsOptimize(doc) ){
+						verbose("replaced by " + optimizer.getClass().getSimpleName());
+						boolean res = optimizer.optimize(wrapper, doc);
+						if( !res ){
+							System.err.println("<ERROR> data optimize error");
+							System.err.println("optimizer: " + optimizer.toString());
+							System.err.println("data: " + doc.toJson());
+						}else{
+							cnt++;
+						}
 					}
+					break;
 				}
 			}
+		}
+
+		if( dryrun ){
+			source.renameCollection(new MongoNamespace(dbName, colName));
 		}
 
 		return cnt;
@@ -170,6 +241,7 @@ public class SprintResultsDBOptimizer {
 	 */
 	public static interface DataOptimizer{
 		public boolean isTargetData(Document doc);
+		public boolean needsOptimize(Document doc);
 		public boolean optimize(CollectionWrapper dest, Document doc);
 	}
 
@@ -193,6 +265,10 @@ public class SprintResultsDBOptimizer {
 				!doc.containsKey("sprintCards");
 		}
 		@Override
+		public boolean needsOptimize(Document doc){
+			return false;
+		}
+		@Override
 		public boolean optimize(CollectionWrapper dest, Document doc){
 			dest.insert(doc);
 			return true;
@@ -209,6 +285,10 @@ public class SprintResultsDBOptimizer {
 		@Override
 		public boolean isTargetData(Document doc){
 			return doc.containsKey("sprintId") && doc.containsKey("cardId");
+		}
+		@Override
+		public boolean needsOptimize(Document doc){
+			return false;
 		}
 		@Override
 		public boolean optimize(CollectionWrapper dest, Document doc){
@@ -245,6 +325,11 @@ public class SprintResultsDBOptimizer {
 					doc.containsKey("remainedCards") || doc.containsKey("finishedCards") ||
 					doc.containsKey("sprintCards")
 				);
+		}
+
+		@Override
+		public boolean needsOptimize(Document doc){
+			return true;
 		}
 
 		@Override
