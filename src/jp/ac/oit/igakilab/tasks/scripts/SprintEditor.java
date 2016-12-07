@@ -10,7 +10,6 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
-import jp.ac.oit.igakilab.tasks.db.SprintsDB.SprintsDBEditException;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
@@ -21,6 +20,7 @@ import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
@@ -60,13 +60,6 @@ public class SprintEditor {
 
 
 	private boolean addSprintCard(CardEditAsset asset, String cardId, Date dueDate, List<String> memberIds){
-		//データベース登録
-		if( !asset.sdb.isTrelloCardIdRegisted(asset.sprintId, cardId) ){
-			if( !asset.sdb.addTrelloCardId(asset.sprintId, cardId) ){
-				return false;
-			}
-		}
-
 		//trelloに登録
 		//メンバーID変換
 		List<String> trelloMemberIds = (memberIds != null) ? asset.ttb.getTrelloIdAll(memberIds) : null;
@@ -160,37 +153,30 @@ public class SprintEditor {
 		//スプリントデータ登録
 		//*****
 
-		//カード一覧作成
-		List<String> cardIds = new ArrayList<String>();
-		sprintCards.forEach(cm -> cardIds.add(cm.getCardId()));
 		//データベースに登録
+		SprintManager manager = new SprintManager(dbClient);
 		String newId;
 		try{
-			newId = smdb.createSprint(boardId, beginDate, finishDate, cardIds);
-		}catch(SprintsDBEditException e0){
+			newId = manager.createSprint(boardId, beginDate, finishDate, sprintCards);
+		}catch(SprintManagementException e0){
 			throw new SprintEditException("DB登録エラー: " + e0.getMessage());
 		}
 
 
 		//*****
-		//データベースにカードを追加
+		//Trelloに期限等を追加
 		//*****
-
-		//オブジェクト初期化
-		TrelloCardEditor tceditor = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
-		CardEditAsset asset = new CardEditAsset(smdb, tceditor, ttb, newId);
+		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 
-		//期限の生成
 		Calendar dueDate = Calendar.getInstance();
 		dueDate.setTime(finishDate);
-		dueDate.set(Calendar.HOUR, DEFAULT_DUE_HOUR);
+		dueDate.set(Calendar.HOUR, 18);
 
-		//スプリントにカードを追加
-		for(CardMembers cm : sprintCards){
-			if( !addSprintCard(asset, cm.getCardId(), dueDate.getTime(), cm.getMemberIds()) ){
-				throw new SprintEditException("スプリントカードの追加に失敗しました");
-			}
+		for(CardMembers card : sprintCards){
+			List<String> trelloMemberIds = ttb.getTrelloIdAll(card.getMemberIds());
+
+			tce.setDueAndMembers(card.getCardId(), dueDate.getTime(), trelloMemberIds);
 		}
 
 
@@ -237,37 +223,14 @@ public class SprintEditor {
 	(String sprintId, Date finishDate, List<CardMembers> sprintCards)
 	throws SprintEditException{
 		//*****
-		//DB問い合わせ
+		//DB登録
 		//*****
 
-		//DBインスタンス初期化
-		SprintsDB sdb = new SprintsDB(dbClient);
-
-		//スプリント存在確認
-		if( !sdb.sprintIdExists(sprintId) ){
-			throw new SprintEditException("スプリントIDが不正です");
-		}
-
-		//日付変更チェック
-		if( finishDate != null ){
-			//日付正規化
-			finishDate = Sprint.roundDate(finishDate).getTime();
-			//DBチェック
-			if( !sdb.canUpdateFinishDate(sprintId, finishDate) ){
-				throw new SprintEditException("期間が不正です");
-			}
-		}
-
-
-		//*****
-		//期日の変更
-		//*****
-
-		//DBに登録
-		if( finishDate != null ){
-			if( !sdb.updateFinishDate(sprintId, finishDate) ){
-				throw new SprintEditException("期日の変更に失敗しました");
-			}
+		SprintManager manager = new SprintManager(dbClient);
+		try{
+			manager.updateSprint(sprintId, finishDate, sprintCards);
+		}catch(SprintManagementException e0){
+			throw new SprintEditException("DB登録エラー: " + e0.getMessage());
 		}
 
 
@@ -275,6 +238,7 @@ public class SprintEditor {
 		//カードの追加と削除
 		//*****
 
+		SprintsDB sdb = new SprintsDB(dbClient);
 		if( sprintCards != null ){
 			//追加カードと削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
@@ -342,10 +306,10 @@ public class SprintEditor {
 		//*****
 
 		//dbインスタンス初期化
-		SprintManager manager = new SprintManager(dbClient, trelloApi);
+		SprintManager manager = new SprintManager(dbClient);
 
 		//クローズ処理
-		if( !manager.closeSprint(sprint.getId()) ){
+		if( !manager.closeSprint(trelloApi, sprint.getId()) ){
 			throw new SprintEditException("リザルトの登録に失敗しました");
 		}
 

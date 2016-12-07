@@ -95,9 +95,9 @@ public class SprintFinisher {
 
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-		SprintManager manager = new SprintManager(client, api);
+		SprintManager manager = new SprintManager(client);
 		SprintResult res = null;
-		if( manager.closeSprint(currSpr.getId()) ){
+		if( manager.closeSprint(api, currSpr.getId()) ){
 			SprintResultProvider provider = new SprintResultProvider(client);
 			res = provider.getSprintResultBySprintId(currSpr.getId());
 		}

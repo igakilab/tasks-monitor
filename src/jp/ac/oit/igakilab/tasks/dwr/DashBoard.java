@@ -128,8 +128,8 @@ public class DashBoard {
 
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-		SprintManager manager = new SprintManager(client, api);
-		boolean res =  manager.closeSprint(currSpr.getId());
+		SprintManager manager = new SprintManager(client);
+		boolean res =  manager.closeSprint(api, currSpr.getId());
 
 		if( !res ){
 			client.close();
