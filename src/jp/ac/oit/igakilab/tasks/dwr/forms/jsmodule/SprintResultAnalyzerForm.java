@@ -210,7 +210,7 @@ public class SprintResultAnalyzerForm {
 		List<SprintDataContainer> results =
 			provider.getLatestSprintResultsByBoardId(
 				sprint.getBoardId(), sprint.getId(), RESULT_HISTORY_CNT);
-		results.forEach((res -> System.out.println(res.getSprintResult())));
+		//results.forEach((res -> System.out.println(res.getSprintResult())));
 
 		//スプリントリザルトデータの設定
 		SprintResult result = results.get(0).getSprintResult();
