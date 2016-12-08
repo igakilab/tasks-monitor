@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
+import jp.ac.oit.igakilab.marsh.util.DebugLog;
 import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
@@ -33,20 +34,7 @@ public class SprintEditor {
 	public static int DEFAULT_DUE_HOUR = 18;
 	public static boolean CLEAR_TRELLO_REMOVED_CARD = true;
 
-	static class CardEditAsset{
-		public SprintsDB sdb;
-		public TrelloCardEditor tce;
-		public MemberTrelloIdTable ttb;
-		public String sprintId;
-
-		public CardEditAsset
-		(SprintsDB sdb, TrelloCardEditor tce, MemberTrelloIdTable ttb, String sprintId){
-			this.sdb = sdb;
-			this.tce = tce;
-			this.ttb = ttb;
-			this.sprintId = sprintId;
-		}
-	}
+	private static DebugLog logger = new DebugLog("SprintEditor", System.out);
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
@@ -127,6 +115,7 @@ public class SprintEditor {
 		//*****
 		//データベースに問い合わせ
 		//*****
+		logger.log("createSprint", "スプリントを新規登録します (BoardId:" + boardId + ")");
 
 		//ボード存在チェック
 		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
@@ -205,6 +194,7 @@ public class SprintEditor {
 
 		//処理終了
 		//スプリントのIDを返却する
+		logger.log("createSprint", "処理が完了しました (BoardId:" + boardId + ", SprintId:" + newId + ")");
 		return newId;
 	}
 
@@ -225,6 +215,7 @@ public class SprintEditor {
 		//*****
 		//DB登録
 		//*****
+		logger.log("updateSprint", "スプリントを更新します (SprintId:" + sprintId + ")");
 
 		SprintManager manager = new SprintManager(dbClient);
 		try{
@@ -259,6 +250,7 @@ public class SprintEditor {
 		}
 
 		//処理終了
+		logger.log("updateSprint", "処理が完了しました (SprintId:" + sprintId + ")");
 		return;
 	}
 
@@ -277,6 +269,7 @@ public class SprintEditor {
 		//*****
 		//データベースに問い合わせ
 		//*****
+		logger.log("closeSprint", "スプリントをクローズします (SprintId:" + sprintId + ")");
 
 		//dbインスタンス初期化
 		SprintsDB sdb = new SprintsDB(dbClient);
@@ -323,8 +316,8 @@ public class SprintEditor {
 		SprintResultCardDocumentConverter converter = new SprintResultCardDocumentConverter();
 		List<SprintResultCard> finishedCards =
 			srdb.getFinishedCardsBySprintId(sprint.getId(), converter);
-		System.out.println("FINISHED CARDS");
-		finishedCards.forEach((sr -> System.out.println(sr.getCardId())));
+		//System.out.println("FINISHED CARDS");
+		//finishedCards.forEach((sr -> System.out.println(sr.getCardId())));
 
 		//completeを付加
 		for(SprintResultCard cr : finishedCards){
@@ -333,6 +326,7 @@ public class SprintEditor {
 
 
 		//処理終了
+		logger.log("closeSprint", "処理が完了しました (SprintId:" + sprintId + ")");
 		return true;
 	}
 
