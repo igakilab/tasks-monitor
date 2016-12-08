@@ -1,7 +1,6 @@
 package jp.ac.oit.igakilab.tasks.scripts;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +24,7 @@ import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardEditor;
+import jp.ac.oit.igakilab.tasks.trello.TrelloCardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -59,52 +59,52 @@ public class SprintEditor {
 	}
 
 
-	private boolean addSprintCard(CardEditAsset asset, String cardId, Date dueDate, List<String> memberIds){
-		//trelloに登録
-		//メンバーID変換
-		List<String> trelloMemberIds = (memberIds != null) ? asset.ttb.getTrelloIdAll(memberIds) : null;
-		if( trelloMemberIds != null && dueDate != null ){
-			//日付、担当者両方設定
-			if( !asset.tce.setDueAndMembers(cardId, dueDate, trelloMemberIds, true) ){
-				return false;
-			}
-		}else if( trelloMemberIds != null ){
-			//担当者のみ設定
-			for(String tmid : trelloMemberIds){
-				if( !asset.tce.addMember(cardId, tmid) ){
-					return false;
-				}
-			}
-		}else if( dueDate != null ){
-			//期日のみ設定
-			if( !asset.tce.setDueDate(cardId, dueDate) ){
-				return false;
-			}
-			if( !asset.tce.setDueComplete(cardId, false) ){
-				return false;
-			}
-		}
+//	private boolean addSprintCard(CardEditAsset asset, String cardId, Date dueDate, List<String> memberIds){
+//		//trelloに登録
+//		//メンバーID変換
+//		List<String> trelloMemberIds = (memberIds != null) ? asset.ttb.getTrelloIdAll(memberIds) : null;
+//		if( trelloMemberIds != null && dueDate != null ){
+//			//日付、担当者両方設定
+//			if( !asset.tce.setDueAndMembers(cardId, dueDate, trelloMemberIds, true) ){
+//				return false;
+//			}
+//		}else if( trelloMemberIds != null ){
+//			//担当者のみ設定
+//			for(String tmid : trelloMemberIds){
+//				if( !asset.tce.addMember(cardId, tmid) ){
+//					return false;
+//				}
+//			}
+//		}else if( dueDate != null ){
+//			//期日のみ設定
+//			if( !asset.tce.setDueDate(cardId, dueDate) ){
+//				return false;
+//			}
+//			if( !asset.tce.setDueComplete(cardId, false) ){
+//				return false;
+//			}
+//		}
+//
+//		return true;
+//	}
 
-		return true;
-	}
-
-	private boolean removeSprintCard(CardEditAsset asset, String cardId, boolean trelloParamClear){
-		//データベース変更
-		if( asset.sdb.isTrelloCardIdRegisted(asset.sprintId, cardId) ){
-			if( !asset.sdb.removeTrelloCardId(asset.sprintId, cardId) ){
-				return false;
-			}
-		}
-
-		//trelloのデータクリア
-		if( trelloParamClear ){
-			if( !asset.tce.setDueAndMembers(cardId, null, Arrays.asList()) ){
-				return false;
-			}
-		}
-
-		return true;
-	}
+//	private boolean removeSprintCard(CardEditAsset asset, String cardId, boolean trelloParamClear){
+//		//データベース変更
+//		if( asset.sdb.isTrelloCardIdRegisted(asset.sprintId, cardId) ){
+//			if( !asset.sdb.removeTrelloCardId(asset.sprintId, cardId) ){
+//				return false;
+//			}
+//		}
+//
+//		//trelloのデータクリア
+//		if( trelloParamClear ){
+//			if( !asset.tce.setDueAndMembers(cardId, null, Arrays.asList()) ){
+//				return false;
+//			}
+//		}
+//
+//		return true;
+//	}
 
 
 	/**
@@ -176,7 +176,7 @@ public class SprintEditor {
 		for(CardMembers card : sprintCards){
 			List<String> trelloMemberIds = ttb.getTrelloIdAll(card.getMemberIds());
 
-			tce.setDueAndMembers(card.getCardId(), dueDate.getTime(), trelloMemberIds);
+			tce.setDueAndMembers(card.getCardId(), dueDate.getTime(), trelloMemberIds, true);
 		}
 
 
@@ -239,12 +239,12 @@ public class SprintEditor {
 		//*****
 
 		SprintsDB sdb = new SprintsDB(dbClient);
+		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		if( sprintCards != null ){
 			//追加カードと削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 			List<String> removed = new ArrayList<String>();
-			CardEditAsset asset =
-				new CardEditAsset(sdb, new TrelloCardEditor(trelloApi), new MemberTrelloIdTable(dbClient), sprintId);
 			for(String cid : sprint.getTrelloCardIds()){
 				boolean flg = false;
 				for(CardMembers cm : sprintCards){
@@ -257,12 +257,13 @@ public class SprintEditor {
 
 			//カードを追加
 			for(CardMembers cm : sprintCards){
-				addSprintCard(asset, cm.getCardId(), finishDate, cm.getMemberIds());
+				List<String> trelloMemberIds = ttb.getTrelloIdAll(cm.getMemberIds());
+				tce.setDueAndMembers(cm.getCardId(), finishDate, trelloMemberIds, true);
 			}
 
 			//カードを削除
 			for(String cid : removed){
-				removeSprintCard(asset, cid, CLEAR_TRELLO_REMOVED_CARD);
+				tce.clearDueAndMembers(cid);
 			}
 		}
 
@@ -307,9 +308,13 @@ public class SprintEditor {
 
 		//dbインスタンス初期化
 		SprintManager manager = new SprintManager(dbClient);
+		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(trelloApi, sprint.getBoardId());
+		TrelloBoard board = fetcher.getBoard();
+		TrelloCardFetcher cf = new TrelloCardFetcher(trelloApi);
 
 		//クローズ処理
-		if( !manager.closeSprint(trelloApi, sprint.getId()) ){
+		fetcher.fetch();
+		if( !manager.closeSprint(board, cf, sprint.getId()) ){
 			throw new SprintEditException("リザルトの登録に失敗しました");
 		}
 
@@ -327,6 +332,8 @@ public class SprintEditor {
 		SprintResultCardDocumentConverter converter = new SprintResultCardDocumentConverter();
 		List<SprintResultCard> finishedCards =
 			srdb.getFinishedCardsBySprintId(sprint.getId(), converter);
+		System.out.println("FINISHED CARDS");
+		finishedCards.forEach((sr -> System.out.println(sr.getCardId())));
 
 		//completeを付加
 		for(SprintResultCard cr : finishedCards){

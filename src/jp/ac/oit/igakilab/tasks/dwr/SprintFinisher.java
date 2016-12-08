@@ -19,6 +19,8 @@ import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
+import jp.ac.oit.igakilab.tasks.trello.TrelloCardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
@@ -95,9 +97,12 @@ public class SprintFinisher {
 
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		TrelloBoardFetcher bf = new TrelloBoardFetcher(api, boardId);
+		TrelloCardFetcher cf = new TrelloCardFetcher(api);
 		SprintManager manager = new SprintManager(client);
 		SprintResult res = null;
-		if( manager.closeSprint(api, currSpr.getId()) ){
+		bf.fetch();
+		if( manager.closeSprint(bf.getBoard(), cf, currSpr.getId()) ){
 			SprintResultProvider provider = new SprintResultProvider(client);
 			res = provider.getSprintResultBySprintId(currSpr.getId());
 		}

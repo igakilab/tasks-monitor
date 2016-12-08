@@ -17,9 +17,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.TrelloCardFetcher;
-import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
@@ -134,7 +132,7 @@ public class SprintManager {
 	 * @param sprintId
 	 * @return
 	 */
-	public boolean closeSprint(TrelloApi<Object> trelloApi, String sprintId){
+	public boolean closeSprint(TrelloBoard board, TrelloCardFetcher cfetcher, String sprintId){
 		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		SprintResultsDB resdb = new SprintResultsDB(dbClient);
 		//現在のスプリントの情報を取得
@@ -148,19 +146,10 @@ public class SprintManager {
 			return false;
 		}
 
-		//TrelloBoardを取得
-		TrelloBoardFetcher bfetcher = new TrelloBoardFetcher(trelloApi, currSpr.getBoardId());
-		TrelloBoard board = bfetcher.getBoard();
-		if( !bfetcher.fetch() ){
-			//throw new SprintManagementException("ボードのビルドに失敗しました");
-			return false;
-		}
-
 		//sprintResultを生成
 		resdb.createSprintResult(sprintId, null);
 
 		//カードを検査し、DBに追加
-		TrelloCardFetcher cfetcher = new TrelloCardFetcher(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		SprintResultCardDocumentConverter srConverter =
 			new SprintResultCardDocumentConverter();
@@ -208,13 +197,13 @@ public class SprintManager {
 		return sdb.getSprintsByBoardId(boardId, converter);
 	}
 
-	@Deprecated
-	public List<SprintResult> getSprintResultsByBoardId(String boardId){
-		SprintResultProvider provider = new SprintResultProvider(dbClient);
-
-		List<SprintResult> list = new ArrayList<>();
-		provider.getSprintResultsByBoardId(boardId).forEach((c -> list.add(c.getSprintResult())));
-
-		return list;
-	}
+//	@Deprecated
+//	public List<SprintResult> getSprintResultsByBoardId(String boardId){
+//		SprintResultProvider provider = new SprintResultProvider(dbClient);
+//
+//		List<SprintResult> list = new ArrayList<>();
+//		provider.getSprintResultsByBoardId(boardId).forEach((c -> list.add(c.getSprintResult())));
+//
+//		return list;
+//	}
 }

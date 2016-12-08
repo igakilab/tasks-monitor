@@ -54,6 +54,7 @@ public class SprintResultProvider {
 	(String boardId, String originSprintId, int count){
 		List<Sprint> sprints = sdb.getLatestFinishedSprintByBoardId(
 			boardId, originSprintId, count, new SprintDocumentConverter());
+		//sprints.forEach((spr -> System.out.println("spr: " + spr.getId())));
 
 		List<SprintDataContainer> result = new ArrayList<SprintDataContainer>();
 		SprintResultDocumentConverter srdc = new SprintResultDocumentConverter(srdb);
@@ -62,10 +63,11 @@ public class SprintResultProvider {
 			c.setSprint(sprints.get(i));
 			SprintResult res = srdb.getSprintResultBySprintId(c.getSprintId(), srdc);
 			c.setSprintResult(res);
+			//System.out.println(c.getSprintResult());
 			if( c.getSprintResult() != null ) result.add(c);
 		}
 
-		System.out.println(result.size());
+		//System.out.println(result.size());
 		return result;
 	}
 
