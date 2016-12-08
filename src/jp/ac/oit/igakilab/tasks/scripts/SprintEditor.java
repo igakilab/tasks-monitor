@@ -242,18 +242,9 @@ public class SprintEditor {
 		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		if( sprintCards != null ){
-			//追加カードと削除カードを分別
+			//削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
-			List<String> removed = new ArrayList<String>();
-			for(String cid : sprint.getTrelloCardIds()){
-				boolean flg = false;
-				for(CardMembers cm : sprintCards){
-					if( cid.equals(cm.getCardId()) ){
-						flg = true; break;
-					}
-				}
-				if( !flg ) removed.add(cid);
-			}
+			List<String> removed = getRemovedCards(sprint.getTrelloCardIds(), sprintCards);
 
 			//カードを追加
 			for(CardMembers cm : sprintCards){
@@ -343,5 +334,23 @@ public class SprintEditor {
 
 		//処理終了
 		return true;
+	}
+
+
+	public List<String> getRemovedCards
+	(List<String> registedCards, List<CardMembers> newCards){
+		//削除されたカードを検索
+		List<String> removed = new ArrayList<String>();
+		for(String cid : registedCards){
+			boolean flg = false;
+			for(CardMembers cm : newCards){
+				if( cid.equals(cm.getCardId()) ){
+					flg = true; break;
+				}
+			}
+			if( !flg ) removed.add(cid);
+		}
+
+		return removed;
 	}
 }

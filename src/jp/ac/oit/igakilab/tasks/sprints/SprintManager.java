@@ -52,15 +52,14 @@ public class SprintManager {
 		Date beginDate, Date finishDate, List<CardMembers> cardAndMembers)
 	throws SprintManagementException
 	{
-		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
-		SprintsManageDB smdb = new SprintsManageDB(dbClient);
-
 		//ボードの存在チェック
+		TrelloBoardsDB bdb = new TrelloBoardsDB(dbClient);
 		if( !bdb.boardIdExists(boardId) ){
 			throw new SprintManagementException("ボードが登録されていません");
 		}
 
 		//期間のチェック
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		beginDate = Sprint.roundDate(beginDate).getTime();
 		finishDate = Sprint.roundDate(finishDate).getTime();
 		if( !smdb.isValidPeriod(boardId, beginDate, finishDate) ){
@@ -68,8 +67,7 @@ public class SprintManager {
 		}
 
 		//Sprintのデータを登録
-		List<String> cardIds = new ArrayList<String>();
-		cardAndMembers.forEach(tcm -> cardIds.add(tcm.getCardId()));
+		List<String> cardIds = CardMembers.getCardIdList(cardAndMembers);
 		String newId;
 		try{
 			newId = smdb.createSprint(boardId, beginDate, finishDate, cardIds);
@@ -84,18 +82,13 @@ public class SprintManager {
 	public void updateSprint(String sprintId, Date finishDate, List<CardMembers> cardAndMembers)
 	throws SprintManagementException
 	{
-		//DBインスタンス初期化
-		SprintsDB sdb = new SprintsDB(dbClient);
-
 		//スプリント存在確認
+		SprintsDB sdb = new SprintsDB(dbClient);
 		if( !sdb.sprintIdExists(sprintId) ){
 			throw new SprintManagementException("スプリントIDが不正です");
 		}
 
-
-		//*****
 		//期日変更
-
 		//日付変更チェック
 		if( finishDate != null ){
 			//日付正規化
@@ -114,13 +107,9 @@ public class SprintManager {
 		}
 
 
-		//*****
-		//カード変更
-
+		//カードリスト変更
 		if( cardAndMembers != null ){
-			List<String> cardIds = new ArrayList<String>();
-			cardAndMembers.forEach((sc -> cardIds.add(sc.getCardId())));
-
+			List<String> cardIds = CardMembers.getCardIdList(cardAndMembers);
 			sdb.updateSprintCards(sprintId, cardIds);
 		}
 	}
@@ -133,9 +122,8 @@ public class SprintManager {
 	 * @return
 	 */
 	public boolean closeSprint(TrelloBoard board, TrelloCardFetcher cfetcher, String sprintId){
-		SprintsManageDB smdb = new SprintsManageDB(dbClient);
-		SprintResultsDB resdb = new SprintResultsDB(dbClient);
 		//現在のスプリントの情報を取得
+		SprintsManageDB smdb = new SprintsManageDB(dbClient);
 		Sprint currSpr = smdb.getSprintById(sprintId, converter);
 		if( currSpr == null ){
 			//throw new SprintManagementException("スプリントが見つかりません");
@@ -147,6 +135,7 @@ public class SprintManager {
 		}
 
 		//sprintResultを生成
+		SprintResultsDB resdb = new SprintResultsDB(dbClient);
 		resdb.createSprintResult(sprintId, null);
 
 		//カードを検査し、DBに追加
@@ -191,11 +180,11 @@ public class SprintManager {
 		return true;
 	}
 
-	public List<Sprint> getSprintsByBoardId(String boardId){
-		SprintsDB sdb = new SprintsDB(dbClient);
-
-		return sdb.getSprintsByBoardId(boardId, converter);
-	}
+//	public List<Sprint> getSprintsByBoardId(String boardId){
+//		SprintsDB sdb = new SprintsDB(dbClient);
+//
+//		return sdb.getSprintsByBoardId(boardId, converter);
+//	}
 
 //	@Deprecated
 //	public List<SprintResult> getSprintResultsByBoardId(String boardId){
