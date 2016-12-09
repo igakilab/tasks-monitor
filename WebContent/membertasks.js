@@ -1,5 +1,5 @@
 
-function DispMemberTasks(list){
+function showMemberTasks(list){
 	var $tbody = $("#memberTasksTbody");
 	$tbody.empty();
 	for(var i=0;i<list.length;i++){
