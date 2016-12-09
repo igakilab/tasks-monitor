@@ -4,13 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 
 public class CardResultForm {
 	public static CardResultForm getInstance(CardResult data){
 		CardResultForm form = new CardResultForm();
 		form.setCardId(data.getCardId());
-		data.getMemberIds().forEach(mid -> form.memberIds.add(mid));
+		form.memberIds.addAll(data.getMemberIds());
 		form.setFinished(data.isFinished());
+
+		return form;
+	}
+
+	public static CardResultForm getInstance(SprintResultCard card) {
+		CardResultForm form = new CardResultForm();
+		form.setCardId(card.getCardId());
+		form.memberIds.addAll(card.getMemberIds());
+		form.setFinished(card.isFinished());
 
 		return form;
 	}

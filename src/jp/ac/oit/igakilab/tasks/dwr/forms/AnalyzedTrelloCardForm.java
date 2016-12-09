@@ -52,12 +52,14 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 	private Date createdAt;
 	private Date movedDoingAt;
 	private Date movedDoneAt;
+	private boolean finished;
 	private int workingMinutes;
 
 	public AnalyzedTrelloCardForm(){
 		createdAt = null;
 		movedDoingAt = null;
 		movedDoneAt = null;
+		finished = false;
 		workingMinutes = 0;
 	}
 
@@ -83,6 +85,14 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 
 	public void setMovedDoneAt(Date movedDoneAt) {
 		this.movedDoneAt = movedDoneAt;
+	}
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	public void setFinished(boolean finished) {
+		this.finished = finished;
 	}
 
 	public int getWorkingMinutes() {

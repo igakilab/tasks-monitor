@@ -89,61 +89,29 @@ SprintResultAnalyzer = (function() {
 			beginDate: data.sprint.beginDate,
 			finishDate: data.sprint.finishDate,
 			closedDate: data.sprint.closedDate,
-			closedAt: data.result.createdAt,
-			remainedCards: data.result.remainedCards,
-			remainedCount: data.result.remainedCards.length,
-			finishedCards: data.result.finishedCards,
-			finishedCount: data.result.finishedCards.length
+			closedAt: data.result.createdAt
 		};
+
+		stmp.remainedCount = 0;
+		stmp.finishedCount = 0;
+		data.sprintCards.forEach(function(val, idx, ary){
+			if( val.finished ){
+				stmp.finishedCount++;
+			}else{
+				stmp.remainedCount++;
+			}
+		});
+
 		this.sprintData = stmp;
 
 		//*****
 		//スプリントカードの配列を生成する
-		this.cards = [];
-		var thisp = this;
-		//それぞれのカードについてremainとfinishのリストを検索し、
-		//finishedフラグを付けて、cards配列にコピーする
-		data.sprintCards.forEach(function(val, idx, ary){
-			//remainとfinishのリストからカードを検索する
-			var finished = null;
-			var memberIds = null;
-			var maxcnt = Math.max(stmp.remainedCount, stmp.finishedCount);
-			for(var i=0; i<maxcnt; i++){
-				console.log(val);
-				if( i < stmp.finishedCount && stmp.finishedCards[i].trelloCardId == val.id ){
-					finished = true;
-					memberIds = stmp.finishedCards[i].memberIds;
-					break;
-				}
-				if( i < stmp.remainedCount && stmp.remainedCards[i].trelloCardId == val.id ){
-					finished = false;
-					memberIds = stmp.remainedCards[i].memberIds;
-					break;
-				}
-			}
-
-			//カードを登録する
-			console.log("cnt: " + maxcnt);
-			console.log("finished: " + finished);
-			if( finished != null ){
-				console.log("pushed: " + finished);
-				thisp.cards.push({
-					id: val.id,
-					name: val.name,
-					desc: val.desc,
-					due: val.due,
-					listId: val.listId,
-					memberIds: memberIds,
-					closed: val.closed,
-					finished: finished,
-					workingMinutes: (finished ? val.workingMinutes : null)
-				});console.log(thisp.cards);
-			}
-		});
+		this.cards = data.sprintCards;
 
 		//*****
 		//メンバーの配列を生成する
 		this.members = [];
+		var thisp = this;
 		data.members.forEach(function(val, idx, ary){
 			//メンバーごとのremainとfinishのカウントを行います
 			var cards = thisp.getMemberCards(val.id);

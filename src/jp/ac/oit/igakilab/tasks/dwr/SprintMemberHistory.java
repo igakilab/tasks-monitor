@@ -5,14 +5,13 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.db.converters.SprintResultDocumentConverter;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintMemberHistoryForms.AssignedCard;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
-import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
@@ -29,9 +28,10 @@ public class SprintMemberHistory {
 
 		//スプリントリザルト一覧を取得する
 		SprintsDB sdb = new SprintsDB(client);
-		SprintResultsDB srdb = new SprintResultsDB(client);
-		List<SprintResult> resultHistory =
-			srdb.getSprintResultsByCardMemberId(memberId, new SprintResultDocumentConverter());
+		SprintResultProvider srdb = new SprintResultProvider(client);
+		List<SprintResult> resultHistory = new ArrayList<SprintResult>();
+		srdb.getSprintResultsByCardMemberId(memberId).forEach(
+			(c -> resultHistory.add(c.getSprintResult())));
 
 		//assignedCardを生成する
 		TrelloBoardBuilder builder = new TrelloBoardBuilder(client);
@@ -59,7 +59,7 @@ public class SprintMemberHistory {
 			}
 
 			//カードをビルドして返却リストに追加する
-			for(CardResult cres : res.getCardsByMemberIdContains(memberId)){
+			for(SprintResultCard cres : res.getCardsByMemberIdContains(memberId)){
 				TrelloCard c = board.getCardById(cres.getCardId());
 				if( c != null ){
 					cards.add(AssignedCard.getInstance(

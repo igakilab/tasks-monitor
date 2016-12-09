@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardMembers {
+	public static List<String> getCardIdList(List<CardMembers> cms){
+		List<String> ids = new ArrayList<String>(cms.size());
+		cms.forEach((cm -> ids.add(cm.getCardId())));
+		return ids;
+	}
+
 	private String cardId;
 	private List<String> memberIds;
 

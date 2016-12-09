@@ -126,7 +126,7 @@ public class SprintsDB {
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();
-		System.out.println(doc != null ? doc.toJson() : null);
+		//System.out.println(doc != null ? doc.toJson() : null);
 		if( doc != null && doc.get("lastDate") != null ){
 			Date last = doc.getDate("lastDate");
 			return last.compareTo(begin) <= 0;
@@ -176,7 +176,6 @@ public class SprintsDB {
 		return newId;
 	}
 
-	@Deprecated
 	public boolean updateSprintCards(String id, List<String> cardIds){
 		Bson filter = Filters.eq("id", id);
 		Bson update = Updates.set("trelloCardIds", cardIds);
