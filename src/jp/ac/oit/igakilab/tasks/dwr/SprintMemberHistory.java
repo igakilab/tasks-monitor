@@ -80,6 +80,10 @@ public class SprintMemberHistory {
 			result.add(wrapper);
 		}
 
+		//wrapperの内容を並び替える
+		result.sort((o1, o2) ->
+			o2.getSprint().getClosedDate().compareTo(o1.getSprint().getClosedDate()));
+
 		//結果を返却
 		client.close();
 		return result;
