@@ -1,7 +1,5 @@
 package jp.ac.oit.igakilab.tasks.dwr.forms;
 
-import static jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +9,6 @@ import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardUrl;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard.ListMovement;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
@@ -22,84 +19,84 @@ public class DashBoardForms {
 	 * @author Ryokun
 	 *
 	 */
-	public static class SprintCard extends TrelloCardForm{
-		public static SprintCard getInstance(TrelloActionsCard card, TrelloBoard board){
-			//インスタンス生成
-			SprintCard form = new SprintCard();
-			//スーパークラスで情報の設定
-			setValues(form, card);
-			//完了フラグを無効にしておく
-			form.setFinished(false);
-
-			//リスト移動履歴を取得
-			List<ListMovement> movements = card.getListMovement();
-
-			for(int i=0; i<movements.size(); i++){
-				ListMovement m = movements.get(i);
-				TrelloList after = board.getListById(m.getListIdAfter());
-
-				if( after != null ){
-					if( after.getName().matches(REGEX_DOING) && form.getMovedDoingAt() == null ){
-						form.setMovedDoingAt(m.getDate());
-						form.setMovedDoneAt(null);
-					}else if( after.getName().matches(REGEX_DONE) && form.getMovedDoingAt() != null ){
-						form.setMovedDoneAt(m.getDate());
-					}else{
-						form.setMovedDoneAt(null);
-					}
-				}
-			}
-
-			if( form.getMovedDoneAt() != null ){
-				form.setFinished(true);
-			}
-
-			return form;
-		}
-
-		//カードがdoneに移動しているかどうか
-		private boolean finished;
-		//カードが作られた日時
-		private Date createdAt;
-		//カードが最後にdoingに移動した日時
-		private Date movedDoingAt;
-		//カードが最後にdoneに移動した日時
-		private Date movedDoneAt;
-
-		public SprintCard(){
-			finished = false;
-			createdAt = null;
-			movedDoingAt = null;
-			movedDoneAt = null;
-		}
-
-		public boolean isFinished() {
-			return finished;
-		}
-
-		public void setFinished(boolean finished) {
-			this.finished = finished;
-		}
-
-		public Date getCreatedAt() {
-			return createdAt;
-		}
-		public void setCreatedAt(Date createdAt) {
-			this.createdAt = createdAt;
-		}
-		public Date getMovedDoingAt() {
-			return movedDoingAt;
-		}
-		public void setMovedDoingAt(Date movedDoingAt) {
-			this.movedDoingAt = movedDoingAt;
-		}
-		public Date getMovedDoneAt() {
-			return movedDoneAt;
-		}
-		public void setMovedDoneAt(Date movedDoneAt) {
-			this.movedDoneAt = movedDoneAt;
-		}
-	}
+//	public static class SprintCard extends TrelloCardForm{
+//		public static SprintCard getInstance(TrelloActionsCard card, TrelloBoard board){
+//			//インスタンス生成
+//			SprintCard form = new SprintCard();
+//			//スーパークラスで情報の設定
+//			setValues(form, card);
+//			//完了フラグを無効にしておく
+//			form.setFinished(false);
+//
+//			//リスト移動履歴を取得
+//			List<ListMovement> movements = card.getListMovement();
+//
+//			for(int i=0; i<movements.size(); i++){
+//				ListMovement m = movements.get(i);
+//				TrelloList after = board.getListById(m.getListIdAfter());
+//
+//				if( after != null ){
+//					if( after.getName().matches(REGEX_DOING) && form.getMovedDoingAt() == null ){
+//						form.setMovedDoingAt(m.getDate());
+//						form.setMovedDoneAt(null);
+//					}else if( after.getName().matches(REGEX_DONE) && form.getMovedDoingAt() != null ){
+//						form.setMovedDoneAt(m.getDate());
+//					}else{
+//						form.setMovedDoneAt(null);
+//					}
+//				}
+//			}
+//
+//			if( form.getMovedDoneAt() != null ){
+//				form.setFinished(true);
+//			}
+//
+//			return form;
+//		}
+//
+//		//カードがdoneに移動しているかどうか
+//		private boolean finished;
+//		//カードが作られた日時
+//		private Date createdAt;
+//		//カードが最後にdoingに移動した日時
+//		private Date movedDoingAt;
+//		//カードが最後にdoneに移動した日時
+//		private Date movedDoneAt;
+//
+//		public SprintCard(){
+//			finished = false;
+//			createdAt = null;
+//			movedDoingAt = null;
+//			movedDoneAt = null;
+//		}
+//
+//		public boolean isFinished() {
+//			return finished;
+//		}
+//
+//		public void setFinished(boolean finished) {
+//			this.finished = finished;
+//		}
+//
+//		public Date getCreatedAt() {
+//			return createdAt;
+//		}
+//		public void setCreatedAt(Date createdAt) {
+//			this.createdAt = createdAt;
+//		}
+//		public Date getMovedDoingAt() {
+//			return movedDoingAt;
+//		}
+//		public void setMovedDoingAt(Date movedDoingAt) {
+//			this.movedDoingAt = movedDoingAt;
+//		}
+//		public Date getMovedDoneAt() {
+//			return movedDoneAt;
+//		}
+//		public void setMovedDoneAt(Date movedDoneAt) {
+//			this.movedDoneAt = movedDoneAt;
+//		}
+//	}
 
 
 	/**
@@ -200,7 +197,8 @@ public class DashBoardForms {
 					TrelloCard ctmp = board.getCardById(cid);
 					if( ctmp instanceof TrelloActionsCard ){
 						TrelloActionsCard card = (TrelloActionsCard)ctmp;
-						form.getSprintCards().add(SprintCard.getInstance(card, board));
+						form.addSprintCard(AnalyzedTrelloCardForm.getInstance(
+							card, board, sprint.getBeginDate(), null, null));
 					}
 				}
 			}
@@ -217,7 +215,7 @@ public class DashBoardForms {
 		private String sprintId;
 		private Date beginDate;
 		private Date finishDate;
-		private List<SprintCard> sprintCards;
+		private List<AnalyzedTrelloCardForm> sprintCards;
 
 		public DashBoardData(){
 			boardId = null;
@@ -227,7 +225,7 @@ public class DashBoardForms {
 			sprintId = null;
 			beginDate = null;
 			finishDate = null;
-			sprintCards = new ArrayList<SprintCard>();
+			sprintCards = null;
 		}
 
 		public String getBoardId() {
@@ -286,11 +284,16 @@ public class DashBoardForms {
 			this.finishDate = finishDate;
 		}
 
-		public List<SprintCard> getSprintCards() {
+		public List<AnalyzedTrelloCardForm> getSprintCards() {
 			return sprintCards;
 		}
 
-		public void setSprintCards(List<SprintCard> sprintCards) {
+		public void addSprintCard(AnalyzedTrelloCardForm card){
+			if( sprintCards == null ) sprintCards = new ArrayList<>();
+			sprintCards.add(card);
+		}
+
+		public void setSprintCards(List<AnalyzedTrelloCardForm> sprintCards) {
 			this.sprintCards = sprintCards;
 		}
 	}
