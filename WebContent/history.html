@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+		<title>Sprint History</title>
+
+		<link href="css/bootstrap.min.css" rel="stylesheet"/>
+	</head>
+	<body style="padding-top: 50px;">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collabpsed"
+					data-toggle="collapse" data-target="#navbar"
+					aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Project name</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#">home</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		<div class="container">
+			<h2>過去のスプリント一覧</h2>
+
+			<div class="alert-div"></div>
+
+			<h3>ボード名: <span class="board-name"></span></h3>
+
+			<table class="table">
+				<thead><tr>
+					<th>スプリントID</th>
+					<th>開始日</th>
+					<th>目標日</th>
+					<th>終了日時</th>
+					<th>達成カード数</th>
+				</tr></thead>
+				<tbody class="sprint-list-tbody">
+				</tbody>
+			</table>
+
+
+
+		</div>
+
+		<script src="js/jquery-2.1.4.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/util.js"></script>
+		<script src="dwr/engine.js"></script>
+		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintHistory.js"></script>
+
+		<script>
+		/*
+		 * スプリント一覧表の位置行のdomオブジェクトを生成する関数
+		 * sprにはsprintListのそれぞれの要素を渡す
+		 */
+		function generateSprintRow(spr){
+			var $did = $("<td></td>");
+
+			var $row = $("<tr></tr>").append(
+				$did,
+				$("<td></td>").text(Util.formatDate(spr.beginDate, "YYYY/MM/DD")),
+				$("<td></td>").text(Util.formatDate(spr.finishDate, "YYYY/MM/DD")));
+
+			if( !Util.isNull(spr.closedDate) ){
+				$row.append(
+					$("<td></td>").text(Util.formatDate(spr.closedDate, "YYYY/MM/DD hh:mm")));
+				$did.append($("<a></a>").text(spr.id)
+					.attr("href", "feedback.html?sprintId=" + spr.id));
+			}else{
+				$row.append($("<td></td>").text("進行中"));
+				$did.append(spr.id);
+			}
+
+			if( !Util.isNull(spr.finishedCards) && !Util.isNull(spr.remainedCards) ){
+				var f = spr.finishedCards.length;
+				var t = f + spr.remainedCards.length;
+				$row.append($("<td></td>").text(f + " / " + t));
+			}else{
+				$row.append($("<td></td>").append("- / -"));
+			}
+
+			return $row;
+		}
+
+		/*
+		 * スプリントリストを表示する関数
+		 */
+		function showSprintList(list){
+			var tbody = $(".sprint-list-tbody");
+			tbody.empty();
+
+			for(var i=0; i<list.length; i++){
+				tbody.append(generateSprintRow(list[i]));
+			}
+		}
+
+		/*
+		 * ボード情報を表示する関数
+		 */
+		function showBoardData(boardData){
+			$(".board-name").text(boardData.name + "(" + boardData.id + ")");
+		}
+
+		/*
+		 * ページロード時に実行される関数
+		 */
+		$(document).ready(function(){
+			var boardId = Util.getUrlParameters().bid;
+
+			if( Util.isNull(boardId) ){
+				Util.showAlertToDiv("ボードIDを指定してください");
+				return;
+			}
+
+			SprintHistory.getSprintList(boardId, function(reply){
+				showBoardData(reply.boardData);
+				showSprintList(reply.sprintList);
+			});
+		});
+		</script>
+	</body>
+</html>
