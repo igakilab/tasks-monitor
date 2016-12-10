@@ -99,87 +99,9 @@
 					</div>
 				</div>
 
-				<div class="row">
-					<table class="table">
-						<thead><tr>
-							<th>メンバー名</th><th>スプリントID</th><th>終了日</th><th>達成数</th><th>未達成数</th>
-						</tr></thead>
-						<tbody class="member-history-tbody"></tbody>
-					</table>
+				<div class="row member-histories">
 				</div>
 
-
-				<!-- <div class="row">
-					<div class="col-md-4">
-						<h2>各タスクの自己評価</h2>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<h2>タスクカード名</h2>
-					</div>
-					<div class="col-md-6">
-						<h2>評価</h2>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<ul class="list-group">
-							<li class="list-group-item">
-								ああああああああああ
-							</li>
-						</ul>
-					</div>
-					<div class="col-md-6">
-						<ul class="list-group">
-							<li class="list-group-item">
-								<form name="judge">
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio1" value="A" onchange="TextCont();"> A</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio2" value="B" onchange="TextCont();"> B</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio3" value="C" onchange="TextCont();"> C</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio4" value="D" onchange="TextCont();"> D</label>
-									</div>
-								</form>
-								<div id="comm"></div>
-							</li>
-						</ul>
-					</div>
-					<div class="col-md-6">
-						<ul class="list-group">
-							<li class="list-group-item">
-								いいいいいいいいいい
-							</li>
-						</ul>
-					</div>
-					<div class="col-md-6">
-						<ul class="list-group">
-							<li class="list-group-item">
-								<form name="judge2">
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio5" value="A" onchange="TextCont();"> A</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio6" value="B" onchange="TextCont();"> B</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio7" value="C" onchange="TextCont();"> C</label>
-									</div>
-									<div class="radio-inline">
-										<label><input type="radio" name="radio" id="radio8" value="D" onchange="TextCont();"> D</label>
-									</div>
-								</form>
-								<div id="comm2"></div>
-							</li>
-						</ul>
-					</div>
-				</div> -->
 
 				<div class="row">
 					<button type="button" class="btn btn-primary next-sprint-btn">
@@ -192,6 +114,7 @@
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 		<script src="comm.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/sprint-result-analyzer.js"></script>
@@ -210,7 +133,10 @@
 
 			var sra = new SprintResultAnalyzer(sprintId);
 			sra.fetch(function(){
-				setSprintResult(sra);
+				google.charts.load("current", {"packages":["corechart"]});
+				google.charts.setOnLoadCallback(function(){
+					setSprintResult(sra);
+				});
 
 				$(".next-sprint-btn").on('click', function(){
 					location.href = "sprint.html?boardId=" + sra.getBoardData().id;
