@@ -69,7 +69,7 @@ function showDashBoard(data){
 
 	// *****
 	// 進捗グラフの表示
-	if( data.sprintCards > 0 ){
+	if( data.sprintCards.length > 0 ){
 		drawSprintTasksTimeline(data.sprintCards, data.beginDate, data.finishDate);
 	}
 
