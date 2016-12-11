@@ -225,7 +225,7 @@ public class DashBoardForms {
 			sprintId = null;
 			beginDate = null;
 			finishDate = null;
-			sprintCards = null;
+			sprintCards = new ArrayList<>();
 		}
 
 		public String getBoardId() {
