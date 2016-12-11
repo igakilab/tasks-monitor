@@ -180,6 +180,30 @@ public class SprintManager {
 		return true;
 	}
 
+
+	/**
+	 * 指定されたスプリントにカードを新しく追加します
+	 * @param sprintId
+	 * @param cardAndMembers
+	 * @return
+	 * @throws SprintManagementException
+	 */
+	public boolean addSprintCards(String sprintId, List<CardMembers> cardAndMembers)
+	throws SprintManagementException{
+		//スプリント存在確認
+		SprintsDB sdb = new SprintsDB(dbClient);
+		if( !sdb.sprintIdExists(sprintId) ){
+			throw new SprintManagementException("スプリントIDが不正です");
+		}
+
+		//カード追加
+		if( cardAndMembers != null ){
+			cardAndMembers.forEach((cm -> sdb.addTrelloCardId(sprintId, cm.getCardId())));
+		}
+
+		return true;
+	}
+
 //	public List<Sprint> getSprintsByBoardId(String boardId){
 //		SprintsDB sdb = new SprintsDB(dbClient);
 //
