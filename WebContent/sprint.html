@@ -184,7 +184,7 @@
 		<script src="sprint.js"></script>
 		<script>$(document).ready(function(){
 			//ボードidを取得
-			var boardId = Util.getUrlParameters().boardId;
+			var boardId = Util.getUrlParameters().bid;
 
 			if( Util.isNull(boardId) ){
 				Util.showAlertToDiv("ボードIDを指定してください");
@@ -236,13 +236,13 @@
 				builder.setFinishDate(fd);
 
 				builder.regist(function(sid){
-					location.href = "index.html?boardId=" + boardId;
+					location.href = "index.html?bid=" + boardId;
 				});
 			});
 
 			//ダッシュボードへ移動ボタンを設定
 			$(".to-dashboard-btn").on('click', function(){
-				location.href = "index.html?boardId=" + boardId;
+				location.href = "index.html?bid=" + boardId;
 			});
 		});
 

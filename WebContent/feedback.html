@@ -129,7 +129,7 @@
 		 */
 		$(document).ready(function(){
 			//urlパラメータからボードIDを取得
-			var sprintId = Util.getUrlParameters().sprintId;
+			var sprintId = Util.getUrlParameters().sid;
 
 			var sra = new SprintResultAnalyzer(sprintId);
 			sra.fetch(function(){
@@ -139,11 +139,11 @@
 				});
 
 				$(".next-sprint-btn").on('click', function(){
-					location.href = "sprint.html?boardId=" + sra.getBoardData().id;
+					location.href = "sprint.html?bid=" + sra.getBoardData().id;
 				});
 
 				$(".to-dashboard-btn").on('click', function(){
-					location.href = "index.html?boardId=" + sra.getBoardData().id;
+					location.href = "index.html?bid=" + sra.getBoardData().id;
 				});
 			});
 		});

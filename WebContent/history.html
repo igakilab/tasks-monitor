@@ -30,11 +30,15 @@
 		</nav>
 
 		<div class="container">
-			<h2>過去のスプリント一覧</h2>
+			<div class="page-header">
+				<h1>過去のスプリント一覧 <small class="board-name"></small></h1>
+			</div>
 
 			<div class="alert-div"></div>
 
-			<h3>ボード名: <span class="board-name"></span></h3>
+			<a class="btn btn-default board-dashboard-btn">
+				<span class="glyphicon glyphicon-chevron-left"></span> ダッシュボードへ移動
+			</a>
 
 			<table class="table">
 				<thead><tr>
@@ -76,7 +80,7 @@
 				$row.append(
 					$("<td></td>").text(Util.formatDate(spr.closedDate, "YYYY/MM/DD hh:mm")));
 				$did.append($("<a></a>").text(spr.id)
-					.attr("href", "feedback.html?sprintId=" + spr.id));
+					.attr("href", "feedback.html?sid=" + spr.id));
 			}else{
 				$row.append($("<td></td>").text("進行中"));
 				$did.append(spr.id);
@@ -110,6 +114,8 @@
 		 */
 		function showBoardData(boardData){
 			$(".board-name").text(boardData.name + "(" + boardData.id + ")");
+
+			$(".board-dashboard-btn").attr("href", "index.html?bid=" + boardData.id);
 		}
 
 		/*
@@ -124,6 +130,9 @@
 			}
 
 			SprintHistory.getSprintList(boardId, function(reply){
+				if( !reply.boardData.id ){
+					Util.showAlertToDiv("ボードが見つかりません");
+				}
 				showBoardData(reply.boardData);
 				showSprintList(reply.sprintList);
 			});

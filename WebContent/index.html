@@ -204,7 +204,7 @@
 			var params = Util.getUrlParameters();
 
 			//ボードIDの値をパラメータから取り出す
-			var boardId = params.boardId;
+			var boardId = params.bid;
 
 			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
 			if( typeof boardId === 'undefined' ){
@@ -244,7 +244,7 @@
 
 					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
 
-					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
+					$(".sprint-plan-btn").attr("href", "sprint.html?bid=" + data.boardId);
 
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")
@@ -253,7 +253,7 @@
 								DashBoard.closeCurrentSprint(boardId, {
 									//正常に終了した時の動作
 									callback: function(sid) {
-										location.href = "feedback.html?sprintId=" + sid;
+										location.href = "feedback.html?sid=" + sid;
 									},
 									//異常終了した時の動作
 									errorHandler: function(msg){
