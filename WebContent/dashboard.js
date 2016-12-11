@@ -6,9 +6,13 @@ function showDashBoard(data){
 	//ボード名/ボードリンクの表示
 	$(".board-title").empty();
 	$(".board-title").append(
-		$("<a></a>").append(
-			$("<h1></h1>").text(data.boardName))
-			.attr("href", data.boardUrl));
+		$("<h1></h1>").append(
+			$("<a></a>").text(data.boardName + " ")
+				.attr("href", data.boardUrl)
+				.css("text-decoration", "none"),
+			$("<small></small>").text("dashboard")
+		)
+	);
 
 
 	// *****

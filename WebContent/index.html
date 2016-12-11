@@ -21,6 +21,8 @@
 					aria-expanded="false" aria-controls="navbar">
 						<span class="sr-only">Toggle navigation</span>
 						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" href="#">Project name</a>
 				</div>
@@ -33,12 +35,16 @@
 		</nav>
 
 		<div class="container">
-			<div style="padding: 40px 15px; text-align: center;">
-				<div class="row">
-					<div class="col-md-4 board-title">
-						<a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank"><h1>tasks-test</h1></a>
-					</div>
-				</div>
+			<div class="page-header board-title"></div>
+
+			<div class="row col-md-12">
+				<a class="btn btn-default sprint-history-btn" role="button">
+				スプリント履歴</a>
+			</div>
+		</div>
+
+		<div class="container">
+			<div style="text-align:center;">
 				<div class="row">
 					<div class="col-md-4">
 						<h3>次の目標日</h3>
@@ -56,10 +62,11 @@
 
 				<div class="alert-div"></div>
 
-				<div class="container">
-					<div id="n-timeline">
+				<!-- <div class="container"> -->
+					<div class="row col-md-12">
+						<div id="n-timeline" style="padding-top:1.5em;"></div>
 					</div>
-				</div>
+				<!-- </div> -->
 
 <!-- 				<div class="sprint-cards"> -->
 <!-- 				<div class="row"> -->
@@ -234,6 +241,8 @@
 					 *  }, ...]
 					 * }
 					*/
+
+					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
 
 					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
 
