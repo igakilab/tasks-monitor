@@ -217,12 +217,15 @@
 					$("#finishDateInput").val(Util.formatDate(builder.getFinishDate(), "YYYY/MM/DD"));
 				}else{
 					$(".regist-type").text("新規");
-					$(".create-btn").text("スプリント開始");
+					$(".create-btn").text("イテレーション開始");
 				}
 			});
 
 			//新規作成ボタンを設定
 			$(".create-btn").on('click', function(){
+				//ボタン処理
+				$(".create-btn").off('click')
+					.text("処理中...").addClass("disabled");
 				//日付のパース
 				var ds = $("#finishDateInput").val();
 				var fd = Date.parse(ds);

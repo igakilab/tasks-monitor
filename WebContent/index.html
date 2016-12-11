@@ -129,7 +129,7 @@
 
 				<div class="row text-right">
 					<a class="btn btn-default sprint-plan-btn" role="button">
-					スプリント作成&変更</a>
+					イテレーション開始&変更</a>
 					<a class="btn btn-primary sprint-close-btn disabled" role="button">
 					振り返りへ</a>
 				</div>
@@ -250,6 +250,8 @@
 						$(".sprint-close-btn")
 							.removeClass("disabled")
 							.on('click', function(){
+								$(".sprint-close-btn").off('click')
+									.text("処理中...").addClass("disabled");
 								DashBoard.closeCurrentSprint(boardId, {
 									//正常に終了した時の動作
 									callback: function(sid) {
