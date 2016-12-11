@@ -1,5 +1,6 @@
 package jp.ac.oit.igakilab.tasks.members;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,15 @@ public class MemberSlackIdTable {
 
 	public String getSlackId(String memberId){
 		return table.get(memberId);
+	}
+
+	public List<String> getSlackIds(List<String> memberIds){
+		List<String> slackIds = new ArrayList<>();
+		memberIds.forEach((mid) -> {
+			String sid = getSlackId(mid);
+			if( sid != null ) slackIds.add(sid);
+		});
+		return slackIds;
 	}
 
 	public String getMemberId(String slackId){
