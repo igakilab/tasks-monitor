@@ -35,11 +35,21 @@
 		</nav>
 
 		<div class="container">
-			<div class="page-header board-title"></div>
+			<div class="page-header">
+				<h1 style="display:inline;">
+					<span class="board-title"></span>&nbsp;<small>dashboard</small>
+				</h1>
+			</div>
 
 			<div class="row col-md-12">
+				<span>参加メンバー:
+					<span class="members-btn-wrapper btn-group" role="group">
+					</span>
+				</span>&nbsp;
+
 				<a class="btn btn-default sprint-history-btn" role="button">
-				スプリント履歴</a>
+					<span class="glyphicon glyphicon-time"></span> スプリント履歴
+				</a>
 			</div>
 		</div>
 
@@ -129,7 +139,7 @@
 
 				<div class="row text-right">
 					<a class="btn btn-default sprint-plan-btn" role="button">
-					イテレーション開始&変更</a>
+					イテレーション開始&amp;変更</a>
 					<a class="btn btn-primary sprint-close-btn disabled" role="button">
 					振り返りへ</a>
 				</div>
@@ -243,7 +253,6 @@
 					*/
 
 					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
-
 					$(".sprint-plan-btn").attr("href", "sprint.html?bid=" + data.boardId);
 
 					if( data.sprintId != null ){
@@ -264,6 +273,10 @@
 								});
 							});
 					}
+
+					//putMemberTasksButtonを呼ぶ
+					$(".members-btn-wrapper").empty();
+					putMemberTasksButton($(".members-btn-wrapper"), data.members);
 
 					//showDashBoardを呼ぶ
 					google.charts.load("current", {packages:["timeline"]});

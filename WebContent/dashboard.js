@@ -6,12 +6,9 @@ function showDashBoard(data){
 	//ボード名/ボードリンクの表示
 	$(".board-title").empty();
 	$(".board-title").append(
-		$("<h1></h1>").append(
-			$("<a></a>").text(data.boardName + " ")
-				.attr("href", data.boardUrl)
-				.css("text-decoration", "none"),
-			$("<small></small>").text("dashboard")
-		)
+		$("<a></a>").text(data.boardName + " ")
+			.attr("href", data.boardUrl)
+			.css("text-decoration", "none")
 	);
 
 
@@ -81,6 +78,22 @@ function showDashBoard(data){
 	addCardToListGroup($("#doingList"), data.kanban.doing);
 	$("#doneList").empty();
 	addCardToListGroup($("#doneList"), data.kanban.done);
+}
+
+
+
+/*
+ * $divの位置にメンバーごとのmemberTasksへのリンクを配置します
+ * membersには以下のフォーマットでデータを指定します。
+ * [{id:<メンバーID>, name:<メンバー名>}, ..]
+ */
+function putMemberTasksButton($div, members){
+	members.forEach(function(member){
+		$div.append(
+			$("<a></a>").addClass("btn btn-default btn-sm")
+				.append(Util.bsGlyphicon("user"), " " + member.name)
+				.attr("href", "membertasks.html?mid=" + member.id));
+	});
 }
 
 /*

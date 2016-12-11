@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.members.Member;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardUrl;
@@ -177,7 +180,7 @@ public class DashBoardForms {
 	 *
 	 */
 	public static class DashBoardData{
-		public static DashBoardData getInstance(TrelloBoard board, Sprint sprint){
+		public static DashBoardData getInstance(TrelloBoard board, Sprint sprint, MemberTrelloIdTable ttb){
 			//インスタンス作成
 			DashBoardData form = new DashBoardData();
 			//ボード情報の設定
@@ -187,6 +190,14 @@ public class DashBoardForms {
 				TrelloBoardUrl url = new TrelloBoardUrl(board.getShortLink());
 				form.setBoardUrl(url.getUrl());
 				form.setKanban(Kanban.getInstance(board));
+				if( ttb != null ){
+					board.getMemberIds().forEach((tmid) -> {
+						Member member = ttb.getMember(tmid);
+						if( member != null ){
+							form.addMember(MemberForm.getInstance(member));
+						}
+					});
+				}
 			}
 			//スプリント情報の設定
 			if( board != null && sprint != null ){
@@ -198,7 +209,7 @@ public class DashBoardForms {
 					if( ctmp instanceof TrelloActionsCard ){
 						TrelloActionsCard card = (TrelloActionsCard)ctmp;
 						form.addSprintCard(AnalyzedTrelloCardForm.getInstance(
-							card, board, sprint.getBeginDate(), null, null));
+							card, board, sprint.getBeginDate(), null, ttb));
 					}
 				}
 			}
@@ -211,6 +222,7 @@ public class DashBoardForms {
 		private String boardName;
 		private String boardUrl;
 		private Kanban kanban;
+		private List<MemberForm> members;
 		//スプリントの情報
 		private String sprintId;
 		private Date beginDate;
@@ -222,70 +234,11 @@ public class DashBoardForms {
 			boardName = null;
 			boardUrl = null;
 			kanban = null;
+			members = new ArrayList<>();
 			sprintId = null;
 			beginDate = null;
 			finishDate = null;
 			sprintCards = new ArrayList<>();
-		}
-
-		public String getBoardId() {
-			return boardId;
-		}
-
-		public void setBoardId(String boardId) {
-			this.boardId = boardId;
-		}
-
-		public String getBoardName() {
-			return boardName;
-		}
-
-		public void setBoardName(String boardName) {
-			this.boardName = boardName;
-		}
-
-		public String getBoardUrl() {
-			return boardUrl;
-		}
-
-		public void setBoardUrl(String boardUrl) {
-			this.boardUrl = boardUrl;
-		}
-
-		public Kanban getKanban() {
-			return kanban;
-		}
-
-		public void setKanban(Kanban kanban) {
-			this.kanban = kanban;
-		}
-
-		public String getSprintId() {
-			return sprintId;
-		}
-
-		public void setSprintId(String sprintId) {
-			this.sprintId = sprintId;
-		}
-
-		public Date getBeginDate() {
-			return beginDate;
-		}
-
-		public void setBeginDate(Date beginDate) {
-			this.beginDate = beginDate;
-		}
-
-		public Date getFinishDate() {
-			return finishDate;
-		}
-
-		public void setFinishDate(Date finishDate) {
-			this.finishDate = finishDate;
-		}
-
-		public List<AnalyzedTrelloCardForm> getSprintCards() {
-			return sprintCards;
 		}
 
 		public void addSprintCard(AnalyzedTrelloCardForm card){
@@ -293,6 +246,62 @@ public class DashBoardForms {
 			sprintCards.add(card);
 		}
 
+		public void addMember(MemberForm member){
+			if( members == null ) members = new ArrayList<>();
+			members.add(member);
+		}
+
+		public String getBoardId() {
+			return boardId;
+		}
+		public void setBoardId(String boardId) {
+			this.boardId = boardId;
+		}
+		public String getBoardName() {
+			return boardName;
+		}
+		public void setBoardName(String boardName) {
+			this.boardName = boardName;
+		}
+		public String getBoardUrl() {
+			return boardUrl;
+		}
+		public void setBoardUrl(String boardUrl) {
+			this.boardUrl = boardUrl;
+		}
+		public Kanban getKanban() {
+			return kanban;
+		}
+		public void setKanban(Kanban kanban) {
+			this.kanban = kanban;
+		}
+		public List<MemberForm> getMembers() {
+			return members;
+		}
+		public void setMembers(List<MemberForm> members) {
+			this.members = members;
+		}
+		public String getSprintId() {
+			return sprintId;
+		}
+		public void setSprintId(String sprintId) {
+			this.sprintId = sprintId;
+		}
+		public Date getBeginDate() {
+			return beginDate;
+		}
+		public void setBeginDate(Date beginDate) {
+			this.beginDate = beginDate;
+		}
+		public Date getFinishDate() {
+			return finishDate;
+		}
+		public void setFinishDate(Date finishDate) {
+			this.finishDate = finishDate;
+		}
+		public List<AnalyzedTrelloCardForm> getSprintCards() {
+			return sprintCards;
+		}
 		public void setSprintCards(List<AnalyzedTrelloCardForm> sprintCards) {
 			this.sprintCards = sprintCards;
 		}
