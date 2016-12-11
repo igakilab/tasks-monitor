@@ -24,7 +24,7 @@ function showDashBoard(data){
 		$(".finish-date").append(
 			$("<p></p>").text("現在進行中のスプリントはありません"),
 			$("<a></a>").text("新しいスプリントを作成...")
-				.attr("href", "sprint.html?boardId=" + data.boardId));
+				.attr("href", "sprint.html?bid=" + data.boardId));
 	}
 
 
