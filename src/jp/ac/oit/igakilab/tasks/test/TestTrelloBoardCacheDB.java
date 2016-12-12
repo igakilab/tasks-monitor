@@ -1,17 +1,9 @@
 package jp.ac.oit.igakilab.tasks.test;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.json.simple.JSONObject;
-
 import com.mongodb.MongoClient;
 
-import jp.ac.oit.igakilab.tasks.db.TrelloBoardCacheDB;
-import jp.ac.oit.igakilab.tasks.db.converters.JsonDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloBoardCacheBuilder;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardCacheProvider;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
-import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 
@@ -24,16 +16,10 @@ public class TestTrelloBoardCacheDB {
 		TasksTrelloClientBuilder.setTestApiKey();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
-		TrelloBoardCacheDB db = new TrelloBoardCacheDB(client);
+		TrelloBoardCacheProvider provider = new TrelloBoardCacheProvider(client, api);
+		provider.verboseEnabled = true;
 
-		Date now = Calendar.getInstance().getTime();
-		JSONObject obj = TrelloBoardFetcher.sendFetchRequest(api, BOARD_ID);
-
-		System.out.println("LAST UPDATE: " + db.getLastUpdateDate(BOARD_ID));
-
-		db.updateBoardData(BOARD_ID, now, obj, new JsonDocumentConverter());
-
-		TrelloBoard board = db.findBoardData(BOARD_ID, new TrelloBoardCacheBuilder());
+		TrelloBoard board = provider.getBoard(BOARD_ID);
 		board.printContentId();
 
 		client.close();
