@@ -35,6 +35,25 @@ public class TrelloBoardFetcher{
 		board.printListsAndCards(System.out);
 	}
 
+
+	public static JSONObject sendFetchRequest(TrelloApi<Object> api, String boardId){
+		String url = "/1/boards/" + boardId;
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("cards", "all");
+		params.put("lists", "all");
+
+		try{
+			Object res = api.get(url, params);
+			if( res instanceof JSONObject ){
+				return (JSONObject)res;
+			}else{
+				return null;
+			}
+		}catch(TrelloApiConnectionFailedException e0){
+			return null;
+		}
+	}
+
 	private TrelloApi<Object> api;
 	private String boardId;
 	private TrelloBoard board;
@@ -140,26 +159,8 @@ public class TrelloBoardFetcher{
 	}
 
 
-	public JSONObject sendFetchRequest(){
-		String url = "/1/boards/" + boardId;
-		Map<String,String> params = new HashMap<String,String>();
-		params.put("cards", "all");
-		params.put("lists", "all");
-
-		try{
-			Object res = api.get(url, params);
-			if( res instanceof JSONObject ){
-				return (JSONObject)res;
-			}else{
-				return null;
-			}
-		}catch(TrelloApiConnectionFailedException e0){
-			return null;
-		}
-	}
-
 	public boolean fetch(){
-		JSONObject reply = sendFetchRequest();
+		JSONObject reply = sendFetchRequest(api, boardId);
 
 		if( reply != null ){
 			applyBoardData(reply);

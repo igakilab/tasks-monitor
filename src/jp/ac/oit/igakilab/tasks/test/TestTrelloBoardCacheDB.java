@@ -26,9 +26,8 @@ public class TestTrelloBoardCacheDB {
 
 		TrelloBoardCacheDB db = new TrelloBoardCacheDB(client);
 
-		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api, BOARD_ID);
 		Date now = Calendar.getInstance().getTime();
-		JSONObject obj = fetcher.sendFetchRequest();
+		JSONObject obj = TrelloBoardFetcher.sendFetchRequest(api, BOARD_ID);
 
 		System.out.println("LAST UPDATE: " + db.getLastUpdateDate(BOARD_ID));
 
