@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -117,10 +118,16 @@ public class TrelloActionCacheDB {
 			Bson updates = Updates.set("data", dataDoc);
 
 			UpdateResult res = collection.updateOne(filter, updates, options);
-			cnt += res.getModifiedCount();
+			cnt += res.getUpsertedId() != null ? 1 : res.getModifiedCount();
 		}
 
 		return cnt;
+	}
+
+
+	public <T> long applyActionCache
+	(String category, String id, Collection<T> data, DocumentConverter<T> converter){
+		return applyActionCache(category, id, Calendar.getInstance().getTime(), data, converter);
 	}
 
 
