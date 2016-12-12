@@ -156,4 +156,19 @@ public class TrelloBoard extends TrelloBoardData{
 			stream.println("\t" + card.toString());
 		}
 	}
+
+	public void printContentId() {
+		System.out.println("==== BOARD ====");
+		System.out.format("%s: %s\n", getId(), getName());
+
+		System.out.println("\n==== LISTS ====");
+		for(TrelloList list : getLists()){
+			System.out.format("%s: %s\n", list.getId(), list.getName());
+		}
+
+		System.out.println("\n==== CARDS ====");
+		for(TrelloCard card : getCards()){
+			System.out.format("%s: %s\n", card.getId(), card.getName());
+		}
+	}
 }
