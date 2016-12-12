@@ -19,6 +19,9 @@ public class TestTrelloBoardCacheDB {
 		TrelloBoardCacheProvider provider = new TrelloBoardCacheProvider(client, api);
 		provider.verboseEnabled = true;
 
+		provider.getCacheList().forEach(
+			(inf -> System.out.println(inf.getBoardId() + " (" + inf.getLastUpdateDate() + ")")));
+
 		TrelloBoard board = provider.getBoard(BOARD_ID);
 		board.printContentId();
 

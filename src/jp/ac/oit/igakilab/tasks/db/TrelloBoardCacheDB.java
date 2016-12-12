@@ -1,7 +1,9 @@
 package jp.ac.oit.igakilab.tasks.db;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -20,8 +22,29 @@ public class TrelloBoardCacheDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "trello_board_cache";
 
+
+	public static class BoardCacheInfo{
+		private String boardId;
+		private Date lastUpdateDate;
+
+		BoardCacheInfo(String boardId, Date lastUpdateDate){
+			this.boardId = boardId;
+			this.lastUpdateDate = lastUpdateDate;
+		}
+
+		public String getBoardId(){
+			return boardId;
+		}
+
+		public Date getLastUpdateDate(){
+			return lastUpdateDate;
+		}
+	}
+
+
 	private MongoClient client;
 	private MongoCollection<Document> collection;
+
 
 	public TrelloBoardCacheDB(MongoClient client){
 		this.client = client;
@@ -40,13 +63,12 @@ public class TrelloBoardCacheDB {
 	}
 
 
-	public <T> boolean updateBoardData(String boardId, Date lastUpdate, T data, DocumentConverter<T> converter){
+	public <T> boolean updateBoardCache(String boardId, Date lastUpdate, T data, DocumentConverter<T> converter){
 		Document docData = converter.convert(data);
 		UpdateResult result = null;
 
 		if( docData != null && boardId != null ){
 			Bson updates = Updates.combine(
-				Updates.set("boardId", boardId),
 				Updates.set("lastUpdate", lastUpdate),
 				Updates.set("data", docData)
 			);
@@ -62,12 +84,12 @@ public class TrelloBoardCacheDB {
 	}
 
 
-	public <T> boolean updateBoardData(String boardId, T data, DocumentConverter<T> converter){
-		return updateBoardData(boardId, Calendar.getInstance().getTime(), data, converter);
+	public <T> boolean updateBoardCache(String boardId, T data, DocumentConverter<T> converter){
+		return updateBoardCache(boardId, Calendar.getInstance().getTime(), data, converter);
 	}
 
 
-	public <T> T findBoardData(String boardId, DocumentParser<T> parser){
+	public <T> T findBoardCache(String boardId, DocumentParser<T> parser){
 		Bson filter = Filters.eq("boardId", boardId);
 
 		Document doc = collection.find(filter).first();
@@ -91,5 +113,19 @@ public class TrelloBoardCacheDB {
 		}else{
 			return null;
 		}
+	}
+
+
+	public List<BoardCacheInfo> getBoardCacheList(){
+		List<BoardCacheInfo> list = new ArrayList<BoardCacheInfo>();
+
+		for(Document doc : collection.find()){
+			String bid = doc.getString("boardId");
+			Date lud = doc.getDate("lastUpdate");
+
+			list.add(new BoardCacheInfo(bid, lud));
+		}
+
+		return list;
 	}
 }

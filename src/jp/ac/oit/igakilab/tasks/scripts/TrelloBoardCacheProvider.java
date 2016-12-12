@@ -2,6 +2,7 @@ package jp.ac.oit.igakilab.tasks.scripts;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.json.simple.JSONObject;
 
@@ -76,7 +77,7 @@ public class TrelloBoardCacheProvider {
 
 
 	protected TrelloBoard buildBoard(String boardId){
-		return cdb.findBoardData(boardId, new TrelloBoardCacheBuilder());
+		return cdb.findBoardCache(boardId, new TrelloBoardCacheBuilder());
 	}
 
 
@@ -84,7 +85,7 @@ public class TrelloBoardCacheProvider {
 		if( api != null ){
 			JSONObject reply = TrelloBoardFetcher.sendFetchRequest(api, boardId);
 			if( reply != null ){
-				return cdb.updateBoardData(boardId, reply, new JsonDocumentConverter());
+				return cdb.updateBoardCache(boardId, reply, new JsonDocumentConverter());
 			}else{
 				return false;
 			}
@@ -111,5 +112,10 @@ public class TrelloBoardCacheProvider {
 
 	public TrelloBoard getBoard(String boardId){
 		return getBoard(boardId, false);
+	}
+
+
+	public List<TrelloBoardCacheDB.BoardCacheInfo> getCacheList(){
+		return cdb.getBoardCacheList();
 	}
 }
