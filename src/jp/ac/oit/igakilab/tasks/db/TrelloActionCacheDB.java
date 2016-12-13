@@ -13,6 +13,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
@@ -175,5 +176,19 @@ public class TrelloActionCacheDB {
 		}else{
 			return null;
 		}
+	}
+
+
+	public <T> T getLatestAction(String category, String id, DocumentParser<T> parser){
+		Bson filter = Filters.and(
+			Filters.eq("category", category),
+			Filters.eq("id", id),
+			Filters.exists("actionId", true),
+			Filters.exists("data.date", true));
+		Bson sorts = Sorts.descending("data.date");
+
+		Document doc = collection.find(filter).sort(sorts).first();
+
+		return doc != null ? parser.parse(doc) : null;
 	}
 }

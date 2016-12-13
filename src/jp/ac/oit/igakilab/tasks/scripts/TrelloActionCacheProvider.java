@@ -27,7 +27,7 @@ public class TrelloActionCacheProvider {
 		public DocumentConverter<T> getConverter();
 	}
 
-	public static ActionCacheFetcher<Object> getCardFetcher(TrelloApi<Object> api){
+	public static ActionCacheFetcher<Object> getCardFetcher(TrelloApi<Object> api, TrelloActionCacheDB cdb){
 		return new ActionCacheFetcher<Object>(){
 			private TrelloCardFetcher fetcher = new TrelloCardFetcher(api);
 			private JsonDocumentConverter converter = new JsonDocumentConverter();
@@ -84,6 +84,10 @@ public class TrelloActionCacheProvider {
 
 	protected void verbose(String msg){
 		System.out.println("TrelloBoardCacheProvider: " + msg);
+	}
+
+	public TrelloActionCacheDB getDBInstance(){
+		return cdb;
 	}
 
 
@@ -148,7 +152,7 @@ public class TrelloActionCacheProvider {
 	public <T> TrelloActionsCard getTrelloActionsCard
 	(String cardId, boolean forceReload){
 		if( needsUpdate(CCARD, cardId, forceReload) && api != null ){
-			return getTrelloActionsCard(cardId, getCardFetcher(api), true);
+			return getTrelloActionsCard(cardId, getCardFetcher(api, cdb), true);
 
 		}else{
 			return getTrelloActionsCard(cardId, null, false);

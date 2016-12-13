@@ -15,7 +15,8 @@ public class TestTrelloActionCacheDB {
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
 		TrelloActionCacheProvider provider = new TrelloActionCacheProvider(client, api);
-		ActionCacheFetcher<Object> fetc = TrelloActionCacheProvider.getCardFetcher(api);
+		ActionCacheFetcher<Object> fetc =
+			TrelloActionCacheProvider.getCardFetcher(api, provider.getDBInstance());
 
 		TrelloCard card = provider.getTrelloActionsCard("57ef25659c448c0e3df1aa07", fetc, false);
 
