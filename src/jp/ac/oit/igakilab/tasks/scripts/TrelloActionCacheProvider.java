@@ -27,6 +27,29 @@ public class TrelloActionCacheProvider {
 		public DocumentConverter<T> getConverter();
 	}
 
+	public static ActionCacheFetcher<Object> getCardFetcher(TrelloApi<Object> api){
+		return new ActionCacheFetcher<Object>(){
+			private TrelloCardFetcher fetcher = new TrelloCardFetcher(api);
+			private JsonDocumentConverter converter = new JsonDocumentConverter();
+
+			@Override
+			public Collection<Object> fetchActions(String cat, String id) {
+				if( CCARD.equals(cat) ){
+					List<Object>actions = fetcher.getCardActions(id).stream()
+						.map((jobj) -> (Object)jobj)
+						.collect(Collectors.toList());
+					return actions;
+				}
+				return null;
+			}
+
+			@Override
+			public DocumentConverter<Object> getConverter() {
+				return converter;
+			}
+		};
+	}
+
 	private TrelloApi<Object> api;
 	private TrelloActionCacheDB cdb;
 	private long timeout;
@@ -85,47 +108,33 @@ public class TrelloActionCacheProvider {
 	}
 
 
-	protected <T> boolean updateIfNeeded(String cat, String id, ActionCacheFetcher<T> fetcher, boolean forceUpdate){
-		if( fetcher != null && (forceUpdate || isTimeout(cat, id)) ){
-			verbose("Update cache... " + cat + " " + id + (forceUpdate ? " (forcedUpdate)" : " (timeout)"));
+	public boolean needsUpdate(String cat, String id, boolean forceUpdate){
+		return forceUpdate || isTimeout(cat, id);
+	}
 
-			Collection<T> actions = fetcher.fetchActions(cat, id);
-			if( actions != null ){
-				long cnt = cdb.applyActionCache(cat, id, actions, fetcher.getConverter());
-				verbose(cnt + " record(s) updated.");
-				return true;
-			}else{
-				return false;
-			}
 
+	protected <T> boolean updateActionsCache(String cat, String id, ActionCacheFetcher<T> fetcher){
+		if( fetcher == null ) return false;
+
+		verbose("Update cache... " + cat + " " + id);
+
+		Collection<T> actions = fetcher.fetchActions(cat, id);
+		if( actions != null ){
+			long cnt = cdb.applyActionCache(cat, id, actions, fetcher.getConverter());
+			verbose(cnt + " record(s) updated.");
+			return true;
 		}else{
-			verbose("Update cache passing.");
 			return false;
 		}
 	}
 
 
-	public TrelloActionsCard getTrelloActionsCard(String cardId, boolean forceReload){
-		//更新作業
-		if( api != null ){
-			ActionCacheFetcher<Object> fetcher = new ActionCacheFetcher<Object>(){
-				@Override
-				public Collection<Object> fetchActions(String cat, String id) {
-					TrelloCardFetcher cf = new TrelloCardFetcher(api);
-					List<Object> actions = cf.getCardActions(id).stream()
-						.map((jobj) -> (Object)jobj)
-						.collect(Collectors.toList());
-					return actions;
-				}
-				@Override
-				public DocumentConverter<Object> getConverter() {
-					return new JsonDocumentConverter();
-				}
-			};
-
-			updateIfNeeded(CCARD, cardId, fetcher, forceReload);
+	public <T> TrelloActionsCard getTrelloActionsCard
+	(String cardId, ActionCacheFetcher<T> fetcher, boolean forceReload){
+		//アップデートを実行
+		if( fetcher != null && (needsUpdate(CCARD, cardId, forceReload)) ){
+			updateActionsCache(CCARD, cardId, fetcher);
 		}
-
 
 		//データビルド
 		List<TrelloAction> actions = cdb.findActionCache(CCARD, cardId, new TrelloActionDocumentParser());
@@ -133,5 +142,16 @@ public class TrelloActionCacheProvider {
 		actions.forEach((act -> card.applyAction(act)));
 
 		return card;
+	}
+
+
+	public <T> TrelloActionsCard getTrelloActionsCard
+	(String cardId, boolean forceReload){
+		if( needsUpdate(CCARD, cardId, forceReload) && api != null ){
+			return getTrelloActionsCard(cardId, getCardFetcher(api), true);
+
+		}else{
+			return getTrelloActionsCard(cardId, null, false);
+		}
 	}
 }
