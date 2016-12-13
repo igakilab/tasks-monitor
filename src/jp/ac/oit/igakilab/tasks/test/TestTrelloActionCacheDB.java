@@ -20,7 +20,7 @@ public class TestTrelloActionCacheDB {
 		ActionCacheFetcher<Object> fetc =
 			TrelloActionCacheProvider.getCardFetcher(api, provider.getDBInstance());
 
-		TrelloCard card = provider.getTrelloActionsCard("57ef25659c448c0e3df1aa07", fetc, true);
+		TrelloCard card = provider.getTrelloActionsCard("57ef25659c448c0e3df1aa07", fetc, false);
 
 		long end = System.currentTimeMillis();
 

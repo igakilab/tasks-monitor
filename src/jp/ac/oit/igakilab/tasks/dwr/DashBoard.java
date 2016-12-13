@@ -6,23 +6,24 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
-import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.DashBoardForms;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
+import jp.ac.oit.igakilab.tasks.scripts.TasksCacheProviderBuilder;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloActionCacheProvider;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloActionCacheProvider.ActionCacheFetcher;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardCacheProvider;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloNumberedCard;
-import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 
 public class DashBoard {
 
@@ -31,31 +32,37 @@ public class DashBoard {
 		//クライアントの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		//dbの操作クラスを生成
-		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
 		SprintsManageDB sdb = new SprintsManageDB(client);
 
 		/* ボードを生成 */
 
-		//アクション一覧を取得
-		List<TrelloAction> actions = adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
-		//アクションの有無をチェック、ボードがない場合
-		if( actions.size() <= 0 ){
+		//ボードデータをフェッチ
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+		TrelloBoardCacheProvider bcp = TasksCacheProviderBuilder.getBoardCacheProvider(client, api);
+		TrelloBoard board = bcp.getBoard(boardId);
+		if( board == null ){
 			client.close();
 			throw new ExecuteFailedException("ボードのデータがありません");
 		}
-
-		//ボードのデータ構造クラスを生成、アクションを登録、buildでボードを内部で構築
-		TrelloActionsBoard board = new TrelloActionsBoard();
-		board.addActions(actions);
-		board.build();
 
 		/* スプリントを取得 */
 
 		//現在日時から期間内のスプリントを取得
 		Sprint sprint = sdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 
-		/* フォームに変換 */
+		//スプリントカードのアクションを取得
+		if( sprint != null ){
+			TrelloActionCacheProvider acp = TasksCacheProviderBuilder.getActionCacheProvider(client, api);
+			ActionCacheFetcher<Object> fetcher = acp.getCardFetcher();
+			for(String cid : sprint.getTrelloCardIds()){
+				TrelloActionsCard card = acp.getTrelloActionsCard(cid, fetcher, false);
+				if( card != null ){
+					board.replaceCard(card, false);
+				}
+			}
+		}
 
+		/* フォームに変換 */
 		DashBoardForms.DashBoardData form =
 			DashBoardForms.DashBoardData.getInstance(board, sprint);
 

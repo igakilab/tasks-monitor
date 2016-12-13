@@ -11,6 +11,8 @@ public class TasksCacheProviderBuilder {
 	static final String AC_TIMEOUT_KEY = "tasks.actioncache.timeout";
 	static final int AC_TIMEOUT_DEFAULT = 30;
 
+	static boolean VERBOSE_ENABLED = true;
+
 	private static int loadCacheTimeout(String key, int defaultValue){
 		int sec = defaultValue;
 		if( AppProperties.global.containsKey(key) ){
@@ -25,7 +27,9 @@ public class TasksCacheProviderBuilder {
 
 	public static TrelloActionCacheProvider getActionCacheProvider
 	(MongoClient client, TrelloApi<Object> api, int timeoutInSec){
-		return new TrelloActionCacheProvider(client, api, timeoutInSec * 1000);
+		TrelloActionCacheProvider p = new TrelloActionCacheProvider(client, api, timeoutInSec * 1000);
+		p.verboseEnabled = VERBOSE_ENABLED;
+		return p;
 	}
 
 	public static TrelloActionCacheProvider getActionCacheProvider
@@ -45,7 +49,9 @@ public class TasksCacheProviderBuilder {
 
 	public static TrelloBoardCacheProvider getBoardCacheProvider
 	(MongoClient client, TrelloApi<Object> api, int timeoutInSec){
-		return new TrelloBoardCacheProvider(client, api, timeoutInSec * 1000);
+		TrelloBoardCacheProvider p = new TrelloBoardCacheProvider(client, api, timeoutInSec * 1000);
+		p.verboseEnabled = VERBOSE_ENABLED;
+		return p;
 	}
 
 	public static TrelloBoardCacheProvider getBoardCacheProvider

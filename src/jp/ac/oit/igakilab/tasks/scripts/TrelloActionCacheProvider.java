@@ -34,7 +34,7 @@ public class TrelloActionCacheProvider {
 
 			@Override
 			public Collection<Object> fetchActions(String cat, String id) {
-				if( CCARD.equals(cat) ){
+				if( CCARD.equals(cat) && api != null ){
 					Date since = null;
 					if( cdb != null ){
 						since = cdb.getLastUpdateDate(cat, id);
@@ -64,6 +64,7 @@ public class TrelloActionCacheProvider {
 		this.cdb = new TrelloActionCacheDB(client);
 		this.api = api;
 		this.timeout = Math.max(timeout, 0);
+		this.verboseEnabled = false;
 	}
 
 	public TrelloActionCacheProvider(MongoClient client, TrelloApi<Object> api){
@@ -88,11 +89,17 @@ public class TrelloActionCacheProvider {
 	}
 
 	protected void verbose(String msg){
-		System.out.println("TrelloBoardCacheProvider: " + msg);
+		if( verboseEnabled ){
+			System.out.println("TrelloActionCacheProvider: " + msg);
+		}
 	}
 
 	public TrelloActionCacheDB getDBInstance(){
 		return cdb;
+	}
+
+	public ActionCacheFetcher<Object> getCardFetcher(){
+		return getCardFetcher(api, cdb);
 	}
 
 
@@ -125,7 +132,7 @@ public class TrelloActionCacheProvider {
 	protected <T> boolean updateActionsCache(String cat, String id, ActionCacheFetcher<T> fetcher){
 		if( fetcher == null ) return false;
 
-		verbose("Update cache... " + cat + " " + id);
+		verbose("UPDATE cache... " + cat + " " + id);
 
 		Collection<T> actions = fetcher.fetchActions(cat, id);
 		if( actions != null ){
@@ -140,16 +147,20 @@ public class TrelloActionCacheProvider {
 
 	public <T> TrelloActionsCard getTrelloActionsCard
 	(String cardId, ActionCacheFetcher<T> fetcher, boolean forceReload){
+		long start = System.currentTimeMillis();
 		//アップデートを実行
 		if( fetcher != null && (needsUpdate(CCARD, cardId, forceReload)) ){
 			updateActionsCache(CCARD, cardId, fetcher);
 		}
 
 		//データビルド
+		verbose("BUILD action card " + cardId);
 		List<TrelloAction> actions = cdb.findActionCache(CCARD, cardId, new TrelloActionDocumentParser());
 		TrelloActionsCard card = new TrelloActionsCard();
 		actions.forEach((act -> card.applyAction(act)));
 
+		long end = System.currentTimeMillis();
+		verbose("-- action card built in " + (end - start) + "ms");
 		return card;
 	}
 
@@ -157,7 +168,7 @@ public class TrelloActionCacheProvider {
 	public <T> TrelloActionsCard getTrelloActionsCard
 	(String cardId, boolean forceReload){
 		if( needsUpdate(CCARD, cardId, forceReload) && api != null ){
-			return getTrelloActionsCard(cardId, getCardFetcher(api, cdb), true);
+			return getTrelloActionsCard(cardId, getCardFetcher(), true);
 
 		}else{
 			return getTrelloActionsCard(cardId, null, false);

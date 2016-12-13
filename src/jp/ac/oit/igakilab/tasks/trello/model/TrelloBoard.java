@@ -37,6 +37,20 @@ public class TrelloBoard extends TrelloBoardData{
 		cards.add(card);
 	}
 
+	public boolean replaceCard(TrelloCard card, boolean upsert){
+		for(int i=0; i<cards.size(); i++){
+			if( cards.get(i).getId().equals(card.getId()) ){
+				cards.set(i, card);
+				return true;
+			}
+		}
+		if( upsert ){
+			cards.add(card);
+			return true;
+		}
+		return false;
+	}
+
 	public void removeCard(String cid){
 		for(int i=0 ;i<cards.size(); i++){
 			if( cards.get(i).getId().equals(cid) ){
