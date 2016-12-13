@@ -14,13 +14,18 @@ public class TestTrelloActionCacheDB {
 		TasksTrelloClientBuilder.setTestApiKey();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 
+		long start = System.currentTimeMillis();
+
 		TrelloActionCacheProvider provider = new TrelloActionCacheProvider(client, api);
 		ActionCacheFetcher<Object> fetc =
 			TrelloActionCacheProvider.getCardFetcher(api, provider.getDBInstance());
 
-		TrelloCard card = provider.getTrelloActionsCard("57ef25659c448c0e3df1aa07", fetc, false);
+		TrelloCard card = provider.getTrelloActionsCard("57ef25659c448c0e3df1aa07", fetc, true);
+
+		long end = System.currentTimeMillis();
 
 		System.out.println(card.toString());
+		System.out.println((end - start) + " ms");
 
 		client.close();
 	}

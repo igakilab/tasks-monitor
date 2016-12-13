@@ -35,7 +35,12 @@ public class TrelloActionCacheProvider {
 			@Override
 			public Collection<Object> fetchActions(String cat, String id) {
 				if( CCARD.equals(cat) ){
-					List<Object>actions = fetcher.getCardActions(id).stream()
+					Date since = null;
+					if( cdb != null ){
+						since = cdb.getLastUpdateDate(cat, id);
+					}
+
+					List<Object>actions = fetcher.getCardActions(id, since, null).stream()
 						.map((jobj) -> (Object)jobj)
 						.collect(Collectors.toList());
 					return actions;
