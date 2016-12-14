@@ -15,7 +15,7 @@ implements DocumentConverter<Sprint>, DocumentParser<Sprint>{
 		sprint.setBoardId(picker.getString("boardId", null));
 		sprint.setBeginDate(picker.getDate("beginDate", null));
 		sprint.setFinishDate(picker.getDate("finishDate", null));
-		sprint.setClosedDate(picker.getDate("closedDate", null));
+		sprint.setClosedAt(picker.getDate("closedDate", null));
 		picker.getStringArray("trelloCardIds").forEach((cardId) ->
 			sprint.addTrelloCardId(cardId));
 

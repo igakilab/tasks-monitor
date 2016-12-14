@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import com.mongodb.MongoClient;
 
+import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
@@ -15,18 +16,19 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.CardMembersForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.MemberForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintBuilderForm.SBTrelloCardForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm.SBTrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
+import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.SprintManagementException;
-import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
@@ -58,7 +60,7 @@ public class SprintPlanner {
 
 	//SprintBuilderのためのデータを取得する
 	public SprintBuilderForm getSprintBuilderForm(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//dbのクライアント等生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
@@ -66,7 +68,7 @@ public class SprintPlanner {
 		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
 		if( !bdb.boardIdExists(boardId) ){
 			client.close();
-			throw new ExcuteFailedException("ボードが見つかりません");
+			throw new ExecuteFailedException("ボードが見つかりません");
 		}
 
 		//現在進行中のスプリント取得
@@ -78,7 +80,7 @@ public class SprintPlanner {
 		TrelloBoard board = builder.buildTrelloBoardFromTrelloActions(boardId);
 		if( board == null ){
 			client.close();
-			throw new ExcuteFailedException("ボードの生成に失敗しました");
+			throw new ExecuteFailedException("ボードの生成に失敗しました");
 		}
 
 
@@ -96,6 +98,25 @@ public class SprintPlanner {
 			TasksTrelloClientBuilder.REGEX_TODO).forEach(collector);
 		board.getCardsByListNameMatches(
 			TasksTrelloClientBuilder.REGEX_DOING).forEach(collector);
+
+		//追加されていないスプリントカードを追加
+		if( sprint != null ){
+			for(String cid : sprint.getTrelloCardIds()){
+				//カードを探す
+				boolean flg = false;
+				for(SBTrelloCardForm card : fcards){
+					if( card.getId().equals(cid) ){
+						flg = true;
+						break;
+					}
+				}
+				//カードを追加
+				if( !flg ){
+					fcards.add(SBTrelloCardForm
+						.getInstance(board.getCardById(cid), client, ttb));
+				}
+			}
+		}
 
 		//メンバーリストを生成
 		List<MemberForm> members = new ArrayList<MemberForm>();
@@ -116,19 +137,20 @@ public class SprintPlanner {
 	//スプリントを新しく生成
 	//現在進行中のスプリントがあった場合、エラーを投げる
 	public String createSprint(String boardId, Date finishDate, List<CardMembersForm> cardsForm)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//DBのクライアントと操作クラスの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
-		SprintManager smanager = new SprintManager(client, api);
+		HubotSendMessage msg = new HubotSendMessage(AppProperties.global.get("tasks.hubot.url"));
+		SprintEditor se = new SprintEditor(client, api, msg);
 
 		//進行中スプリントの取得
 		Sprint current = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		//進行中スプリントがあった場合、クローズする
 		if( current != null ){
 			client.close();
-			throw new ExcuteFailedException("現在進行中のスプリントがあります");
+			throw new ExecuteFailedException("現在進行中のスプリントがあります");
 		}
 
 		//日付の取得
@@ -142,10 +164,10 @@ public class SprintPlanner {
 		//DB登録
 		String newId = null;
 		try{
-			newId = smanager.createSprint(boardId, today, finishDate, cards);
-		}catch(SprintManagementException e0){
+			newId = se.createSprint(boardId, today, finishDate, cards);
+		}catch(SprintEditException e0){
 			client.close();
-			throw new ExcuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
+			throw new ExecuteFailedException("スプリント登録に失敗しました: " + e0.getMessage());
 		}
 
 		//DBをクローズ、登録されたidを返却
@@ -156,11 +178,11 @@ public class SprintPlanner {
 	//スプリントを更新
 	// 指定されたスプリントidがない場合はエラーを投げる
 	public String updateSprint(String sprintId, Date finishDate, List<CardMembersForm> cardForm)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
-		SprintManager manager = new SprintManager(client, api);
+		SprintEditor se = new SprintEditor(client, api, null);
 
 		cardForm.forEach((c -> System.out.format("i:%s, m:%s\n", c.getCardId(), c.getMemberIds())));
 
@@ -171,21 +193,21 @@ public class SprintPlanner {
 		//スプリントデータを検証
 		if( sprint == null ){
 			client.close();
-			throw new ExcuteFailedException("指定されたスプリントがありません");
+			throw new ExecuteFailedException("指定されたスプリントがありません");
 		}
 		if( sprint.isClosed() ){
 			client.close();
-			throw new ExcuteFailedException("指定されたスプリントはすでに閉じられています");
+			throw new ExecuteFailedException("指定されたスプリントはすでに閉じられています");
 		}
 
 		//スプリントデータ更新作業
 		List<CardMembers> members = new ArrayList<CardMembers>();
 		cardForm.forEach((cmf) -> members.add(CardMembersForm.convert(cmf)));
 		try{
-			manager.updateSprint(sprintId, finishDate, members);
-		}catch(SprintManagementException e0){
+			se.updateSprint(sprintId, finishDate, members);
+		}catch(SprintEditException e0){
 			client.close();
-			throw new ExcuteFailedException("登録に失敗しました: " + e0.getMessage());
+			throw new ExecuteFailedException("登録に失敗しました: " + e0.getMessage());
 		}
 
 		client.close();

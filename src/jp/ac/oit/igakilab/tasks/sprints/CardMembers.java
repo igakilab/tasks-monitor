@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardMembers {
-	public static CardMembers getInstance(TrelloCardMembers tcm){
-		CardMembers cm = new CardMembers();
-		cm.setCardId(tcm.getCardId());
-		tcm.getMemberIds().forEach((mid -> cm.addMemberId(mid)));
-		return cm;
+	public static List<String> getCardIdList(List<CardMembers> cms){
+		List<String> ids = new ArrayList<String>(cms.size());
+		cms.forEach((cm -> ids.add(cm.getCardId())));
+		return ids;
 	}
 
 	private String cardId;

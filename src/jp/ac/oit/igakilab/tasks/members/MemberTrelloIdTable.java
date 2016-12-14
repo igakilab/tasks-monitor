@@ -60,4 +60,17 @@ public class MemberTrelloIdTable{
 		}
 		return memberIds;
 	}
+
+	public List<String> getTrelloIdAll(Collection<String> memberIds){
+		if( memberIds != null ){
+			List<String> trelloIds = new ArrayList<String>();
+			for(String mid : memberIds){
+				String tid = getTrelloId(mid);
+				if( tid != null ) trelloIds.add(tid);
+			}
+			return trelloIds;
+		}else{
+			return null;
+		}
+	}
 }

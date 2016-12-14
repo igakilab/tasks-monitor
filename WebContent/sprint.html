@@ -5,7 +5,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>top page</title>
+		<title>Sprint</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
 		<link href="css/bootstrap-datepicker3.css" rel="stylesheet"/>
@@ -20,7 +20,7 @@
 						<span class="sr-only">Toggle navigation</span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">Project name</a>
+					<a class="navbar-brand" href="#">Tasks Monitor</a>
 				</div>
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
@@ -184,7 +184,7 @@
 		<script src="sprint.js"></script>
 		<script>$(document).ready(function(){
 			//ボードidを取得
-			var boardId = Util.getUrlParameters().boardId;
+			var boardId = Util.getUrlParameters().bid;
 
 			if( Util.isNull(boardId) ){
 				Util.showAlertToDiv("ボードIDを指定してください");
@@ -214,14 +214,18 @@
 				if( builder.getCurrentSprint() != null ){
 					$(".regist-type").text("変更(ID: " + builder.getCurrentSprint().id + ")");
 					$(".create-btn").text("変更を保存");
+					$("#finishDateInput").val(Util.formatDate(builder.getFinishDate(), "YYYY/MM/DD"));
 				}else{
 					$(".regist-type").text("新規");
-					$(".create-btn").text("スプリント開始");
+					$(".create-btn").text("イテレーション開始");
 				}
 			});
 
 			//新規作成ボタンを設定
 			$(".create-btn").on('click', function(){
+				//ボタン処理
+				$(".create-btn").off('click')
+					.text("処理中...").addClass("disabled");
 				//日付のパース
 				var ds = $("#finishDateInput").val();
 				var fd = Date.parse(ds);
@@ -235,13 +239,13 @@
 				builder.setFinishDate(fd);
 
 				builder.regist(function(sid){
-					location.href = "index.html?boardId=" + boardId;
+					location.href = "index.html?bid=" + boardId;
 				});
 			});
 
 			//ダッシュボードへ移動ボタンを設定
 			$(".to-dashboard-btn").on('click', function(){
-				location.href = "index.html?boardId=" + boardId;
+				location.href = "index.html?bid=" + boardId;
 			});
 		});
 

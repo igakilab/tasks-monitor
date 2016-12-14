@@ -65,5 +65,7 @@
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.TrelloSimpleTools"/>
     </create>
     <convert converter="bean" match="jp.ac.oit.igakilab.tasks.dwr.forms.*"/>
+    <convert converter="bean" match="jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.*"/>
+    <convert converter="bean" match="jp.ac.oit.igakilab.tasks.dwr.forms.model.*"/>
   </allow>
 </dwr>

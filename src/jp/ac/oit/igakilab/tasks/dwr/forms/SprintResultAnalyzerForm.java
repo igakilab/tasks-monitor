@@ -5,10 +5,14 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintResultForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -32,7 +36,7 @@ public class SprintResultAnalyzerForm {
 		end.setTime(sprint.getFinishDate());
 		end.add(Calendar.DATE, 1);
 		List<AnalyzedTrelloCardForm> tmp = new ArrayList<AnalyzedTrelloCardForm>();
-		Consumer<TrelloCardMembers> collector = (mc) -> {
+		Consumer<SprintResultCard> collector = (mc) -> {
 			TrelloCard ctmp = board.getCardById(mc.getCardId());
 			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
 			if( card != null ){

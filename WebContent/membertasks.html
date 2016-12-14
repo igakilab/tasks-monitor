@@ -5,13 +5,11 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-		<title>メンバー別タスク</title>
+		<title>Membertasks</title>
 
 		<link href="css/bootstrap.min.css" rel="stylesheet"/>
-		<link rel="stylesheet" href="css/reset.css"><!-- CSS reset -->
-		<link rel="stylesheet" href="css/htimeline.css"><!-- Resource style -->
-		<script src="js/modernizr.js"></script><!-- Modernizr -->
 	</head>
+
 	<body style="padding-top: 50px;">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
@@ -22,7 +20,7 @@
 						<span class="sr-only">Toggle navigation</span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/boards/">Project name</a>
+					<a class="navbar-brand" href="/boards/">Tasks Monitor</a>
 				</div>
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
@@ -35,31 +33,18 @@
 		<div class="container">
 			<!-- タイトル部 -->
 			<h1>メンバー別 タスク一覧表</h1>
-			<h2 id="memId">メンバーID: koike</h2>
+			<h2 id="memId">メンバーID: </h2>
+
+			<div class="alert-div"></div>
+
+			<div class="container">
+				<div id="graph">
+				</div>
+			</div>
 
 			<!-- テーブル部 -->
-			<table class="table">
-				<thead><tr>
-					<th>スプリントID</th><th>タスク名</th><th>達成/未達成</th>
-				</tr></thead>
-
-				<!-- タスクリスト部 -->
-				<!-- tr要素のclassに"success"などを付けることで行の色を変更できる -->
-				<tbody id="memberTasksTbody">
-					<tr class="success">
-						<td>123456789abcd</td>
-						<td><strong>タスク1</strong></td>
-						<td>達成</td></tr>
-					<tr class="danger">
-						<td>123456789abcd</td>
-						<td><strong>タスク2</strong></td>
-						<td>未達成</td></tr>
-					<tr class="success">
-						<td>123456789abce</td>
-						<td><strong>タスク3</strong></td>
-						<td>達成</td></tr>
-				</tbody>
-			</table>
+			<div class="sprint-histories">
+			</div>
 
 		</div>
 
@@ -80,20 +65,58 @@
 		<script src="dwr/interface/SprintMemberHistory.js"></script>
 		<script src="sprint.js"></script>
 		<script src="membertasks.js"></script>
-		<script>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+		<script type="text/javascript">
+
 		$(document).ready(function(){
-			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
+			//URLパラメータを取得する
 			var params = Util.getUrlParameters();
 
-			//ボードIDの値をパラメータから取り出す
-			var memberId = params.memberId;
-			$("#memId").text("メンバーID: "+memberId);
-			//取得のサンプル
-			SprintMemberHistory.getTaskCardsByMemberId(memberId, function(data){
-				console.log(data);
-				DispMemberTasks(data);
+			//メンバーIDを取得する
+			if( !params.mid ){
+				Util.showAlertToDiv("メンバーIDを指定してください");
+				return;
+			}
+			$("#memId").text("メンバーID: " + params.mid);
+
+			//データを取得する
+			Util.showAlertToDiv("読み込み中...", "info");
+			SprintMemberHistory.getTaskCardsByMemberId(params.mid, apiCallback);
+		})
+
+
+		function apiCallback(data){
+			Util.showAlertToDiv("処理中...", "info");
+
+			//グラフの描画
+			google.charts.load("current", {"packages":["corechart"]});
+			google.charts.setOnLoadCallback(function(){
+				//グラフのデータ変換
+				var table = [];
+				for(var i=0; i<data.length; i++){
+					var tmp = data[i];
+					table.push({
+						label: tmp.sprint.id,
+						finishedCount: tmp.cards.filter(function(e){
+							return e.finished;
+						}).length,
+						remainedCount: tmp.cards.filter(function(e){
+							return !e.finished;
+						}).length
+					});
+				}
+
+				//描画
+				drawMemberTasksChart(table);
 			});
-		});
+
+			//表の追加
+			showMemberTasks(data);
+
+			//クリア
+			Util.showAlertToDiv();
+		}
 		</script>
 
 

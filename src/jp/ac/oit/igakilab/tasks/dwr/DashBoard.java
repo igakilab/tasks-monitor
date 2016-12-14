@@ -10,12 +10,12 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.DashBoardForms;
-import jp.ac.oit.igakilab.tasks.dwr.forms.KanbanForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
+import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
-import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
-import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
@@ -28,7 +28,7 @@ import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
 public class DashBoard {
 
 	public DashBoardForms.DashBoardData getDashBoardData(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//クライアントの生成
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		//dbの操作クラスを生成
@@ -42,7 +42,7 @@ public class DashBoard {
 		//アクションの有無をチェック、ボードがない場合
 		if( actions.size() <= 0 ){
 			client.close();
-			throw new ExcuteFailedException("ボードのデータがありません");
+			throw new ExecuteFailedException("ボードのデータがありません");
 		}
 
 		//ボードのデータ構造クラスを生成、アクションを登録、buildでボードを内部で構築
@@ -56,40 +56,9 @@ public class DashBoard {
 		Sprint sprint = sdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 
 		/* フォームに変換 */
-
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
 		DashBoardForms.DashBoardData form =
-			DashBoardForms.DashBoardData.getInstance(board, sprint);
-
-		client.close();
-		return form;
-	}
-
-
-	//ボードのタスクをtodo,doing,doneの形式で取得する
-	//もし目的のボードがない場合はerrorが返却される
-	public KanbanForm getKanban(String boardId)
-	throws ExcuteFailedException{
-		//クライアントの生成
-		MongoClient client = TasksMongoClientBuilder.createClient();
-		//アクションdbの操作クラスを生成
-		TrelloBoardActionsDB adb = new TrelloBoardActionsDB(client);
-
-		//アクション一覧を取得
-		List<TrelloAction> actions = adb.getTrelloActions(boardId, new TrelloActionDocumentParser());
-		//アクションの有無をチェック、ボードがない場合、要素なしのリストが返されている
-		if( actions.size() <= 0 ){
-			client.close();
-			throw new ExcuteFailedException("ボードのデータがありません");
-		}
-
-		//ボードのデータ構造クラスを生成、アクションを登録、buildでボードを内部で構築
-		TrelloActionsBoard board = new TrelloActionsBoard();
-		board.addActions(actions);
-		board.build();
-
-		//フォームに変換
-		//ここでボードをtodo,doing,doneのみのボードに成型する
-		KanbanForm form = KanbanForm.getInstance(board);
+			DashBoardForms.DashBoardData.getInstance(board, sprint, ttb);
 
 		client.close();
 		return form;
@@ -117,14 +86,14 @@ public class DashBoard {
 
 	//カードを新しく作成する
 	public TrelloCardForm createCard(String boardId, TrelloCardForm card)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		//操作インスタンスを初期化
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		TrelloBoardFetcher fetcher = new TrelloBoardFetcher(api, boardId);
 
 		//データを取得
 		if( !fetcher.fetch() ){
-			throw new ExcuteFailedException("ボードデータの取得に失敗しました");
+			throw new ExecuteFailedException("ボードデータの取得に失敗しました");
 		}
 
 		//カードデータ追加
@@ -137,10 +106,10 @@ public class DashBoard {
 				ncard.applyNumber(board.getCards());
 			}
 			if( !fetcher.addCard(lists.get(0), ncard) ){
-				throw new ExcuteFailedException("カードの追加に失敗しました");
+				throw new ExecuteFailedException("カードの追加に失敗しました");
 			}
 		}else{
-			throw new ExcuteFailedException("todoのリストがありません");
+			throw new ExecuteFailedException("todoのリストがありません");
 		}
 
 		return TrelloCardForm.getInstance(ncard);
@@ -148,25 +117,25 @@ public class DashBoard {
 
 	//進行中のスプリントを終了する
 	public String closeCurrentSprint(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在進行中のスプリントを取得
 		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		if( currSpr == null ){
 			client.close();
-			throw new ExcuteFailedException("現在進行中のスプリントはありません");
+			throw new ExecuteFailedException("現在進行中のスプリントはありません");
 		}
 
 		//クローズ処理
-		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-		SprintManager manager = new SprintManager(client, api);
-		SprintResult res = manager.closeSprint(currSpr.getId());
-
-		if( res == null ){
+		SprintEditor editor = new SprintEditor(client, api, null);
+		try{
+			editor.closeSprint(currSpr.getId());
+		}catch(SprintEditException e0){
 			client.close();
-			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
+			throw new ExecuteFailedException("スプリントのクローズの処理が失敗しました: " + e0.getMessage());
 		}
 
 		client.close();

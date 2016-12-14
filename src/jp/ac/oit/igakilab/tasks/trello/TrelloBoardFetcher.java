@@ -43,7 +43,7 @@ public class TrelloBoardFetcher{
 	public TrelloBoardFetcher(TrelloApi<Object> api, String boardId){
 		this.api = api;
 		this.boardId = boardId;
-		this.board = null;
+		this.board = new TrelloBoard();
 		this.autoFetch = true;
 	}
 
@@ -56,11 +56,6 @@ public class TrelloBoardFetcher{
 	}
 
 	private void applyBoardData(JSONObject boardData){
-		//ボードインスタンスの生成
-		if( board == null ){
-			board = new TrelloBoard();
-		}
-
 		//ボードデータの更新
 		JSONObjectValuePicker picker = new JSONObjectValuePicker(boardData);
 		board.setId(picker.getString("id"));

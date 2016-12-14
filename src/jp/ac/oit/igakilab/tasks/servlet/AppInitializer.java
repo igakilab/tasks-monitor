@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
+import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.marsh.util.DebugLog;
@@ -16,6 +19,10 @@ import jp.ac.oit.igakilab.tasks.cron.CronTask;
 import jp.ac.oit.igakilab.tasks.cron.HubotBoardTaskNotification;
 import jp.ac.oit.igakilab.tasks.cron.HubotDailyTalk;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
+import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
+import jp.ac.oit.igakilab.tasks.scripts.SprintResultsDBOptimizer;
+import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 
 public class AppInitializer implements ServletContextListener{
 	private DebugLog logger;
@@ -69,6 +76,21 @@ public class AppInitializer implements ServletContextListener{
 			"268c74e1d0d1c816558655dbe438bb77bcec6a9cd205058b85340b3f8938fd65");
 	}
 
+	private void autoDatabaseOptimize(){
+		String conf = AppProperties.global.get("tasks.init.dboptimize", "disabled");
+
+		if( conf.equals("enabled") ){
+			MongoClient cl = TasksMongoClientBuilder.createClient();
+			TrelloApi<Object> ap = TasksTrelloClientBuilder.createApiClient();
+			SprintResultsDBOptimizer optimizer = new SprintResultsDBOptimizer(cl, ap);
+
+			DebugLog logger = new DebugLog("AutoDbOptimize");
+			Consumer<String> lw = (str -> logger.log(DebugLog.LS_INFO, str));
+
+			SprintResultsDBOptimizer.autoOptimize(lw, optimizer, "tasks-monitor", "sprint_results");
+		}
+	}
+
 	private Scheduler hello, boardUpdater, hubotDailyTalk, tasksNotifer;
 	private Scheduler boardTasksNotifer;
 	private void initCronTasks(){
@@ -107,6 +129,8 @@ public class AppInitializer implements ServletContextListener{
 
 		initCronTasks();
 		logger.log(DebugLog.LS_INFO, "Cron initialized.");
+
+		autoDatabaseOptimize();
 
 		logger.log(DebugLog.LS_INFO, "App Initialized!");
 	}
