@@ -29,6 +29,37 @@ function addCardToTaskTable(card, finished){
 }
 
 /*
+ * member-historyのグラフを描画します
+ * 引数dataには下記のフォーマットのデータを渡します
+ * [{closedDate:<スプリント終了日時>, finishedCount:<完了タスク数>,remainedCount:<未達成タスク数>},..]
+ */
+function drawMemberHistoryGraph(data, memberName, destId){
+	//データの配列の初期化
+	var table = [ ["終了日", "達成タスク数", "未達成タスク数"] ];
+
+	//データ配列に引数のデータを挿入
+	data.forEach(function(val, idx, ary){
+		table[table.length] = [
+		    Util.formatDate(val.closedDate, "MM/DD"),
+		    val.finishedCount, val.remainedCount
+		];
+	});
+
+	//オプションを生成
+	var options = {
+		title: memberName,
+		width: "100%", height: 300,
+		legend: {position: "top", maxLines: 3},
+		bar: {groupWidth: "75%"}, isStacked: true
+	};
+
+	//チャートを描画
+	var chart = new google.visualization.ColumnChart(document.getElementById(destId || "graph"));
+	chart.draw(google.visualization.arrayToDataTable(table), options);
+}
+
+
+/*
  * SprintFinisherから渡されるClosedSprintResultをhtml画面上に
  * 表示する関数。
  * resultにはsprintResultAnalyzerを指定します
@@ -62,19 +93,14 @@ function setSprintResult(result){
 	});
 
 	//メンバー別スプリント達成履歴
-	$(".member-history-tbody").empty();
+	$(".member-histories").empty();
 	result.getMembers().forEach(function(val, idx, ary){
 		var mh = result.getMemberHistory(val.id);
-		mh.results.forEach(function(val0, idx0, ary0){
-			var $tr = $("<tr></tr>");
-			if( idx0 == 0 ){
-				$tr.append($("<td></td>").attr("rowspan", ary0.length).text(val.name));
-			}
-			$tr.append($("<td></td>").html("<code>" + val0.sprintId + "</code>"));
-			$tr.append($("<td></td>").text(Util.formatDate(val0.closedDate, "MM/DD")));
-			$tr.append($("<td></td>").text(val0.finishedCount));
-			$tr.append($("<td></td>").text(val0.remainedCount));
-			$(".member-history-tbody").append($tr);
-		});
+		var divId = "histories-graph-" + val.id;
+
+		$(".member-histories").append(
+			$("<div></div>").addClass("col-md-6").attr("id", divId));
+
+		drawMemberHistoryGraph(mh.results, val.name, divId);
 	});
 }

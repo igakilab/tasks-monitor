@@ -2,6 +2,8 @@ package jp.ac.oit.igakilab.tasks.dwr.forms;
 
 import static jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder.*;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +15,68 @@ import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloList;
 
 public class AnalyzedTrelloCardForm  extends TrelloCardForm{
+	public static class ListUpdate{
+		public static ListUpdate getInstance(Date moveAt, String listId, TrelloBoard board){
+			ListUpdate form = new ListUpdate();
+
+			form.setMovedAt(moveAt);
+			form.setListId(listId);
+
+			if( board != null ){
+				TrelloList list = board.getListById(listId);
+
+				if( list != null ){
+					form.setListName(list.getName());
+
+					if( list.getName().matches(REGEX_TODO) ){
+						form.setType("todo");
+					}else if( list.getName().matches(REGEX_DOING) ){
+						form.setType("doing");
+					}else if( list.getName().matches(REGEX_DONE) ){
+						form.setType("done");
+					}else{
+						form.setType("unknown");
+					}
+				}
+			}else{
+				form.setType("unknown");
+			}
+
+			return form;
+		}
+
+
+		private Date movedAt;
+		private String listId;
+		private String listName;
+		private String type;
+
+		public Date getMovedAt() {
+			return movedAt;
+		}
+		public void setMovedAt(Date movedAt) {
+			this.movedAt = movedAt;
+		}
+		public String getListId() {
+			return listId;
+		}
+		public void setListId(String listId) {
+			this.listId = listId;
+		}
+		public String getListName() {
+			return listName;
+		}
+		public void setListName(String listName) {
+			this.listName = listName;
+		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+	}
+
 	public static AnalyzedTrelloCardForm getInstance
 	(TrelloActionsCard card, TrelloBoard board, Date begin, Date end, MemberTrelloIdTable ttb){
 		//インスタンス初期化
@@ -22,43 +86,61 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 		//作成時間(createdAt)の設定
 		form.setCreatedAt(card.getCreatedAt());
 
-		//リスト移動日時の設定
-		List<ListMovement> movements = card.getListMovement(begin, end);
+		//リスト移動履歴の取得
+		List<ListMovement> movements = card.getListMovement();
+		//リスト初期位置を格納
+		List<ListUpdate> listpos = new ArrayList<ListUpdate>();
+		if( begin != null ){
+			if( movements.size() > 0 ){
+				listpos.add(ListUpdate.getInstance(begin, movements.get(0).getListIdBefore(), board));
+			}else{
+				listpos.add(ListUpdate.getInstance(begin, card.getListId(), board));
+			}
+		}
+		//リスト移動履歴を格納
 		for(int i=0; i<movements.size(); i++){
 			ListMovement move = movements.get(i);
-			TrelloList after = board.getListById(move.getListIdAfter());
+			listpos.add(ListUpdate.getInstance(move.getDate(), move.getListIdAfter(), board));
+		}
+		form.listUpdates = listpos;
 
-			if( after != null ){
-				if( after.getName().matches(REGEX_DOING) && form.movedDoingAt == null ){
-					form.movedDoingAt = move.getDate();
-					form.movedDoneAt = null;
-				}else if( after.getName().matches(REGEX_DONE) && form.movedDoingAt != null ){
-					form.movedDoneAt = move.getDate();
+		//完了フラグを設定
+		form.finished = listpos.get(listpos.size() - 1).getType().equals("done");
+
+		//作業時間を計算
+		long worktime = 0;
+		end = (end == null ? Calendar.getInstance().getTime() : end);
+		for(int i=0; i<listpos.size(); i++){
+			ListUpdate pos = listpos.get(i);
+
+			if( pos.getType().equals("doing") ){
+				Date head = pos.getMovedAt();
+				Date rear;
+
+				if( i < listpos.size() - 1 ){
+					rear = listpos.get(i + 1).getMovedAt();
 				}else{
-					form.movedDoneAt = null;
+					rear = end;
+				}
+
+				if( head != null && rear != null ){
+					worktime += (rear.getTime() - head.getTime());
 				}
 			}
 		}
-
-		//作業時間の計算
-		if( form.movedDoingAt != null && form.movedDoneAt != null ){
-			form.workingMinutes =
-				(int)((form.movedDoneAt.getTime() - form.movedDoingAt.getTime()) / 1000 / 60);
-		}
+		form.workingMinutes = (int)(worktime / 1000 / 60);
 
 		return form;
 	}
 
 	private Date createdAt;
-	private Date movedDoingAt;
-	private Date movedDoneAt;
+	private List<ListUpdate> listUpdates;
 	private boolean finished;
 	private int workingMinutes;
 
 	public AnalyzedTrelloCardForm(){
 		createdAt = null;
-		movedDoingAt = null;
-		movedDoneAt = null;
+		listUpdates = null;
 		finished = false;
 		workingMinutes = 0;
 	}
@@ -71,20 +153,12 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 		this.createdAt = createdAt;
 	}
 
-	public Date getMovedDoingAt() {
-		return movedDoingAt;
+	public List<ListUpdate> getListUpdates() {
+		return listUpdates;
 	}
 
-	public void setMovedDoingAt(Date movedDoingAt) {
-		this.movedDoingAt = movedDoingAt;
-	}
-
-	public Date getMovedDoneAt() {
-		return movedDoneAt;
-	}
-
-	public void setMovedDoneAt(Date movedDoneAt) {
-		this.movedDoneAt = movedDoneAt;
+	public void setListUpdates(List<ListUpdate> listUpdates) {
+		this.listUpdates = listUpdates;
 	}
 
 	public boolean isFinished() {
