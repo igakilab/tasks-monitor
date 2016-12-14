@@ -99,6 +99,25 @@ public class SprintPlanner {
 		board.getCardsByListNameMatches(
 			TasksTrelloClientBuilder.REGEX_DOING).forEach(collector);
 
+		//追加されていないスプリントカードを追加
+		if( sprint != null ){
+			for(String cid : sprint.getTrelloCardIds()){
+				//カードを探す
+				boolean flg = false;
+				for(SBTrelloCardForm card : fcards){
+					if( card.getId().equals(cid) ){
+						flg = true;
+						break;
+					}
+				}
+				//カードを追加
+				if( !flg ){
+					fcards.add(SBTrelloCardForm
+						.getInstance(board.getCardById(cid), client, ttb));
+				}
+			}
+		}
+
 		//メンバーリストを生成
 		List<MemberForm> members = new ArrayList<MemberForm>();
 		board.getMemberIds().forEach((tmid) -> {
