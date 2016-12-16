@@ -11,6 +11,14 @@ public class SprintForm {
 		if( sprint == null ) return null;
 
 		SprintForm form = new SprintForm();
+		setValues(form, sprint);
+
+		return form;
+	}
+
+	protected static void setValues(SprintForm form, Sprint sprint){
+		if( form == null || sprint == null ) return;
+
 		form.setId(sprint.getId());
 		form.setBoardId(sprint.getBoardId());
 		form.setBeginDate(sprint.getBeginDate());
@@ -18,8 +26,6 @@ public class SprintForm {
 		form.setClosed(sprint.isClosed());
 		form.setClosedDate(sprint.getClosedDate());
 		form.getTrelloCardIds().addAll(sprint.getTrelloCardIds());
-
-		return form;
 	}
 
 

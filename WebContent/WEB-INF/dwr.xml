@@ -40,6 +40,9 @@
     <create creator="new" javascript="SprintMemberHistory">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.SprintMemberHistory"/>
     </create>
+    <create creator="new" javascript="HubotApi">
+    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.HubotApi"/>
+    </create>
     <create creator="new" javascript="BoardMenu">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.BoardMenu"/>
     </create>
