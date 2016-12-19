@@ -21,24 +21,41 @@
 					aria-expanded="false" aria-controls="navbar">
 						<span class="sr-only">Toggle navigation</span>
 						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">Project name</a>
+					<a class="navbar-brand" href="#">Tasks Monitor</a>
 				</div>
 				<div id="navbar" class="collapse navbar-collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#">home</a></li>
+						<li><a href="boards.html">ボードリスト</a>
+						<li class="active"><a href="javascript:void(0)">dashboard</a></li>
 					</ul>
 				</div>
 			</div>
 		</nav>
 
 		<div class="container">
-			<div style="padding: 40px 15px; text-align: center;">
-				<div class="row">
-					<div class="col-md-4 board-title">
-						<a href="https://trello.com/b/WirAa5NS/tasks-test" target="_blank"><h1>tasks-test</h1></a>
-					</div>
-				</div>
+			<div class="page-header">
+				<h1 style="display:inline;">
+					<span class="board-title"></span>&nbsp;<small>dashboard</small>
+				</h1>
+			</div>
+
+			<div class="row col-md-12">
+				<span>参加メンバー:
+					<span class="members-btn-wrapper btn-group" role="group">
+					</span>
+				</span>&nbsp;
+
+				<a class="btn btn-default sprint-history-btn" role="button">
+					<span class="glyphicon glyphicon-time"></span> スプリント履歴
+				</a>
+			</div>
+		</div>
+
+		<div class="container">
+			<div style="text-align:center;">
 				<div class="row">
 					<div class="col-md-4">
 						<h3>次の目標日</h3>
@@ -56,73 +73,74 @@
 
 				<div class="alert-div"></div>
 
-				<div class="container">
-					<div id="n-timeline">
+				<!-- <div class="container"> -->
+					<div class="row col-md-12">
+						<div id="n-timeline" style="padding-top:1.5em;"></div>
 					</div>
-				</div>
+				<!-- </div> -->
 
-				<div class="sprint-cards">
-				<div class="row">
-					<section class="cd-horizontal-timeline">
-					<div class="col-md-3">
+<!-- 				<div class="sprint-cards"> -->
+<!-- 				<div class="row"> -->
+<!-- 					<section class="cd-horizontal-timeline"> -->
+<!-- 					<div class="col-md-3"> -->
 
-						<ol style="margin: 0 auto">
-							<li><h2>aaaaa</h2></li><!--カード名かナンバリング-->
-						</ol>
-					</div>
-					<div class="col-md-9">
-							<div class="timeline"><!--タイムライン表示本体 main.jsで制御-->
-								<div class="events-wrapper">
-									<div class="events">
-										<ol id="bb"><!--注:ol要素にidを付けないと表示されない idは#ナンバリングでいいかも？-->
-											<li><a href="#0" data-date="2016/10/30" class="selected">10/30</a></li> <!--data-date属性の形式はYYYY/MM/DD-->
-											<li><a href="#0" data-date="2016/10/31">10/31</a></li>					<!--ただし先頭の0は抜くように　日付の判定ができなくなるので-->
-											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	<!--class="selected"は日付やカードの移動状況によって移動-->
-											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	<!--参考 main.js:49,61,66-->
-											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
-											<li><a href="#0" data-date="2016/11/4">11/04</a></li>
-											<li><a href="#0" data-date="2016/11/5">11/05</a></li>
-										</ol>
-										<span id="bb" class="filling-line" aria-hidden="true"></span>　<!--バー表示 日付によって動く-->
-									</div> <!-- .events -->
-								</div> <!-- .events-wrapper -->
-							</div> <!-- .timeline -->
-					</div>
-					</section>
-				</div>
+<!-- 						<ol style="margin: 0 auto"> -->
+<!-- 							<li><h2>aaaaa</h2></li>カード名かナンバリング -->
+<!-- 						</ol> -->
+<!-- 					</div> -->
+<!-- 					<div class="col-md-9"> -->
+<!-- 							<div class="timeline">タイムライン表示本体 main.jsで制御 -->
+<!-- 								<div class="events-wrapper"> -->
+<!-- 									<div class="events"> -->
+<!-- 										<ol id="bb">注:ol要素にidを付けないと表示されない idは#ナンバリングでいいかも？ -->
+<!-- 											<li><a href="#0" data-date="2016/10/30" class="selected">10/30</a></li> data-date属性の形式はYYYY/MM/DD -->
+<!-- 											<li><a href="#0" data-date="2016/10/31">10/31</a></li>					ただし先頭の0は抜くように　日付の判定ができなくなるので -->
+<!-- 											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	class="selected"は日付やカードの移動状況によって移動 -->
+<!-- 											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	参考 main.js:49,61,66 -->
+<!-- 											<li><a href="#0" data-date="2016/11/3">11/03</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/11/4">11/04</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/11/5">11/05</a></li> -->
+<!-- 										</ol> -->
+<!-- 										<span id="bb" class="filling-line" aria-hidden="true"></span>　バー表示 日付によって動く -->
+<!-- 									</div> .events -->
+<!-- 								</div> .events-wrapper -->
+<!-- 							</div> .timeline -->
+<!-- 					</div> -->
+<!-- 					</section> -->
+<!-- 				</div> -->
 
-				<div class="row">
-					<section class="cd-horizontal-timeline">
-					<div class="col-md-3">
-						<ol style="margin: 0 auto">
-							<li><h2>bbbbb</h2></li>
-						</ol>
-					</div>
-					<div class="col-md-9">
-							<div class="timeline">
-								<div class="events-wrapper">
-									<div class="events">
-										<ol id="cc">
-											<li><a href="#0" data-date="2016/10/28" class="selected ; doing">10/28<br>Doing登録</a></li>
-											<li><a href="#0" data-date="2016/10/29" >10/29</a></li>
-											<li><a href="#0" data-date="2016/10/30">10/30</a></li>
-											<li><a href="#0" data-date="2016/10/31" class="done">10/31<br>Done登録</a></li>
-											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	<!--doing,doneはa要素にクラス追加で対応 制御jsの判定で使う-->
-											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	<!--クラス追加すればマーカーが付く-->
-											<li><a href="#0" data-date="2016/11/3">11/03</a></li>
-										</ol>
-										<span id="cc" class="filling-line" aria-hidden="true"></span>
-									</div> <!-- .events -->
-								</div> <!-- .events-wrapper -->
-							</div> <!-- .timeline -->
-					</div>
-					</section>
-				</div>
-				</div>
+<!-- 				<div class="row"> -->
+<!-- 					<section class="cd-horizontal-timeline"> -->
+<!-- 					<div class="col-md-3"> -->
+<!-- 						<ol style="margin: 0 auto"> -->
+<!-- 							<li><h2>bbbbb</h2></li> -->
+<!-- 						</ol> -->
+<!-- 					</div> -->
+<!-- 					<div class="col-md-9"> -->
+<!-- 							<div class="timeline"> -->
+<!-- 								<div class="events-wrapper"> -->
+<!-- 									<div class="events"> -->
+<!-- 										<ol id="cc"> -->
+<!-- 											<li><a href="#0" data-date="2016/10/28" class="selected ; doing">10/28<br>Doing登録</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/10/29" >10/29</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/10/30">10/30</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/10/31" class="done">10/31<br>Done登録</a></li> -->
+<!-- 											<li><a href="#0" data-date="2016/11/1">11/01</a></li>	doing,doneはa要素にクラス追加で対応 制御jsの判定で使う -->
+<!-- 											<li><a href="#0" data-date="2016/11/2">11/02</a></li>	クラス追加すればマーカーが付く -->
+<!-- 											<li><a href="#0" data-date="2016/11/3">11/03</a></li> -->
+<!-- 										</ol> -->
+<!-- 										<span id="cc" class="filling-line" aria-hidden="true"></span> -->
+<!-- 									</div> .events -->
+<!-- 								</div> .events-wrapper -->
+<!-- 							</div> .timeline -->
+<!-- 					</div> -->
+<!-- 					</section> -->
+<!-- 				</div> -->
+<!-- 				</div> -->
 
 				<div class="row text-right">
 					<a class="btn btn-default sprint-plan-btn" role="button">
-					スプリント作成&変更</a>
+					イテレーション開始&amp;変更</a>
 					<a class="btn btn-primary sprint-close-btn disabled" role="button">
 					振り返りへ</a>
 				</div>
@@ -191,41 +209,13 @@
 		<script src="sprint.js"></script>
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-<script type="text/javascript">
-  google.charts.load("current", {packages:["timeline"]});
-  google.charts.setOnLoadCallback(drawChart);
-  function convDate(str){
-  	var ymd = str.split('/');
-  	return new Date(ymd[0],ymd[1]-1,ymd[2]);
-  }
-
-  function drawChart() {
-    var container = document.getElementById('n-timeline');
-    var chart = new google.visualization.Timeline(container);
-    var dataTable = new google.visualization.DataTable();
-
-    dataTable.addColumn({ type: 'string', id: 'TaskName' });
-    dataTable.addColumn({ type: 'string', id: 'Status' });
-    dataTable.addColumn({ type: 'date', id: 'Start' });
-    dataTable.addColumn({ type: 'date', id: 'End' });
-
-    dataTable.addRows([
-      [ 'あああああ', 'ToDo', convDate('2016/12/1'), convDate('2016/12/2') ], //[タスク名,タスク状態,開始日,終了日]　todoのend部は今日の日付を done未登録のdoingタスクも同様
-      [ 'あああああ', 'Doing', convDate('2016/12/2'), convDate('2016/12/6') ],//[str,str,Date,Date]　　　　　　　　　doingやdone登録時にend部を固定化
-      [ 'あああああ', 'Done', convDate('2016/12/6'), convDate('2016/12/7') ], //new Dateで直接入力すると月が1つずれるので,convDate関数で調整してます
-      ]);
-
-    chart.draw(dataTable);
-  }
-</script>
-
 		<script>
 		$(document).ready(function(){
 			//URLパラメータを取得する("URLアドレス?xxx=vvv&..."のやつ)
 			var params = Util.getUrlParameters();
 
 			//ボードIDの値をパラメータから取り出す
-			var boardId = params.boardId;
+			var boardId = params.bid;
 
 			//ボードIDが未定義(undefined)のとき、アラートを表示して終了
 			if( typeof boardId === 'undefined' ){
@@ -263,16 +253,19 @@
 					 * }
 					*/
 
-					$(".sprint-plan-btn").attr("href", "sprint.html?boardId=" + data.boardId);
+					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
+					$(".sprint-plan-btn").attr("href", "sprint.html?bid=" + data.boardId);
 
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")
 							.removeClass("disabled")
 							.on('click', function(){
+								$(".sprint-close-btn").off('click')
+									.text("処理中...").addClass("disabled");
 								DashBoard.closeCurrentSprint(boardId, {
 									//正常に終了した時の動作
 									callback: function(sid) {
-										location.href = "feedback.html?sprintId=" + sid;
+										location.href = "feedback.html?sid=" + sid;
 									},
 									//異常終了した時の動作
 									errorHandler: function(msg){
@@ -282,8 +275,15 @@
 							});
 					}
 
+					//putMemberTasksButtonを呼ぶ
+					$(".members-btn-wrapper").empty();
+					putMemberTasksButton($(".members-btn-wrapper"), data.members);
+
 					//showDashBoardを呼ぶ
-					showDashBoard(data);
+					google.charts.load("current", {packages:["timeline"]});
+					google.charts.setOnLoadCallback(function(){
+						showDashBoard(data);
+					});
 				},
 
 				//処理が異常終了したときに実行されるコールバック関数

@@ -12,6 +12,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.DashBoardForms;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
@@ -55,9 +56,9 @@ public class DashBoard {
 		Sprint sprint = sdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 
 		/* フォームに変換 */
-
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
 		DashBoardForms.DashBoardData form =
-			DashBoardForms.DashBoardData.getInstance(board, sprint);
+			DashBoardForms.DashBoardData.getInstance(board, sprint, ttb);
 
 		client.close();
 		return form;
