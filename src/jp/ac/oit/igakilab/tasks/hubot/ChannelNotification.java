@@ -152,10 +152,28 @@ public class ChannelNotification {
 		StringBuffer buffer = new StringBuffer();
 		DateFormat df = new SimpleDateFormat("M/d");
 
-		buffer.append("新しいスプリントが開始しました\n");
+		buffer.append("新しいイテレーションが開始しました\n");
 		buffer.append(df.format(beginDate) + " ～ " + df.format(finishDate) + "\n\n");
 
 		appendTaskNotifyText(buffer, cards);
+
+		return sendMessage(dest, buffer.toString());
+	}
+
+	public boolean promoteMeeting(String dest, List<NotifyTrelloCard> cards, String dashboardUrl){
+		//メッセージ作成
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(":mega:今日は目標日です。振り返りをしましょう:mega:\n");
+		if( dashboardUrl != null ) buffer.append(dashboardUrl + "\n");
+
+		//タスクがあるかどうか確認
+		if( cards != null && cards.size() > 0 ){
+			//buffer.append("\n残っているタスクがあります");
+			//appendTaskNotifyText(buffer, cards);
+			buffer.append("\n残っているタスクが" + cards.size() + "件あります");
+		}else{
+			buffer.append("タスクはすべて完了しています");
+		}
 
 		return sendMessage(dest, buffer.toString());
 	}

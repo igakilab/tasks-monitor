@@ -18,6 +18,7 @@ import jp.ac.oit.igakilab.tasks.AppProperties;
 import jp.ac.oit.igakilab.tasks.cron.CronTask;
 import jp.ac.oit.igakilab.tasks.cron.HubotBoardTaskNotification;
 import jp.ac.oit.igakilab.tasks.cron.HubotDailyTalk;
+import jp.ac.oit.igakilab.tasks.cron.HubotMeetingNotification;
 import jp.ac.oit.igakilab.tasks.cron.UpdateTrelloBoardActions;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.scripts.SprintResultsDBOptimizer;
@@ -92,7 +93,7 @@ public class AppInitializer implements ServletContextListener{
 	}
 
 	private Scheduler hello, boardUpdater, hubotDailyTalk, tasksNotifer;
-	private Scheduler boardTasksNotifer;
+	private Scheduler boardTasksNotifer, meetingNotifer;
 	private void initCronTasks(){
 		hello = CronTask.createScheduler("* * * * *");
 		hello.start();
@@ -109,6 +110,9 @@ public class AppInitializer implements ServletContextListener{
 			//tasksNotifer.start();
 			boardTasksNotifer = HubotBoardTaskNotification.createScheduler("10 9 * * *", hubotUrl);
 			boardTasksNotifer.start();
+			String homeUrl = AppProperties.global.get("tasks.homeurl");
+			meetingNotifer = HubotMeetingNotification.createScheduler("* * * * *", hubotUrl, homeUrl);
+			meetingNotifer.start();
 		}
 	}
 
@@ -118,6 +122,7 @@ public class AppInitializer implements ServletContextListener{
 		if( hubotDailyTalk != null ) hubotDailyTalk.stop();
 		if( tasksNotifer != null ) tasksNotifer.stop();
 		if( boardTasksNotifer != null ) tasksNotifer.stop();
+		if( meetingNotifer != null ) meetingNotifer.stop();
 	}
 
 	@Override

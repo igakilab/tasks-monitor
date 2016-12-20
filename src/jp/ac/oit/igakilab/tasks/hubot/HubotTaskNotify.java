@@ -39,8 +39,8 @@ public class HubotTaskNotify extends HubotSendMessage{
 		System.out.println(body.toJSONString());
 
 		//リクエストを送信
-		//HttpResponse res = request.sendRequest(body.toJSONString());
-		HttpResponse res = null;
+		HttpResponse res = request.sendRequest(body.toJSONString());
+		//HttpResponse res = null;
 
 		return res;
 	}

@@ -42,7 +42,7 @@ public class SlackChannelTaskNotify {
 		client.close();
 	}
 
-	private MongoClient client;
+	protected MongoClient client;
 	private HubotTaskNotify msg;
 	private Date notifyLine;
 	private String header;
@@ -51,7 +51,7 @@ public class SlackChannelTaskNotify {
 	private DocumentParser<TrelloAction> parser;
 	private MemberSlackIdTable stable;
 	private MemberTrelloIdTable ttable;
-	private ChannelNotification cmsg;
+	protected ChannelNotification cmsg;
 
 	public SlackChannelTaskNotify(MongoClient client, HubotTaskNotify msg){
 		this.client = client;
@@ -89,7 +89,7 @@ public class SlackChannelTaskNotify {
 		this.header = header;
 	}
 
-	private TrelloBoard buildBoard(String boardId){
+	protected TrelloBoard buildBoard(String boardId){
 		TrelloActionsBoard board = new TrelloActionsBoard();
 		board.addActions(adb.getTrelloActions(boardId, parser));
 		board.build();
@@ -101,7 +101,7 @@ public class SlackChannelTaskNotify {
 			(notifyLine == null || notifyLine.compareTo(card.getDue()) >= 0) );
 	}
 
-	private List<NotifyTrelloCard> collectNotifyCards(TrelloBoard board){
+	protected List<NotifyTrelloCard> collectNotifyCards(TrelloBoard board){
 		List<NotifyTrelloCard> cards = new ArrayList<NotifyTrelloCard>();
 		Consumer<TrelloCard> collector = (c) -> {
 			if( needsNotify(c) ){
