@@ -25,7 +25,6 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 		bdb.setSlackMeetingNotifyHour("57cfb3b08c566b61d9edc3f7", 15);
 
 		SlackChannelMeetingNotify notifer = new SlackChannelMeetingNotify(client, msg);
-		notifer.setHostUrl(AppProperties.global.get("tasks.homeurl"));
 
 		System.out.println(notifer.execute());
 
@@ -54,7 +53,7 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 //		init();
 	}
 
-	public void setHostUrl(String url){
+	public void setHomeUrl(String url){
 		homeUrl = url;
 	}
 
@@ -75,6 +74,7 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 		//カードの選択と交換
 		List<NotifyTrelloCard> cards = collectNotifyCards(board);
 		String dashboardUrl = homeUrl != null ? homeUrl + "/?bid=" + board.getId() : null;
+		System.out.println(dashboardUrl);
 
 		//送信
 		return cmsg.promoteMeeting(boardName, cards, dashboardUrl);
@@ -88,20 +88,13 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 
 		for(TrelloBoardsDB.Board board : boards){
 			Integer hour = board.getSlackMeetingNotifyHour();
-			System.out.println(hour);
 			if( hour != null ){
 				if( shouldPromote(cal, hour, EXPIRE_MINUTE) ){
-					System.out.println("sending");
 					res = execute(board.getId()) && res;
 				}
 			}
 		}
 
 		return res;
-	}
-
-	public void setHomeUrl(String string) {
-		// TODO 自動生成されたメソッド・スタブ
-
 	}
 }
