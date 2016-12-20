@@ -77,6 +77,15 @@
 						<button type="button" class="btn btn-default slack-notify-config-btn">
 						有効化</button>
 					</div>
+
+					<p>ミーティング促進メッセージを設定します<br/>
+					(slack通知機能が無効の場合はメッセージが送信されません)</p>
+					<div class="text-right">
+						ミーティング促進メッセージ送信時間は<span class="info-slack-meeting-notify"></span>
+						<button type="button" class="btn btn-default slack-meeting-notify-config-btn">
+						時間変更</button>
+					</div>
+
 				</div>
 			</div>
 
@@ -94,12 +103,15 @@
 				</div>
 			</div>
 
+			<div id="modalPromptWorkspace"></div>
+
 		</div>
 
 		<script src="../../js/jquery-2.1.4.min.js"></script>
 		<script src="../../js/jquery.serialize.js"></script>
 		<script src="../../js/bootstrap.min.js"></script>
 		<script src="../../js/util.js"></script>
+		<script src="../../js/modal-prompt.js"></script>
 
 		<script src="../../dwr/engine.js"></script>
 		<script src="../../dwr/util.js"></script>
@@ -125,6 +137,33 @@
 			}
 		}
 
+		function configSlackMeetingNotifyHour(){
+			var mp = new ModalPrompt($("#modalPromptWorkspace"));
+			mp.onButtonPressed = function(result){
+				var n = -1;
+				if( result != null ){
+					if( result.length > 0 ){
+						n = parseInt(result);
+						if( isNaN(n) || n < 0 || n > 23 ){
+							Util.showAlertToDiv("通知時間を正しく入力してください");
+							return;
+						}
+					}
+					BoardSettings.setSlackMeetingNotifyHour(BOARD_ID, n, function(res){
+						if( res ){
+							if( n >= 0 ){
+								Util.showAlertToDiv("ミーティング促進を" + n + "時に設定しました", "success");
+							}else{
+								Util.showAlertToDiv("ミーティング促進の設定を解除しました", "success");
+							}
+							loadInfo();
+						}
+					});
+				}
+			};
+			mp.prompt("通知時間を入力してください(0時～23時)", "ミーティング促進メッセージ送信時間設定");
+		}
+
 		function setInfo(data){
 			if( data == null ){
 				Util.showAlertToDiv("ボードデータを取得できませんでした");
@@ -136,20 +175,30 @@
 
 			var isne = $(".info-slack-notify-enabled")
 			var sncbtn = $(".slack-notify-config-btn");
+			var smncbtn = $(".slack-meeting-notify-config-btn");
 			sncbtn.off('click');
+			smncbtn.off("click");
 			if( data.slackNotifyEnabled ){
 				isne.text("有効");
 				sncbtn.text("無効化");
 				sncbtn.on('click', function(){
 					applySlackNotifyEnabled(false);
 				});
+				smncbtn.removeClass("disabled");
+				smncbtn.on("click", configSlackMeetingNotifyHour);
 			}else{
 				isne.text("無効");
 				sncbtn.text("有効化");
 				sncbtn.on('click', function(){
 					applySlackNotifyEnabled(true);
 				});
+				smncbtn.addClass("disabled");
 			}
+
+			$(".info-slack-meeting-notify").text(
+				data.slackMeetingNotifyHour != null ?
+					data.slackMeetingNotifyHour + "時に設定されています" :
+					"設定されていません");
 		}
 
 		$(document).ready(function(){
