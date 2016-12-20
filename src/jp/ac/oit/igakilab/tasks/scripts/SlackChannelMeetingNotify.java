@@ -88,7 +88,7 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 
 		for(TrelloBoardsDB.Board board : boards){
 			Integer hour = board.getSlackMeetingNotifyHour();
-			if( hour != null ){
+			if( board.getSlackNotifyEnabled() && hour != null ){
 				if( shouldPromote(cal, hour, EXPIRE_MINUTE) ){
 					res = execute(board.getId()) && res;
 				}
