@@ -119,14 +119,10 @@ public class AppInitializer implements ServletContextListener{
 	private void destroyCronTasks(){
 		hello.stop();
 		boardUpdater.stop();
-		System.out.println("デストロイクーロンタスクス");
 		if( hubotDailyTalk != null ) hubotDailyTalk.stop();
 		if( tasksNotifer != null ) tasksNotifer.stop();
 		if( boardTasksNotifer != null ) boardTasksNotifer.stop();
-		if( meetingNotifer != null ){
-			System.out.println("ミーティングノティファーストップ");
-			meetingNotifer.stop();
-		}
+		if( meetingNotifer != null ) meetingNotifer.stop();
 	}
 
 	@Override

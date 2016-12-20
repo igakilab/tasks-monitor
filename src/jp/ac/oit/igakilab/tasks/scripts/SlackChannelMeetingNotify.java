@@ -58,8 +58,8 @@ public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
 	}
 
 	private boolean shouldPromote(Calendar now, int hour, int expireMinute){
-		System.out.format("HOUR:%d == %d, MIN:: %d <= %d\n",
-			now.get(Calendar.HOUR_OF_DAY), hour, now.get(Calendar.MINUTE), expireMinute);
+		//System.out.format("HOUR:%d == %d, MIN:: %d <= %d\n",
+		//	now.get(Calendar.HOUR_OF_DAY), hour, now.get(Calendar.MINUTE), expireMinute);
 		return now.get(Calendar.HOUR_OF_DAY) == hour && now.get(Calendar.MINUTE) <= expireMinute;
 	}
 
