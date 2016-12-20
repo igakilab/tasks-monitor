@@ -9,7 +9,7 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
@@ -26,7 +26,7 @@ public class TestChannelNotification {
 		board.addActions(adb.getTrelloActions(boardId, new TrelloActionDocumentParser()));
 		board.build();
 
-		HubotSendMessage msg = new HubotSendMessage("http://igakilabot.herokuapp.com");
+		HubotTaskNotify msg = new HubotTaskNotify("http://igakilabot.herokuapp.com");
 		MemberSlackIdTable stb = new MemberSlackIdTable(client);
 		MemberTrelloIdTable mtb = new MemberTrelloIdTable(client);
 		ChannelNotification notifer = new ChannelNotification(msg);
