@@ -14,7 +14,7 @@ import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 
 public class SlackChannelMeetingNotify extends SlackChannelTaskNotify{
-	public static int EXPIRE_MINUTE = 60;
+	public static int EXPIRE_MINUTE = 20;
 
 	public static void main(String[] args){
 		MongoClient client = TasksMongoClientBuilder.createClient();
