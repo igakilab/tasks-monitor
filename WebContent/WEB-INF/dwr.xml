@@ -19,9 +19,6 @@
 
 
 	<!-- tasks-monitor -->
-    <create creator="new" javascript="TrelloBoardViewer">
-    	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.TrelloBoardViewer"/>
-    </create>
     <create creator="new" javascript="AdminMemberEditor">
     	<param name="class" value="jp.ac.oit.igakilab.tasks.dwr.admin.AdminMemberEditor"/>
     </create>
