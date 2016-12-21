@@ -70,8 +70,8 @@ public class BoardSettings {
 		TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
 
 		//アップデート
-		updater.clearLastUpdateDate(boardId);
-		updater.updateBoardActions(boardId);
+		updater.clearTrelloBoardActionsCache(boardId);
+		updater.updateBoardActions(boardId, null);
 
 		client.close();
 		return true;
