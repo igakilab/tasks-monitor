@@ -24,6 +24,14 @@ import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 
 public class HubotApi {
+	/**
+	 * 現在進行中のスプリントを取得します
+	 * 返却されるjsonオブジェクトのsprintの値にデータが渡され、
+	 * スプリントがない場合sprintの値にnullがセットされます。
+	 * @param boardId TrelloのボードID
+	 * @return CurrentSprint(json)
+	 * @throws ExecuteFailedException
+	 */
 	public CurrentSprint getCurrentSprint(String boardId)
 	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
@@ -51,6 +59,14 @@ public class HubotApi {
 		return form;
 	}
 
+	/**
+	 * 該当ボードの進行中スプリントにカードを追加します
+	 * @param boardId TrelloボードID
+	 * @param cardId カードのID
+	 * @param slackId 担当者となる人のID
+	 * @return
+	 * @throws ExecuteFailedException
+	 */
 	public Map<String,Object> addSprintCard(String boardId, String cardId, String slackId)
 	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
