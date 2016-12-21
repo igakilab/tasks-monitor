@@ -111,7 +111,7 @@ public class AppInitializer implements ServletContextListener{
 			boardTasksNotifer = HubotBoardTaskNotification.createScheduler("10 9 * * *", hubotUrl);
 			boardTasksNotifer.start();
 			String homeUrl = AppProperties.global.get("tasks.homeurl");
-			meetingNotifer = HubotMeetingNotification.createScheduler("* * * * *", hubotUrl, homeUrl);
+			meetingNotifer = HubotMeetingNotification.createScheduler("5 * * * *", hubotUrl, homeUrl);
 			meetingNotifer.start();
 		}
 	}

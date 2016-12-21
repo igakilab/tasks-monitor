@@ -21,6 +21,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
 import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
 import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
+import jp.ac.oit.igakilab.tasks.scripts.SlackChannelMeetingNotify;
 import jp.ac.oit.igakilab.tasks.scripts.SlackChannelTaskNotify;
 
 public class Configs {
@@ -156,5 +157,22 @@ public class Configs {
 
 	public String testBoardTaskNotify(){
 		return testHubotBoardTaskNotification(null, -1);
+	}
+
+	public boolean testPromoteMeeting(){
+		String hubotUrl = AppProperties.global.get("tasks.hubot.url", null);
+		String homeUrl = AppProperties.global.get("tasks.homeurl", null);
+
+		HubotTaskNotify msg = new HubotTaskNotify(hubotUrl);
+		MongoClient client = TasksMongoClientBuilder.createClient();
+
+		SlackChannelMeetingNotify notifer = new SlackChannelMeetingNotify(client, msg);
+		notifer.setHomeUrl(homeUrl);
+
+		boolean res = notifer.execute();
+
+		client.close();
+
+		return res;
 	}
 }
