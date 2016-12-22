@@ -17,7 +17,7 @@ public class HubotSendMessage {
 		}
 	}
 
-	private String hubotUrl;
+	protected String hubotUrl;
 
 	public HubotSendMessage(String hubotUrl){
 		this.hubotUrl = hubotUrl;

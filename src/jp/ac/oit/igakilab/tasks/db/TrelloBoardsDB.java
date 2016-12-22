@@ -24,16 +24,19 @@ public class TrelloBoardsDB {
 			board.id = doc.getString("id");
 			board.lastUpdate = doc.getDate("lastUpdate");
 			board.slackNotifyEnabled = doc.getBoolean("slackNotifyEnabled", false);
+			board.slackMeetingNotifyHour = doc.getInteger("slackMeetingNotifyHour");
 			return board;
 		}
 
 		private String id;
 		private Date lastUpdate;
 		private boolean slackNotifyEnabled;
+		private Integer slackMeetingNotifyHour;
 
 		public String getId(){return id;}
 		public Date getLastUpdate(){return lastUpdate;}
 		public boolean getSlackNotifyEnabled(){return slackNotifyEnabled;}
+		public Integer getSlackMeetingNotifyHour(){return slackMeetingNotifyHour;}
 	}
 
 	private MongoClient client;
@@ -122,5 +125,23 @@ public class TrelloBoardsDB {
 
 		UpdateResult res = getCollection().updateOne(filter, update);
 		return res.getModifiedCount() > 0;
+	}
+
+	public boolean setSlackMeetingNotifyHour(String boardId, Integer hour){
+		Bson filter = Filters.eq("id", boardId);
+		Bson update = null;
+		if( hour != null && hour >= 0 && hour < 24 ){
+			update = Updates.set("slackMeetingNotifyHour", hour);
+		}else{
+			update = Updates.unset("slackMeetingNotifyHour");
+		}
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+		return res.getModifiedCount() > 0;
+	}
+
+	public Integer getSlackMeetingNotifyHour(String boardId){
+		Document doc = getBoardById(boardId);
+		return Board.convert(doc).getSlackMeetingNotifyHour();
 	}
 }

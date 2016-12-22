@@ -15,7 +15,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
@@ -38,9 +38,9 @@ public class SprintEditor {
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
-	private HubotSendMessage hubotMsg;
+	private HubotTaskNotify hubotMsg;
 
-	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotSendMessage msg){
+	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotTaskNotify msg){
 		dbClient = client;
 		trelloApi = api;
 		hubotMsg = msg;

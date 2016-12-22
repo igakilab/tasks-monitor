@@ -21,7 +21,7 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm.SBTrelloCar
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
@@ -142,7 +142,7 @@ public class SprintPlanner {
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
-		HubotSendMessage msg = new HubotSendMessage(AppProperties.global.get("tasks.hubot.url"));
+		HubotTaskNotify msg = new HubotTaskNotify(AppProperties.global.get("tasks.hubot.url"));
 		SprintEditor se = new SprintEditor(client, api, msg);
 
 		//進行中スプリントの取得

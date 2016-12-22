@@ -14,7 +14,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.DocumentParser;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
@@ -28,7 +28,7 @@ public class SlackChannelTaskNotify {
 	public static void main(String[] args){
 		//String boardId = "57ab33677fd33ec535cc4f28";
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		HubotSendMessage msg = new HubotSendMessage("http://igakilabot.herokuapp.com");
+		HubotTaskNotify msg = new HubotTaskNotify("http://igakilabot.herokuapp.com");
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 7);
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(client, msg);
@@ -42,8 +42,8 @@ public class SlackChannelTaskNotify {
 		client.close();
 	}
 
-	private MongoClient client;
-	private HubotSendMessage msg;
+	protected MongoClient client;
+	private HubotTaskNotify msg;
 	private Date notifyLine;
 	private String header;
 
@@ -51,9 +51,9 @@ public class SlackChannelTaskNotify {
 	private DocumentParser<TrelloAction> parser;
 	private MemberSlackIdTable stable;
 	private MemberTrelloIdTable ttable;
-	private ChannelNotification cmsg;
+	protected ChannelNotification cmsg;
 
-	public SlackChannelTaskNotify(MongoClient client, HubotSendMessage msg){
+	public SlackChannelTaskNotify(MongoClient client, HubotTaskNotify msg){
 		this.client = client;
 		this.msg = msg;
 		Calendar cal = Calendar.getInstance();
@@ -63,7 +63,7 @@ public class SlackChannelTaskNotify {
 		init();
 	}
 
-	public SlackChannelTaskNotify(MongoClient client, HubotSendMessage msg, Date d){
+	public SlackChannelTaskNotify(MongoClient client, HubotTaskNotify msg, Date d){
 		this.client = client;
 		this.msg = msg;
 		this.notifyLine = d;
@@ -89,7 +89,7 @@ public class SlackChannelTaskNotify {
 		this.header = header;
 	}
 
-	private TrelloBoard buildBoard(String boardId){
+	protected TrelloBoard buildBoard(String boardId){
 		TrelloActionsBoard board = new TrelloActionsBoard();
 		board.addActions(adb.getTrelloActions(boardId, parser));
 		board.build();
@@ -101,7 +101,7 @@ public class SlackChannelTaskNotify {
 			(notifyLine == null || notifyLine.compareTo(card.getDue()) >= 0) );
 	}
 
-	private List<NotifyTrelloCard> collectNotifyCards(TrelloBoard board){
+	protected List<NotifyTrelloCard> collectNotifyCards(TrelloBoard board){
 		List<NotifyTrelloCard> cards = new ArrayList<NotifyTrelloCard>();
 		Consumer<TrelloCard> collector = (c) -> {
 			if( needsNotify(c) ){

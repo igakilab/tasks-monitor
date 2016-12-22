@@ -20,6 +20,8 @@ import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.StringKeyValueForm;
 import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
+import jp.ac.oit.igakilab.tasks.scripts.SlackChannelMeetingNotify;
 import jp.ac.oit.igakilab.tasks.scripts.SlackChannelTaskNotify;
 
 public class Configs {
@@ -120,7 +122,7 @@ public class Configs {
 	private String testHubotBoardTaskNotification(String boardId, int date){
 		MongoClient c = TasksMongoClientBuilder.createClient();
 		String hubotUrl = AppProperties.global.get("tasks.hubot.url");
-		HubotSendMessage m = new HubotSendMessage(hubotUrl);
+		HubotTaskNotify m = new HubotTaskNotify(hubotUrl);
 
 		SlackChannelTaskNotify notifer = new SlackChannelTaskNotify(c, m);
 		notifer.setHeader("テスト送信");
@@ -155,5 +157,22 @@ public class Configs {
 
 	public String testBoardTaskNotify(){
 		return testHubotBoardTaskNotification(null, -1);
+	}
+
+	public boolean testPromoteMeeting(){
+		String hubotUrl = AppProperties.global.get("tasks.hubot.url", null);
+		String homeUrl = AppProperties.global.get("tasks.homeurl", null);
+
+		HubotTaskNotify msg = new HubotTaskNotify(hubotUrl);
+		MongoClient client = TasksMongoClientBuilder.createClient();
+
+		SlackChannelMeetingNotify notifer = new SlackChannelMeetingNotify(client, msg);
+		notifer.setHomeUrl(homeUrl);
+
+		boolean res = notifer.execute();
+
+		client.close();
+
+		return res;
 	}
 }
