@@ -202,7 +202,7 @@ function drawSprintTasksTimeline(data, beginDate, finishDate, destId){
 		lines.forEach(function(move){
 			var label = move.data.type == "todo" ? "ToDo" :
 				move.data.type == "doing" ? "Doing" :
-				move.data.type == "done"  ? "Done" : "unknown";
+				move.data.type == "done"  ? "Done" : " ";
 
 			dataTable.addRow([card.name, label, move.start, move.end]);
 		});
