@@ -233,6 +233,11 @@ public class SprintEditor {
 		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		if( sprintCards != null ){
+			//期限を計算
+			Calendar dueDate = Calendar.getInstance();
+			dueDate.setTime(finishDate);
+			dueDate.set(Calendar.HOUR, 18);
+
 			//削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 			List<String> removed = getRemovedCards(sprint.getTrelloCardIds(), sprintCards);
@@ -240,7 +245,7 @@ public class SprintEditor {
 			//カードを追加
 			for(CardMembers cm : sprintCards){
 				List<String> trelloMemberIds = ttb.getTrelloIdAll(cm.getMemberIds());
-				tce.setDueAndMembers(cm.getCardId(), finishDate, trelloMemberIds, true);
+				tce.setDueAndMembers(cm.getCardId(), dueDate.getTime(), trelloMemberIds, true);
 			}
 
 			//カードを削除

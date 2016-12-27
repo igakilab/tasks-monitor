@@ -20,6 +20,8 @@ import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard.ListMovement;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 import jp.ac.oit.igakilab.tasks.trello.model.actions.TrelloAction;
@@ -46,6 +48,7 @@ public class SlackChannelTaskNotify {
 	private HubotTaskNotify msg;
 	private Date notifyLine;
 	private String header;
+	private String header_doing;
 
 	private TrelloBoardActionsDB adb;
 	private DocumentParser<TrelloAction> parser;
@@ -60,6 +63,7 @@ public class SlackChannelTaskNotify {
 		cal.add(Calendar.DATE, 3);
 		this.notifyLine = cal.getTime();
 		this.header = "期限の近づいているタスクがあります";
+		this.header_doing = "doing状態で1日以上放置されているタスクがあります";
 		init();
 	}
 
@@ -68,6 +72,7 @@ public class SlackChannelTaskNotify {
 		this.msg = msg;
 		this.notifyLine = d;
 		this.header = "期限の近づいているタスクがあります";
+		this.header_doing = "doing状態で1日以上放置されているタスクがあります";
 		init();
 	}
 
@@ -87,6 +92,10 @@ public class SlackChannelTaskNotify {
 
 	public void setHeader(String header){
 		this.header = header;
+	}
+
+	public void setHeaderDoing(String header){
+		this.header_doing = header;
 	}
 
 	protected TrelloBoard buildBoard(String boardId){
@@ -115,6 +124,27 @@ public class SlackChannelTaskNotify {
 		return cards;
 	}
 
+	protected List<NotifyTrelloCard> collectDoingForgotNotifyCards(TrelloBoard board){
+		List<NotifyTrelloCard> cards = new ArrayList<NotifyTrelloCard>();
+
+		Calendar d = Calendar.getInstance();
+		d.add(Calendar.DATE, -1);
+
+		board.getCardsByListNameMatches(TasksTrelloClientBuilder.REGEX_DOING).forEach((c) -> {
+			if( !c.isClosed() && c instanceof TrelloActionsCard ){
+				TrelloActionsCard acard = (TrelloActionsCard)c;
+				List<ListMovement> movements = acard.getListMovement();
+				ListMovement latest = movements.get(movements.size()-1);
+
+				if( d.getTime().compareTo(latest.getDate()) >= 0 ){
+					cards.add(NotifyTrelloCard.getInstance(acard, board, ttable));
+				}
+			}
+		});
+
+		return cards;
+	}
+
 
 	public boolean execute(String boardId){
 		//ボードのビルド
@@ -126,10 +156,14 @@ public class SlackChannelTaskNotify {
 
 		//カードの選択と変換
 		List<NotifyTrelloCard> cards = collectNotifyCards(board);
+		//System.out.println("NOTIFY: " + cards);
+		List<NotifyTrelloCard> dcards = collectDoingForgotNotifyCards(board);
+		//System.out.println("DOING FORGOT: " + dcards);
 
 		//送信
-		if( cards.size() > 0 ){
-			return cmsg.taskNotification(boardName, header, cards);
+		if( cards.size() > 0 || dcards.size() > 0 ){
+			boolean res =  cmsg.taskNotification(boardName, header, cards);
+			return res && cmsg.taskNotification(boardName, header_doing, dcards);
 		}else{
 			return true;
 		}
@@ -142,7 +176,8 @@ public class SlackChannelTaskNotify {
 
 		for(TrelloBoardsDB.Board board : boards){
 			if( board.getSlackNotifyEnabled() ){
-				res = execute(board.getId()) && res ? true : false;
+				res = execute(board.getId()) && res;
+				//System.out.println("send to " + board.getId() + " : " + res);
 			}else{
 				System.out.println(board.getId() + "is notify disabled");
 			}
