@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mongodb.MongoClient;
 
+import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
@@ -12,6 +13,7 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.MemberCards;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.SprintResultCardTagsForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
@@ -124,21 +126,36 @@ public class SprintFinisher {
 	}
 
 	/*
-	 * ボードIDで指定されたボードの、SprintResultを一覧取得します。
+	 * スプリントIDとカードIDで指定されたカードにタグを設定します。
+	 * 配列で指定されたタグ列はデータベース上のデータを上書きします。
+	 * (既に設定されているタグは破棄されます)
 	 */
-//	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
-//		MongoClient client = TasksMongoClientBuilder.createClient();
-//		SprintManager manager = new SprintManager(client, null);
-//
-//		//返却する配列を初期化
-//		List<SprintResultForm> forms = new ArrayList<SprintResultForm>();
-//
-//		//結果を取得、変換して返却配列に格納
-//		manager.getSprintResultsByBoardId(boardId).forEach((result ->
-//			forms.add(SprintResultForm.getInstance(result))));
-//
-//		//結果を返却
-//		client.close();
-//		return forms;
-//	}
+	public boolean setSprintCardTags(String sprintId, String cardId, List<String> tags){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		SprintResultsDB srdb = new SprintResultsDB(client);
+
+		boolean res = srdb.setTagsToSprintCard(sprintId, cardId, tags);
+
+		client.close();
+		return res;
+	}
+
+	/*
+	 * 上記メソッドの複数セットできるバージョンです
+	 */
+	public boolean setSprintCardsTags(String sprintId, List<SprintResultCardTagsForm> cts){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		SprintResultsDB srdb = new SprintResultsDB(client);
+
+		boolean res = false;
+		if( srdb.sprintIdExists(sprintId) ){
+			res = true;
+			for(SprintResultCardTagsForm ct : cts){
+				res = srdb.setTagsToSprintCard(sprintId, ct.getCardId(), ct.getTags()) && res;
+			}
+		}
+
+		client.close();
+		return res;
+	}
 }
