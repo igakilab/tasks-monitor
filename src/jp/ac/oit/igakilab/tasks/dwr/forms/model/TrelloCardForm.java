@@ -1,4 +1,4 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.model;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,6 +63,36 @@ public class TrelloCardForm {
 		return form;
 	}
 
+	public static TrelloCard convert(TrelloCardForm form){
+		TrelloCard card = new TrelloCard();
+
+		card.setId(form.getId());
+		card.setName(form.getName());
+		card.setDesc(form.getDesc());
+		card.setListId(form.getListId());
+		card.setDue(form.getDue());
+		if( form.getTrelloMemberIds() != null ){
+			card.getMemberIds().addAll(form.getTrelloMemberIds());
+		}
+		card.setClosed(form.isClosed());
+
+		return card;
+	}
+
+	public static TrelloCard convert(TrelloCardForm form, MemberTrelloIdTable ttb){
+		if( form.getMemberIds() != null && ttb != null ){
+			form.getMemberIds().forEach((mid) -> {
+				String tmid = ttb.getTrelloId(mid);
+				if( tmid != null ){
+					if( !form.getTrelloMemberIds().contains(tmid) ){
+						form.getTrelloMemberIds().add(tmid);
+					}
+				}
+			});
+		}
+		return convert(form);
+	}
+
 	private String id;
 	private String name;
 	private String desc;
@@ -76,6 +106,7 @@ public class TrelloCardForm {
 		id = null;
 		name = null;
 		desc = null;
+		listId = null;
 		due = null;
 		memberIds = new ArrayList<String>();
 		trelloMemberIds = new ArrayList<String>();

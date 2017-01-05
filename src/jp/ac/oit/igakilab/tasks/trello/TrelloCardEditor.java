@@ -57,13 +57,37 @@ public class TrelloCardEditor {
 		return true;
 	}
 
+	public boolean setDueComplete(String cardId, boolean complete){
+		String url = "/1/cards/" + cardId + "/dueComplete";
+		Map<String, String> params = new HashMap<String,String>();
+
+		params.put("value", (complete ? "true" : "false"));
+
+		try{
+			client.put(url, params);
+		}catch(TrelloApiConnectionFailedException e0){
+			return false;
+		}
+
+		return true;
+	}
+
 	public boolean setDueAndMembers(String cardId, Date due, List<String> trelloMemberIds){
+		return setDueAndMembers(cardId, due, trelloMemberIds, false);
+	}
+
+	public boolean setDueAndMembers(String cardId, Date due, List<String> trelloMemberIds, boolean dueCompleteRemove){
 		String url = "/1/cards/" + cardId;
 		Map<String,String> params = new HashMap<String,String>();
 
-		TrelloDateFormat df = new TrelloDateFormat();
-		String dateStr = (due != null ? df.format(due) : "null");
-		params.put("due", dateStr);
+		if( due != null ){
+			TrelloDateFormat df = new TrelloDateFormat();
+			params.put("due", df.format(due));
+		}
+
+		if( dueCompleteRemove ){
+			params.put("dueComplete", "false");
+		}
 
 		if( trelloMemberIds != null && trelloMemberIds.size() > 0 ){
 			params.put("idMembers", commaSeparated(trelloMemberIds));
@@ -71,6 +95,22 @@ public class TrelloCardEditor {
 
 		try{
 			client.put(url, params);
+		}catch(TrelloApiConnectionFailedException e0){
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean clearDueAndMembers(String cardId){
+		String url = "/1/cards/" + cardId;
+		Map<String,String> params = new HashMap<String,String>();
+
+		params.put("due", "null");
+		params.put("idMembers", "");
+
+		try{
+			client.post(url, params);
 		}catch(TrelloApiConnectionFailedException e0){
 			return false;
 		}

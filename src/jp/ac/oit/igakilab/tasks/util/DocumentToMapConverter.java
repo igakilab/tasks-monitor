@@ -107,10 +107,10 @@ public class DocumentToMapConverter {
 			return INTEGER;
 		}else
 		if( value instanceof Long ){
-			return DOUBLE;
+			return LONG;
 		}else
 		if( value instanceof Double ){
-			return LONG;
+			return DOUBLE;
 		}else
 		if( value instanceof Boolean ){
 			return BOOLEAN;

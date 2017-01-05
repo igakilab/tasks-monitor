@@ -12,13 +12,15 @@ import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.MemberCards;
-import jp.ac.oit.igakilab.tasks.dwr.forms.SprintResultForm;
-import jp.ac.oit.igakilab.tasks.dwr.forms.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.CardResult;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintManager;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
+import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
+import jp.ac.oit.igakilab.tasks.trello.TrelloCardFetcher;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
@@ -53,7 +55,7 @@ public class SprintFinisher {
 		List<String> remained = new ArrayList<String>();
 		List<String> finished = new ArrayList<String>();
 
-		for(CardResult scard : res.getAllCards()){
+		for(CardResult scard : res.getAllCardResults()){
 			for(String mid : scard.getMemberIds()){
 				addCardToMemberCardsList(
 					memberTasks, mid, scard.getCardId(), scard.isFinished());
@@ -83,23 +85,30 @@ public class SprintFinisher {
 	 * スプリントのクローズに成功したら、SprintResultFormのオブジェクトを返却します。
 	 */
 	public ClosedSprintResult closeCurrentSprint(String boardId)
-	throws ExcuteFailedException{
+	throws ExecuteFailedException{
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
 
 		//現在進行中のスプリントを取得
 		Sprint currSpr = smdb.getCurrentSprint(boardId, new SprintDocumentConverter());
 		if( currSpr == null ){
-			throw new ExcuteFailedException("現在進行中のスプリントはありません");
+			throw new ExecuteFailedException("現在進行中のスプリントはありません");
 		}
 
 		//クローズ処理
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
-		SprintManager manager = new SprintManager(client, api);
-		SprintResult res = manager.closeSprint(currSpr.getId());
+		TrelloBoardFetcher bf = new TrelloBoardFetcher(api, boardId);
+		TrelloCardFetcher cf = new TrelloCardFetcher(api);
+		SprintManager manager = new SprintManager(client);
+		SprintResult res = null;
+		bf.fetch();
+		if( manager.closeSprint(bf.getBoard(), cf, currSpr.getId()) ){
+			SprintResultProvider provider = new SprintResultProvider(client);
+			res = provider.getSprintResultBySprintId(currSpr.getId());
+		}
 
 		if( res == null ){
-			throw new ExcuteFailedException("スプリントのクローズ処理が失敗しました");
+			throw new ExecuteFailedException("スプリントのクローズ処理が失敗しました");
 		}
 
 		//リザルトの取得
@@ -117,19 +126,19 @@ public class SprintFinisher {
 	/*
 	 * ボードIDで指定されたボードの、SprintResultを一覧取得します。
 	 */
-	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
-		MongoClient client = TasksMongoClientBuilder.createClient();
-		SprintManager manager = new SprintManager(client, null);
-
-		//返却する配列を初期化
-		List<SprintResultForm> forms = new ArrayList<SprintResultForm>();
-
-		//結果を取得、変換して返却配列に格納
-		manager.getSprintResultsByBoardId(boardId).forEach((result ->
-			forms.add(SprintResultForm.getInstance(result))));
-
-		//結果を返却
-		client.close();
-		return forms;
-	}
+//	public List<SprintResultForm> getSprintResultsByBoardId(String boardId){
+//		MongoClient client = TasksMongoClientBuilder.createClient();
+//		SprintManager manager = new SprintManager(client, null);
+//
+//		//返却する配列を初期化
+//		List<SprintResultForm> forms = new ArrayList<SprintResultForm>();
+//
+//		//結果を取得、変換して返却配列に格納
+//		manager.getSprintResultsByBoardId(boardId).forEach((result ->
+//			forms.add(SprintResultForm.getInstance(result))));
+//
+//		//結果を返却
+//		client.close();
+//		return forms;
+//	}
 }

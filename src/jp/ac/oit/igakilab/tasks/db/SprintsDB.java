@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.bson.Document;
@@ -11,10 +12,12 @@ import org.bson.conversions.Bson;
 
 import com.mongodb.Block;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 
@@ -70,11 +73,16 @@ public class SprintsDB {
 	protected static Bson FILTER_NOT_CLOSED = Filters.or(
 		Filters.exists("closedDate", false),
 		Filters.eq("closedDate", null));
+	protected static Bson FILTER_CLOSED = Filters.and(
+		Filters.exists("closedDate", true),
+		Filters.ne("closedDate", null));
 
 	private MongoClient client;
+	private MongoCollection<Document> collection;
 
 	public SprintsDB(MongoClient client){
 		this.client = client;
+		collection = getCollection();
 	}
 
 	protected MongoCollection<Document> getCollection(){
@@ -87,7 +95,18 @@ public class SprintsDB {
 		return getCollection().count(filter) > 0;
 	}
 
+	public boolean isSprintClosed(String id){
+		if( id == null ) return false;
+		Bson filter = Filters.and(
+			Filters.eq("id", id), FILTER_CLOSED);
+		return getCollection().find(filter).first() != null;
+	}
+
 	public boolean isValidPeriod(String boardId, Date begin, Date finish){
+		return isValidPeriod(boardId, begin, finish, null);
+	}
+
+	public boolean isValidPeriod(String boardId, Date begin, Date finish, String excludeSprintId){
 		if( boardId == null || begin == null || finish == null ){
 			return false;
 		}
@@ -95,19 +114,39 @@ public class SprintsDB {
 			return false;
 		}
 
+		Bson filter = Filters.and(
+			Filters.eq("boardId", boardId), FILTER_NOT_CLOSED);
+
+		if( excludeSprintId != null ){
+			filter = Filters.and(filter, Filters.ne("id", excludeSprintId));
+		}
+
 		List<Bson> query = Arrays.asList(
-			Aggregates.match(Filters.and(
-				Filters.eq("boardId", boardId),
-				FILTER_NOT_CLOSED)),
+			Aggregates.match(filter),
 			Aggregates.group(null, Accumulators.max("lastDate", "$finishDate")));
 
 		Document doc = getCollection().aggregate(query).first();
+		//System.out.println(doc != null ? doc.toJson() : null);
 		if( doc != null && doc.get("lastDate") != null ){
 			Date last = doc.getDate("lastDate");
 			return last.compareTo(begin) <= 0;
 		}
 
 		return true;
+	}
+
+	public boolean canUpdateFinishDate(String sprintId, Date finishDate){
+		MongoCollection<Document> col = getCollection();
+
+		Document target = col.find(Filters.eq("id", sprintId)).first();
+		if( target == null ){
+			return false;
+		}
+
+		String boardId = target.getString("boardId");
+		Date begin = target.getDate("beginDate");
+
+		return isValidPeriod(boardId, begin, finishDate, sprintId);
 	}
 
 	public <T> String addSprint(T data, DocumentConverter<T> converter)
@@ -137,9 +176,50 @@ public class SprintsDB {
 		return newId;
 	}
 
-	public boolean updateSprintCards(Sprint id, List<String> cardIds){
+	public boolean updateSprintCards(String id, List<String> cardIds){
 		Bson filter = Filters.eq("id", id);
 		Bson update = Updates.set("trelloCardIds", cardIds);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+
+		return res.getModifiedCount() > 0;
+	}
+
+	public boolean isTrelloCardIdRegisted(String id, String cardId){
+		Bson filter = Filters.and(
+			Filters.eq("id", id),
+			Filters.eq("trelloCardIds", cardId));
+
+		Document doc = getCollection().find(filter).first();
+
+		return doc != null;
+	}
+
+	public boolean updateFinishDate(String id, Date finish){
+		if( canUpdateFinishDate(id, finish) ){
+			Bson filter = Filters.eq("id", id);
+			Bson updates = Updates.set("finishDate", finish);
+
+			getCollection().updateOne(filter, updates).getModifiedCount();
+
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public boolean addTrelloCardId(String id, String cardId){
+		Bson filter = Filters.eq("id", id);
+		Bson update = Updates.push("trelloCardIds", cardId);
+
+		UpdateResult res = getCollection().updateOne(filter, update);
+
+		return res.getModifiedCount() > 0;
+	}
+
+	public boolean removeTrelloCardId(String id, String cardId){
+		Bson filter = Filters.eq("id", id);
+		Bson update = Updates.pull("trelloCardIds", cardId);
 
 		UpdateResult res = getCollection().updateOne(filter, update);
 
@@ -190,6 +270,48 @@ public class SprintsDB {
 		return result;
 	}
 
+	/**
+	 * すでに終了しているスプリントを新しい順に取得します。
+	 * 引数に各フィルタを指定して、目的のデータを取得します
+	 * @param boardId 指定されたボードidのスプリントのデータが取得されます(必須)
+	 * @param originSprintId 起点となるスプリントで、これ以降に終了されたスプリントは対象になりません。　
+	 *                       このスプリントが閉じられていない場合や、nullが指定された場合は、無効になるフィルタです。
+	 * @param cnt 最新のスプリントをいくつ取得するか指定します 0未満の数字を指定するとこの制限はなくなります
+	 * @param parser ドキュメントパーザーです(必須)
+	 * @return 対象のスプリントのリスト
+	 */
+	public <T> List<T> getLatestFinishedSprintByBoardId
+	(String boardId, String originSprintId, int cnt, DocumentParser<T> parser){
+		//originSprintを取得する
+		Sprint originSprint = null;
+		if( originSprintId != null ){
+			originSprint = getSprintById(originSprintId, new SprintDocumentConverter());
+		}
+
+		//フィルタを形成する
+		List<Bson> elements = new ArrayList<>();
+		elements.add(Filters.eq("boardId", boardId));
+		elements.add(Filters.ne("closedDate", null));
+		if( originSprint != null && originSprint.getClosedDate() != null ){
+			elements.add(Filters.lte("closedDate", originSprint.getClosedAt()));
+		}
+		Bson filter = Filters.and(elements);
+
+		//データを取得する
+		Bson sorts = Sorts.descending("closedDate");
+		FindIterable<Document> cur = collection.find(filter).sort(sorts);
+
+		//データをぱーずする
+		List<T> result = new ArrayList<>();
+		Iterator<Document> itr = cur.iterator();
+		for(int i=0; (itr.hasNext() && (cnt < 0 || i < cnt)); i++){
+			Document doc = itr.next();
+			result.add(parser.parse(doc));
+		}
+
+		return result;
+	}
+
 	public <T> List<T> getAllSprints(DocumentParser<T> converter){
 		List<T> list = new ArrayList<T>();
 
@@ -202,31 +324,5 @@ public class SprintsDB {
 		});
 
 		return list;
-	}
-
-	public boolean addTrelloCardId(String id, String cardId){
-		if( !sprintIdExists(id) ) return false;
-
-		MongoCollection<Document> col = getCollection();
-
-		Bson checkRegistedFilter = Filters.and(
-			Filters.eq("id", id),
-			Filters.eq("trelloCardIds", cardId));
-		if( col.count(checkRegistedFilter) > 0 ) return false;
-
-		Bson filter = Filters.eq("id", id);
-		Bson updates = Updates.push("trelloCardIds", cardId);
-		UpdateResult result = col.updateOne(filter, updates);
-
-		return result.getModifiedCount() == 1;
-	}
-
-	public boolean removeTrelloCardId(String id, String cardId){
-		Bson filter = Filters.eq("id", id);
-		Bson updates = Updates.pull("trelloCardIds", cardId);
-
-		UpdateResult result = getCollection().updateOne(filter, updates);
-
-		return result.getModifiedCount() == 1;
 	}
 }

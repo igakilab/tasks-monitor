@@ -69,6 +69,21 @@ public class DocumentValuePicker {
 		return new ArrayList<Object>();
 	}
 
+	public List<Document> getDocumentArray(String key){
+		List<Document> array = new ArrayList<Document>();
+
+		for(Object obj : getArray(key)){
+			try{
+				Document tmp = (Document)obj;
+				array.add(tmp);
+			}catch(ClassCastException e0){
+				if( stackTraceEnabled ) e0.printStackTrace();
+			}
+		}
+
+		return array;
+	}
+
 	public List<String> getStringArray(String key){
 		List<String> array = new ArrayList<String>();
 

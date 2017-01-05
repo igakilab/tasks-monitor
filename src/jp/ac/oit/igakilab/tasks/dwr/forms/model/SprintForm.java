@@ -1,6 +1,8 @@
-package jp.ac.oit.igakilab.tasks.dwr.forms;
+package jp.ac.oit.igakilab.tasks.dwr.forms.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 
@@ -9,14 +11,21 @@ public class SprintForm {
 		if( sprint == null ) return null;
 
 		SprintForm form = new SprintForm();
+		setValues(form, sprint);
+
+		return form;
+	}
+
+	protected static void setValues(SprintForm form, Sprint sprint){
+		if( form == null || sprint == null ) return;
+
 		form.setId(sprint.getId());
 		form.setBoardId(sprint.getBoardId());
 		form.setBeginDate(sprint.getBeginDate());
 		form.setFinishDate(sprint.getFinishDate());
 		form.setClosed(sprint.isClosed());
 		form.setClosedDate(sprint.getClosedDate());
-
-		return form;
+		form.getTrelloCardIds().addAll(sprint.getTrelloCardIds());
 	}
 
 
@@ -26,6 +35,7 @@ public class SprintForm {
 	private Date finishDate;
 	private boolean isClosed;
 	private Date closedDate;
+	private List<String> trelloCardIds;
 
 	public SprintForm(){
 		id = null;
@@ -33,6 +43,7 @@ public class SprintForm {
 		beginDate = null;
 		finishDate = null;
 		isClosed = false;
+		trelloCardIds = new ArrayList<String>();
 	}
 
 	public String getId() {
@@ -81,5 +92,13 @@ public class SprintForm {
 
 	public void setClosedDate(Date closedDate) {
 		this.closedDate = closedDate;
+	}
+
+	public List<String> getTrelloCardIds() {
+		return trelloCardIds;
+	}
+
+	public void setTrelloCardIds(List<String> trelloCardIds) {
+		this.trelloCardIds = trelloCardIds;
 	}
 }

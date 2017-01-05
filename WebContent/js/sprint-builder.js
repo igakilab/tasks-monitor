@@ -17,6 +17,7 @@ var SprintBuilder;
     removeMemberFromCard - カードから指定されたメンバーを消去する
     clearMemberFromCard - カードのメンバーをすべて消去する
     setFinishDate - 目標日を設定する
+    getFinishDate - 目標日を取得する
     getSelectedCards - 選択されたカード一覧を取得する
     getUnselectedCards - 選択されていないカード一覧を取得する
     getMemberList - ボードに参加しているメンバーのリストを取得する
@@ -29,9 +30,13 @@ SprintBuilder = (function() {
 	 * 各フィールドを初期化する
 	 */
 	function _class(boardId) {
+		//不変のフィールド
 		this.boardId = boardId;
-		this.cards = [];
+		//取得したデータのフィールド
+		this.currentSprint = null;
 		this.members = [];
+		//スプリント構成に使うフィールド(取得したデータを含む)
+		this.cards = [];
 		this.finishDate = null;
 	}
 
@@ -59,43 +64,49 @@ SprintBuilder = (function() {
 		//このオブジェクトのインスタンスを指定
 		var thisp = this;
 
-		//getTodoTrelloCards(1回目通信)のコールバック関数
-		var getTodoCallback = function(data){
-			//カードキャッシュにデータを追加
-			thisp.cards = [];
-			//console.log(data); // DEBUG
-			for(var i=0; i<data.length; i++){
-				data[i].selected = (data[i].memberIds.length > 0);
-				thisp.cards.push(data[i]);
-			}
+		SprintPlanner.getSprintBuilderForm(this.boardId, {
+			callback: function(data){
+				//現在進行中スプリントの格納
+				if( !Util.isNull(data.currentSprint) ){
+					thisp.currentSprint = data.currentSprint;
+					thisp.finishDate = data.currentSprint.finishDate;
+				}
+				thisp.currentSprint = data.currentSprint;
 
-			//次にメンバー一覧を取得(2回目通信)
-			SprintPlanner.getBoardMembers(thisp.boardId, {
-				callback: getMembersCallback,
-				errorHandler: perrorHandler
-			});
-		};
+				//カードの情報の格納
+				var isCardIdRegisted = function(cid){
+					return (data.currentSprint != null ) ?
+						(!Util.isNull(
+							data.currentSprint.trelloCardIds.find(function(e, i, a){
+								return e == cid;
+							})
+						)) :
+						(false);
+				}
+				for(var i=0; i<data.cards.length; i++){
+					data.cards[i].selected = isCardIdRegisted(data.cards[i].id);
+					thisp.cards.push(data.cards[i]);
+				}
 
-		//getBoardMembers(2回目通信)のコールバック関数
-		var getMembersCallback = function(members){
-			//console.log(members) //DEBUG
-			//メンバーキャッシュにデータを追加
-			thisp.members = [];
-			for(var i=0; i<members.length; i++){
-				thisp.members.push(members[i]);
-			}
+				//メンバーリストの格納
+				for(var i=0; i<data.members.length; i++){
+					thisp.members.push(data.members[i]);
+				}
 
-			//呼び出し元コールバックへ返却
-			if( typeof pcallback == 'function' ){
+				//コールバックする
 				pcallback();
-			}
-		};
-
-		//カード一覧を取得(1回目通信)
-		SprintPlanner.getTodoTrelloCards(this.boardId, {
-			callback: getTodoCallback,
-			errorHandler: perrorHandler
+			},
+			errorHander: perrorHandler
 		});
+	}
+
+
+	/*
+	 * 現在進行中のスプリンがある場合、そのスプリントを返します
+	 * ない場合はnullが返却されます
+	 */
+	_class.prototype.getCurrentSprint = function(){
+		return this.currentSprint;
 	}
 
 
@@ -252,6 +263,14 @@ SprintBuilder = (function() {
 
 
 	/*
+	 * 目標日を取得する
+	 */
+	_class.prototype.getFinishDate = function(){
+		return this.finishDate;
+	}
+
+
+	/*
 	 * 対象カードになっているカードのリストを取得する
 	 * 対象カードのリストが返却される
 	 */
@@ -313,16 +332,24 @@ SprintBuilder = (function() {
 		var selectedList = this.getSelectedCards();
 		for(var i=0; i<selectedList.length; i++){
 			cardAndMembers.push({
-				trelloCardId: selectedList[i].id,
+				cardId: selectedList[i].id,
 				memberIds: selectedList[i].memberIds
 			});
 		}
 
 		//通信開始
-		SprintPlanner.createSprint(this.boardId, this.finishDate, cardAndMembers, {
-			callback: pcallback,
-			errorHandler: perrorHandler
-		});
+		//createかupdateか判断し、送信する
+		if( this.currentSprint != null ){
+			SprintPlanner.updateSprint(this.currentSprint.id, this.finishDate, cardAndMembers, {
+				callback: pcallback,
+				errorHandler: perrorHandler
+			});
+		}else{
+			SprintPlanner.createSprint(this.boardId, this.finishDate, cardAndMembers, {
+				callback: pcallback,
+				errorHandler: perrorHandler
+			});
+		}
 	}
 
 	return _class;

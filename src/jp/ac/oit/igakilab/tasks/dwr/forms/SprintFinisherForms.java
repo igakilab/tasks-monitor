@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+
 public class SprintFinisherForms {
 	public static class MemberCards{
 		private String memberId;

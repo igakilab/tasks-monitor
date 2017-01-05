@@ -1,19 +1,25 @@
 package jp.ac.oit.igakilab.tasks.dwr.forms;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintResultForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResult;
-import jp.ac.oit.igakilab.tasks.sprints.TrelloCardMembers;
-import jp.ac.oit.igakilab.tasks.trello.model.TrelloBoard;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
+import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class SprintResultAnalyzerForm {
 	public static SprintResultAnalyzerForm getInstance
-	(TrelloBoard board, Sprint sprint, SprintResult result, List<Member> members){
+	(TrelloActionsBoard board, Sprint sprint, SprintResult result, List<Member> members){
 		SprintResultAnalyzerForm form = new SprintResultAnalyzerForm();
 
 		//ボードデータの設定
@@ -26,11 +32,16 @@ public class SprintResultAnalyzerForm {
 		form.setResult(SprintResultForm.getInstance(result));
 
 		//スプリント対象カードの設定
-		List<TrelloCardForm> tmp = new ArrayList<TrelloCardForm>();
-		Consumer<TrelloCardMembers> collector = (mc) -> {
-			TrelloCard card = board.getCardById(mc.getCardId());
+		Calendar end = Calendar.getInstance();
+		end.setTime(sprint.getFinishDate());
+		end.add(Calendar.DATE, 1);
+		List<AnalyzedTrelloCardForm> tmp = new ArrayList<AnalyzedTrelloCardForm>();
+		Consumer<SprintResultCard> collector = (mc) -> {
+			TrelloCard ctmp = board.getCardById(mc.getCardId());
+			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
 			if( card != null ){
-				tmp.add(TrelloCardForm.getInstance(card));
+				tmp.add(AnalyzedTrelloCardForm
+					.getInstance(card, board, sprint.getBeginDate(), end.getTime(), null));
 			}
 		};
 		result.getFinishedCards().forEach(collector);
@@ -49,7 +60,7 @@ public class SprintResultAnalyzerForm {
 	private TrelloBoardDataForm boardData;
 	private SprintForm sprint;
 	private SprintResultForm result;
-	private List<TrelloCardForm> sprintCards;
+	private List<AnalyzedTrelloCardForm> sprintCards;
 	private List<MemberForm> members;
 
 	public TrelloBoardDataForm getBoardData() {
@@ -70,10 +81,10 @@ public class SprintResultAnalyzerForm {
 	public void setResult(SprintResultForm result) {
 		this.result = result;
 	}
-	public List<TrelloCardForm> getSprintCards() {
+	public List<AnalyzedTrelloCardForm> getSprintCards() {
 		return sprintCards;
 	}
-	public void setSprintCards(List<TrelloCardForm> sprintCards) {
+	public void setSprintCards(List<AnalyzedTrelloCardForm> sprintCards) {
 		this.sprintCards = sprintCards;
 	}
 	public List<MemberForm> getMembers() {

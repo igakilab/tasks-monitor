@@ -1,15 +1,18 @@
 package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import com.mongodb.Block;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
@@ -38,6 +41,20 @@ public class SprintResultsDB{
 		return getCollection().count(filter) > 0;
 	}
 
+	public boolean createSprintResult(String sprintId, Date createdAt){
+		if( sprintId != null && !sprintIdExists(sprintId) ){
+			Document doc = new Document("sprintId", sprintId);
+			doc.append("createdAt",
+				(createdAt != null ? createdAt : Calendar.getInstance().getTime()));
+
+			collection.insertOne(doc);
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	@Deprecated
 	public <T> boolean addSprintResult(T data, DocumentConverter<T> converter){
 		Document doc = converter.convert(data);
 		if( doc == null || !doc.containsKey("sprintId") ){
@@ -52,6 +69,58 @@ public class SprintResultsDB{
 		return true;
 	}
 
+	public <T> boolean addSprintResultCard(T data, DocumentConverter<T> converter){
+		Document doc = converter.convert(data);
+		if( doc == null || !doc.containsKey("sprintId") ||
+			!doc.containsKey("cardId") || !doc.containsKey("finished") )
+		{
+			return false;
+		}
+
+		Bson filter = Filters.and(
+			Filters.eq("sprintId", doc.get("sprintId")),
+			Filters.eq("cardId", doc.get("cardId")));
+		UpdateOptions opt = new UpdateOptions();
+		opt.upsert(true);
+
+		collection.replaceOne(filter, doc, opt);
+		return true;
+	}
+
+	/* SprintRenewalによって無効化されたメソッド
+	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
+		Bson filter = Filters.and(
+			Filters.exists("cardId"),
+			Filters.eq("memberIds", memberId)
+		);
+
+		List<T> result = new ArrayList<T>();
+		FindIterable<Document> cursor = collection.find(filter);
+		for(Document doc : cursor){
+			T data = parser.parse(doc);
+			if( data != null ) result.add(data);
+		}
+
+		return result;
+	}
+	*/
+
+	public int countCardRemainedTimes(String cardId){
+		Bson filter = Filters.and(
+			Filters.eq("cardId", cardId),
+			Filters.eq("finished", false)
+		);
+
+		return (int)collection.count(filter);
+	}
+
+	public Date getCreatedDateBySprintId(String id){
+		Bson filter = Filters.eq("sprintId", id);
+		Document doc = collection.find(filter).first();
+
+		return doc != null ? doc.getDate("createdAt") : null;
+	}
+
 	public <T> T getSprintResultBySprintId(String id, DocumentParser<T> parser){
 		Bson filter = Filters.eq("sprintId", id);
 		Document doc = getCollection().find(filter).first();
@@ -64,47 +133,63 @@ public class SprintResultsDB{
 		}
 	}
 
-	public <T> List<T> getSprintResultsBySprintIds(List<String> sprintIds, DocumentParser<T> parser){
-		Bson filter = Filters.in("sprintId", sprintIds);
+	public <T> List<T> getSprintResultCardsBySprintId(String id, DocumentParser<T> parser){
+		Bson filter = Filters.and(
+			Filters.eq("sprintId", id),
+			Filters.exists("cardId", true));
 
-		List<T> result = new ArrayList<T>();
+		FindIterable<Document> cursor = collection.find(filter);
+
+		List<T> cards = new ArrayList<T>();
+		for(Document doc : cursor){
+			T data = parser.parse(doc);
+			if( data != null ) cards.add(data);
+		}
+
+		return cards;
+	}
+
+	public List<String> getSprintResultIdsByMemberId(String memberId){
+		List<Bson> query = Arrays.asList(
+			Aggregates.match(Filters.eq("memberIds", memberId)),
+			Aggregates.group("$sprintId"));
+
+		List<String> ids = new ArrayList<String>();
+		for(Document doc : collection.aggregate(query)){
+			ids.add(doc.getString("_id"));
+		}
+
+		return ids;
+	}
+
+	/* SprintRenewalによって無効化されたメソッド
+	public <T> List<T> getSprintResultsBySprintIds
+	(Collection<String> sprintIds, DocumentParser<T> parser){
+		Bson filter = Filters.and(
+			Filters.exists("cardId", false),
+			Filters.in("sprintId", sprintIds));
+
+		List<T> results = new ArrayList<>();
 		for(Document doc : collection.find(filter)){
 			T data = parser.parse(doc);
-			if( data != null ) result.add(data);
+			if( data != null ) results.add(data);
 		}
 
-		return result;
+		return results;
 	}
+	*/
 
-	public <T> List<T> getSprintResultsByCardMemberId(String memberId, DocumentParser<T> parser){
-		Bson filter = Filters.or(
-			Filters.eq("remainedCards.memberIds", memberId),
-			Filters.eq("finishedCards.memberIds", memberId),
-			Filters.eq("sprintCards.memberIds", memberId)
-		);
+	public <T> List<T> getFinishedCardsBySprintId(String sprintId, DocumentParser<T> parser) {
+		Bson filter = Filters.and(
+			Filters.exists("cardId", true),
+			Filters.eq("sprintId", sprintId));
 
-		List<T> result = new ArrayList<T>();
-		FindIterable<Document> cursor = collection.find(filter);
-		for(Document doc : cursor){
-			//System.out.println(doc.toJson());
+		List<T> cards = new ArrayList<T>();
+		for(Document doc : collection.find(filter)){
 			T data = parser.parse(doc);
-			if( data != null ) result.add(data);
+			if( data != null ) cards.add(data);
 		}
 
-		return result;
-	}
-
-	public <T> List<T> getAllSprintResults(DocumentParser<T> converter){
-		List<T> list = new ArrayList<T>();
-
-		getCollection().find().forEach(new Block<Document>(){
-			@Override
-			public void apply(Document doc){
-				T tmp = converter.parse(doc);
-				if( tmp != null ) list.add(tmp);
-			}
-		});
-
-		return list;
+		return cards;
 	}
 }

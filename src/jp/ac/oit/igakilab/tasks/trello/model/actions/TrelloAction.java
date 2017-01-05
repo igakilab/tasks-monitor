@@ -191,6 +191,22 @@ public class TrelloAction {
 		this.rawText = rawText;
 	}
 
+	public String toString(){
+		String target = (
+				targetType == TARGET_BOARD ? "BOARD" :
+				targetType == TARGET_LIST ? "LIST" :
+				targetType == TARGET_CARD ? "CARD" : "UNKNOWN" );
+			String action = (
+				actionType == ACTION_CREATE ? "CREATE" :
+				actionType == ACTION_UPDATE ? "UPDATE" :
+				actionType == ACTION_DELETE ? "DELETE" :
+				actionType == ACTION_ADDMEMBER ? "ADDMEMBER" :
+				actionType == ACTION_REMOVEMEMBER ? "REMOVEMEMBER" : "UNKNOWN" );
+
+		return String.format("[%s] %s %s %s",
+			"TRELLO_ACTION", target, action, date.toString());
+	}
+
 	public String dataString(){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(id).append('\n');

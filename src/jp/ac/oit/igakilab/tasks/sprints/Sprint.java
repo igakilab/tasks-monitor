@@ -27,7 +27,7 @@ public class Sprint {
 	private String boardId;
 	private Date beginDate;
 	private Date finishDate;
-	private Date closedDate;
+	private Date closedAt;
 	private List<String> trelloCardIds;
 
 	public Sprint(){
@@ -35,7 +35,7 @@ public class Sprint {
 		boardId = null;
 		beginDate = null;
 		finishDate = null;
-		closedDate = null;
+		closedAt = null;
 		trelloCardIds = new ArrayList<String>();
 	}
 
@@ -79,16 +79,19 @@ public class Sprint {
 	}
 
 	public boolean isClosed() {
-		return closedDate != null;
+		return closedAt != null;
 	}
 
 	public Date getClosedDate() {
-		return closedDate;
+		return closedAt == null ? null : roundDate(closedAt).getTime();
 	}
 
-	public void setClosedDate(Date closedDate) {
-		this.closedDate = (closedDate == null ?
-				null : roundDate(closedDate).getTime());
+	public Date getClosedAt(){
+		return this.closedAt;
+	}
+
+	public void setClosedAt(Date closedAt) {
+		this.closedAt = closedAt;
 	}
 
 	public List<String> getTrelloCardIds(){
@@ -103,5 +106,12 @@ public class Sprint {
 		if( !trelloCardIds.contains(cardId) ){
 			trelloCardIds.add(cardId);
 		}
+	}
+
+	public boolean existsTrelloCardId(String trelloCardId){
+		for(String cid : trelloCardIds){
+			if( cid.equals(trelloCardId) ) return true;
+		}
+		return false;
 	}
 }
