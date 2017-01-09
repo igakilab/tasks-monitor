@@ -26,6 +26,7 @@ implements DocumentParser<SprintResultCard>, DocumentConverter<SprintResultCard>
 			card.addMemberId(mid));
 		picker.getStringArray("tags").forEach((tag) ->
 			card.addTag(tag));
+		//System.out.println(card.getSprintId() + " : " + card.getTags());
 		picker.getArray("trelloActions").forEach((obj) -> {
 			if( obj instanceof Document ){
 				card.addTrelloAction(new TrelloActionRawData.DocumentModel((Document)obj));

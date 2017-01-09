@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TagCountForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.sprints.CardTagsAggregator.TagCount;
@@ -122,36 +123,6 @@ public class SprintMemberHistoryForms {
 		}
 		public void setFinished(boolean finished) {
 			this.finished = finished;
-		}
-	}
-
-
-	public static class TagCountForm{
-		public static TagCountForm getInstance(TagCount tc){
-			return getInstance(tc.getTagString(), tc.getCount());
-		}
-
-		public static TagCountForm getInstance(String tag, int cnt){
-			TagCountForm form = new TagCountForm();
-			form.setTagName(tag);
-			form.setCount(cnt);
-			return form;
-		}
-
-		private String tagName;
-		private int count;
-
-		public String getTagName() {
-			return tagName;
-		}
-		public void setTagName(String tagName) {
-			this.tagName = tagName;
-		}
-		public int getCount() {
-			return count;
-		}
-		public void setCount(int count) {
-			this.count = count;
 		}
 	}
 }

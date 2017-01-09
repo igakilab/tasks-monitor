@@ -3,6 +3,7 @@ package jp.ac.oit.igakilab.tasks.db;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -221,6 +222,24 @@ public class SprintResultsDB{
 		Bson filter = Filters.and(
 			Filters.exists("cardId", true),
 			Filters.eq("sprintId", sprintId));
+
+		List<T> cards = new ArrayList<T>();
+		for(Document doc : collection.find(filter)){
+			T data = parser.parse(doc);
+			if( data != null ) cards.add(data);
+		}
+
+		return cards;
+	}
+
+	public <T> List<T> getResultCardsByMemberIds
+	(Collection<String> memberId, DocumentParser<T> parser){
+		List<Bson> idFilter = new ArrayList<Bson>();
+		memberId.forEach((mid -> idFilter.add(Filters.eq("memberIds", mid))));
+		Bson filter = Filters.and(
+			Filters.exists("cardId", true),
+			Filters.or(idFilter)
+		);
 
 		List<T> cards = new ArrayList<T>();
 		for(Document doc : collection.find(filter)){

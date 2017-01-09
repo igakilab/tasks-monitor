@@ -74,7 +74,7 @@ public class SprintResultCard {
 	}
 
 	public void addTag(String tag){
-		if( tags.contains(tag) ){
+		if( !tags.contains(tag) ){
 			tags.add(tag);
 		}
 	}
@@ -113,5 +113,10 @@ public class SprintResultCard {
 
 	public void addTrelloAction(TrelloActionRawData rawData){
 		this.trelloActions.add(rawData);
+	}
+
+	public String toString(){
+		return String.format("%s (%s)",
+			cardId, memberIds);
 	}
 }
