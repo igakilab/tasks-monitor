@@ -1,6 +1,7 @@
 package jp.ac.oit.igakilab.tasks.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 
+import jp.ac.oit.igakilab.tasks.util.DocumentValuePicker;
+
 public class TrelloBoardsDB {
 	public static String DB_NAME = "tasks-monitor";
 	public static String COL_NAME = "trello_boards";
@@ -25,6 +28,8 @@ public class TrelloBoardsDB {
 			board.lastUpdate = doc.getDate("lastUpdate");
 			board.slackNotifyEnabled = doc.getBoolean("slackNotifyEnabled", false);
 			board.slackMeetingNotifyHour = doc.getInteger("slackMeetingNotifyHour");
+			DocumentValuePicker picker = new DocumentValuePicker(doc);
+			board.defaultTags = picker.getStringArray("defaultTags");
 			return board;
 		}
 
@@ -32,11 +37,13 @@ public class TrelloBoardsDB {
 		private Date lastUpdate;
 		private boolean slackNotifyEnabled;
 		private Integer slackMeetingNotifyHour;
+		private List<String> defaultTags;
 
 		public String getId(){return id;}
 		public Date getLastUpdate(){return lastUpdate;}
 		public boolean getSlackNotifyEnabled(){return slackNotifyEnabled;}
 		public Integer getSlackMeetingNotifyHour(){return slackMeetingNotifyHour;}
+		public List<String> getDefaultTags(){return defaultTags;}
 	}
 
 	private MongoClient client;
@@ -143,5 +150,31 @@ public class TrelloBoardsDB {
 	public Integer getSlackMeetingNotifyHour(String boardId){
 		Document doc = getBoardById(boardId);
 		return Board.convert(doc).getSlackMeetingNotifyHour();
+	}
+
+	public List<String> getDefaultTags(String boardId){
+		Document doc = getBoardById(boardId);
+		return Board.convert(doc).getDefaultTags();
+	}
+
+	public boolean addDefaultTags(String boardId, Collection<String> tags){
+		List<String> registed = getDefaultTags(boardId);
+		List<String> willRegist = new ArrayList<>();
+		for(String newTag : tags){
+			if( !registed.contains(newTag) ){
+				willRegist.add(newTag);
+			}
+		}
+
+		if( willRegist.size() > 0 ){
+			Bson filter = Filters.eq("boardId", boardId);
+			Bson updates = Updates.pushEach("defaultTags", willRegist);
+
+			getCollection().updateOne(filter, updates);
+
+			return true;
+		}else{
+			return false;
+		}
 	}
 }
