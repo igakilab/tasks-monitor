@@ -104,8 +104,9 @@ function showMemberTasks(data){
 
 	$div.empty();
 
-	for(var i=0; i<data.length; i++){
-		var $panel = generateSprintPanel(data[i]);
+	sprints = data.sprints;
+	for(var i=0; i<sprints.length; i++){
+		var $panel = generateSprintPanel(sprints[i]);
 		$div.append($panel);
 	}
 }

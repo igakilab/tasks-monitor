@@ -90,14 +90,15 @@
 			Util.showAlertToDiv("処理中...", "info");
 
 			//グラフの描画
-			console.log(data.length);
-			if( data.length > 0 ){
+			console.log(data.sprints.length);
+			if( data.sprints.length > 0 ){
 				google.charts.load("current", {"packages":["corechart"]});
 				google.charts.setOnLoadCallback(function(){
 					//グラフのデータ変換
 					var table = [];
-					for(var i=0; i<data.length; i++){
-						var tmp = data[i];
+					var sprints = data.sprints;
+					for(var i=0; i<sprints.length; i++){
+						var tmp = sprints[i];
 						table.push({
 							label: tmp.sprint.id,
 							finishedCount: tmp.cards.filter(function(e){
@@ -118,7 +119,7 @@
 			showMemberTasks(data);
 
 			//クリア
-			if( data.length > 0 ){
+			if( data.sprints.length > 0 ){
 				Util.showAlertToDiv();
 			}else{
 				Util.showAlertToDiv("スプリントデータがありません", "warning");

@@ -7,10 +7,12 @@ import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintMemberHistoryForms.AssignedCard;
+import jp.ac.oit.igakilab.tasks.dwr.forms.SprintMemberHistoryForms.MemberTasksResult;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintMemberHistoryForms.MemberTasksWrapper;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
+import jp.ac.oit.igakilab.tasks.sprints.CardTagsAggregator;
 import jp.ac.oit.igakilab.tasks.sprints.SprintDataContainer;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
 import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
@@ -23,11 +25,11 @@ public class SprintMemberHistory {
 	 * @param memberId
 	 * @return
 	 */
-	public List<MemberTasksWrapper> getTaskCardsByMemberId(String memberId)
+	public MemberTasksResult getTaskCardsByMemberId(String memberId)
 	throws ExecuteFailedException{
 		//クライアントの初期化
 		MongoClient client = TasksMongoClientBuilder.createClient();
-		List<MemberTasksWrapper> result = new ArrayList<>();
+		MemberTasksResult result = new MemberTasksResult();
 
 		//スプリントリザルト一覧を取得する
 		SprintResultProvider provider = new SprintResultProvider(client);
@@ -38,6 +40,7 @@ public class SprintMemberHistory {
 		TrelloBoardBuilder builder = new TrelloBoardBuilder(client);
 		List<TrelloBoard> boardCache = new ArrayList<TrelloBoard>();
 		TrelloActionRawDataParser parser = new TrelloActionRawDataParser();
+		CardTagsAggregator tagagr = new CardTagsAggregator();
 		for(SprintDataContainer container : sprints){
 			//System.out.println("\t>>オブジェクト生成 " + container.getSprintId());
 			//フォームを生成する
@@ -74,15 +77,19 @@ public class SprintMemberHistory {
 					container.getSprintId(),
 					card.getMemberIds(),
 					card.isFinished()));
+				tagagr.apply(card);
 			}
 
 			//リストに追加する
-			result.add(wrapper);
+			result.addTasksWrapper(wrapper);
 		}
 
 		//wrapperの内容を並び替える
-		result.sort((o1, o2) ->
+		result.getSprints().sort((o1, o2) ->
 			o2.getSprint().getClosedDate().compareTo(o1.getSprint().getClosedDate()));
+
+		//タグ情報をセットする
+		result.setTagCounts(tagagr.getTagCounts());
 
 		//結果を返却
 		client.close();
