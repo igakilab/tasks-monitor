@@ -6,9 +6,11 @@ import java.util.List;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
+import jp.ac.oit.igakilab.tasks.db.SprintsDB;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.SprintFinisherForms.ClosedSprintResult;
@@ -145,15 +147,28 @@ public class SprintFinisher {
 	 */
 	public boolean setSprintCardsTags(String sprintId, List<SprintResultCardTagsForm> cts){
 		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		SprintsDB sdb = new SprintsDB(client);
 		SprintResultsDB srdb = new SprintResultsDB(client);
 
+		String boardId = sdb.getSprintById(sprintId, new SprintDocumentConverter()).getBoardId();
+		List<String> defaultTags = bdb.getDefaultTags(boardId);
+
+		List<String> newTags = new ArrayList<String>();
 		boolean res = false;
 		if( srdb.sprintIdExists(sprintId) ){
 			res = true;
 			for(SprintResultCardTagsForm ct : cts){
 				res = srdb.setTagsToSprintCard(sprintId, ct.getCardId(), ct.getTags()) && res;
+				ct.getTags().forEach((tag) -> {
+					if( !defaultTags.contains(tag) && !newTags.contains(tag) ){
+						newTags.add(tag);
+					}
+				});
 			}
 		}
+
+		bdb.addDefaultTags(boardId, newTags);
 
 		client.close();
 		return res;
