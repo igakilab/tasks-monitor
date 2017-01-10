@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head profile="http://purl.org/net/ns/metaprof">
+<meta charset="utf-8"/>
+	<title>ネットマニアテンプレート#S001</title>
+	<link rel="stylesheet" href="s-style.css" type="text/css" />
+</head>
+
+<body>
+
+<div id="out">
+	<div id="head">
+
+	<h1>TasksMonitor : タグ付けテストページ</h1>
+	<h2>スプリントを選択してタスクを表示し、任意のタグをつけてください。</h2>
+	</div>
+
+
+	<div id="main">
+	<!-- <div id="menu">
+		<a href="/index.html">メニュー１</a> |
+		<a href="/index.html">メニュー２</a> |
+		<a href="/index.html">メニュー３</a> |
+		<a href="/index.html">メニュー４</a>
+	</div> -->
+
+		<p style="color:#e00">エラーがあればここに表示されます</p>
+
+		<h3>対象スプリント選択</h3>
+
+		<p>ボードID: <span class="board-id"></span></p>
+
+		<table border="1">
+			<thead><tr>
+				<th>スプリント名</th><th>開始日/終了日</th><th>タスク数</th>
+			</tr></thead>
+			<tbody id="sprintListTbody">
+			</tbody>
+		</table>
+
+		<h3>タグ設定</h3>
+
+		<p>スプリントID: <span class="sprint-id"></span></p>
+		<p>デフォルトタグ: <span class="default-tags"></span>
+
+		<table border="1">
+			<thead><tr>
+				<th>カードID</th><th>カード名</th><th>達成可否</th><th>タグボタン</th>
+			</tr></thead>
+			<tbody id="taskCardsTbody">
+			</tbody>
+		</table>
+
+
+	</div><!-- main -->
+
+	<div id="footer">
+	Copyright &copy; <a href="http://www.netmania.jp/">テンプレート</a> All Rights Reserved.
+	</div><!-- footer -->
+
+	</div><!-- out -->
+
+
+
+	<!-- ↓削除禁止 -->
+	<div class="copyright">
+		<a href="http://www.netmania.jp/" target="_blank">テンプレート</a> by
+		<a href="http://www.netmania.jp/" target="_blank">ネットマニア</a>
+	</div><!-- copyright -->
+
+
+	<script src="../js/jquery-2.1.4.min.js"></script>
+	<script src="../js/bootstrap.min.js"></script>
+	<script src="../js/util.js"></script>
+	<script src="../js/sprint-result-analyzer.js"></script>
+	<script src="../dwr/engine.js"></script>
+	<script src="../dwr/util.js"></script>
+	<script src="../dwr/interface/SprintHistory.js"></script>
+
+	<script>
+	var BOARD_ID;
+
+	$(document).ready(function(){
+		var BOARD_ID = Util.getUrlParameters().bid || "57ab33677fd33ec535cc4f28";
+		$(".board-id").text(BOARD_ID);
+
+		fetchSprintList();
+	});
+
+	function fetchSprintList(){
+		SprintHistory.getSprintList(function(slist){
+			var sprints = slist.sprintList;
+			var $tbody = $("#sprintListTbody");
+			for(var i=0; i<sprints.length; i++){
+				var s = sprints[i];/
+				$tbody.append(
+					$("<tr></tr>").append(
+						$("<td></td>").text(s.id),
+						$("<td></td>").text(Util.formatDate(s.beginDate) + "-" + Util.formatDate(s.closedDate)),
+						$("<td></td>").text(s.finishedCount + "/" + (s.finishedCount + s.remainedCount))
+				));
+			}
+		});
+	}
+	</script>
+
+</body>
+</html>
+<!-- Copyright (C) Net Mania. All Rights Reserved. http://www.netmania.jp/ -->
