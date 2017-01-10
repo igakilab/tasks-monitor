@@ -38,6 +38,11 @@
 			<div class="alert-div"></div>
 
 			<div class="container">
+				<div id="tagGraph">
+				</div>
+			</div>
+
+			<div class="container">
 				<div id="graph">
 				</div>
 			</div>
@@ -112,6 +117,7 @@
 
 					//描画
 					drawMemberTasksChart(table);
+					drawMemberTagsChart(data.tags);
 				});
 			}
 
