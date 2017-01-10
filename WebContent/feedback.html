@@ -107,6 +107,12 @@
 								<th>タスク名</th><th>スキル</th>
 							</tr></thead>
 							<tbody class="got-skills">
+								<tr><td>タスク1</td>
+								<td><div class="btn-group btn-group-sm" role="group" aria-label="...">
+									<button type="button" class="btn btn-default">Left</button>
+									<button type="button" class="btn btn-default">Middle</button>
+									<button type="button" class="btn btn-default">Right</button>
+								</div></td></tr>
 							</tbody>
 						</table>
 					</div>
@@ -131,6 +137,7 @@
 		<script src="comm.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/sprint-result-analyzer.js"></script>
+		<script src="js/tasks-skill-manager.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
 		<script src="dwr/interface/SprintHistory.js"></script>
@@ -151,6 +158,10 @@
 				google.charts.setOnLoadCallback(function(){
 					setSprintResult(sra);
 				});
+
+				var skillManager = new TasksSkillManager();
+				skillManager.initBySprintResultAnalyzer(sra);
+				alert(skillManager.defaultTags);
 
 				$(".next-sprint-btn").on('click', function(){
 					location.href = "sprint.html?bid=" + sra.getBoardData().id;

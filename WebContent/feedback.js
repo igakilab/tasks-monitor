@@ -17,7 +17,7 @@ function addMemberTaskCount(name, finished, all){
 function addCardToTaskTable(card, finished){
 	var tr_type = finished ? "success" : "danger";
 	var mark = finished ? Util.bsGlyphicon("ok") : Util.bsGlyphicon("remove");
-	console.log(card);
+	//console.log(card);
 
 	var tr = $("<tr></tr>").append(
 		$("<td></td>").append(mark),

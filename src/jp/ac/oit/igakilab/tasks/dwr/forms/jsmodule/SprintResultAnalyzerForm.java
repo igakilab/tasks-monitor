@@ -241,6 +241,7 @@ public class SprintResultAnalyzerForm {
 			TrelloActionsCard acard = card.getTrelloActionsCard(parser);
 			AnalyzedTrelloCardForm analyzed = AnalyzedTrelloCardForm
 				.getInstance(acard, board, sprint.getBeginDate(), end.getTime(), ttb);
+			analyzed.setTags(card.getTags());
 
 			analyzed.setFinished(card.isFinished());
 			form.sprintCards.add(analyzed);

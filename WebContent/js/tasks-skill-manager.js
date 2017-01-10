@@ -79,7 +79,7 @@ var TasksSkillManager = (function(){
 	 * 同時にdefaultTagへの追加を行い、modifiedフラグをtrueにします。
 	 */
 	_class.prototype.addTag = function(cardId, tagString){
-		if( !isTagged(cardId, tagString) ){
+		if( !this.isTagged(cardId, tagString) ){
 			var card = this.getCard(cardId);
 			if( card != null ){
 				card.tags.push(tagString);
@@ -95,7 +95,7 @@ var TasksSkillManager = (function(){
 	 * 同時にmodifiedフラグをtrueにします。
 	 */
 	_class.prototype.removeTag = function(cardId, tagString){
-		if( isTagged(cardId, tagString) ){
+		if( this.isTagged(cardId, tagString) ){
 			var card = this.getCard(cardId);
 			card.tags = card.tags.filter(function(e){
 				return e != tagString;
@@ -133,13 +133,13 @@ var TasksSkillManager = (function(){
 	/*
 	 * SprintResultAnaluzerからこのインスタンスを初期化します
 	 */
-	_class.prototype.initBySprintResultAnalayzer = function(analyzer){
+	_class.prototype.initBySprintResultAnalyzer = function(analyzer){
 		this.defaultTags = analyzer.getDefaultTags();
 
 		this.cards = [];
 		var sprintCards = analyzer.getCards();
 		for(var i=0; i<sprintCards.length; i++){
-			cards.push({
+			this.cards.push({
 				id: sprintCards[i].id,
 				name: sprintCards[i].name,
 				tags: sprintCards[i].tags,
@@ -147,5 +147,8 @@ var TasksSkillManager = (function(){
 			});
 		}
 	}
+
+
+	return _class;
 
 })();

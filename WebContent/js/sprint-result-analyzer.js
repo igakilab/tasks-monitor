@@ -63,8 +63,8 @@ SprintResultAnalyzer = (function() {
 		//データの取得
 		SprintHistory.getSprintResultAnalyzerData(this.sprintId, {
 			callback: function(data){
-				console.log("received.");
-				console.log(data);
+				//console.log("received.");
+				//console.log(data);
 				thisp.analyze(data);
 				pcallback();
 			},
