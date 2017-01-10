@@ -101,7 +101,7 @@ public class SprintBuilderForm {
 
 		public void setTagCount(List<TagCount> tags){
 			if( tags != null ){
-				tags  = new ArrayList<>();
+				this.tags  = new ArrayList<>();
 				tags.forEach(tc -> addTag(TagCountForm.getInstance(tc)));
 			}
 		}
