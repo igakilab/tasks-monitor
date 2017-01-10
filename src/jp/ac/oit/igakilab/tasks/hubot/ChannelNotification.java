@@ -5,11 +5,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jp.ac.oit.igakilab.tasks.members.MemberSlackIdTable;
 
 public class ChannelNotification {
-	private HubotSendMessage msg;
+	private HubotTaskNotify msg;
 	private MemberSlackIdTable stable;
 	private boolean test;
 
@@ -17,7 +18,7 @@ public class ChannelNotification {
 	 * コンストラクター
 	 * @param msg hubotのメッセージ送信インスタンス
 	 */
-	public ChannelNotification(HubotSendMessage msg){
+	public ChannelNotification(HubotTaskNotify msg){
 		this.msg = msg;
 		this.test = false;
 	}
@@ -57,6 +58,30 @@ public class ChannelNotification {
 			msg.send(dest, text);
 		}catch(IOException e0){
 			e0.printStackTrace();
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * タスク通知を送信するためのメソッドです
+	 * メッセージ送信プロパティにカード名の配列が付加されます
+	 * @param dest 送信先チャンネル
+	 * @param text 送信テキスト
+	 * @param cardNames カードの名前の文字列型コレクション
+	 * @return 成功時にtrue
+	 */
+	private boolean sendTaskNotify(String dest, String text, List<String> cardNames){
+		if( test ){
+			System.out.println(text + "\nnames: " + cardNames.toString());
+			return true;
+		}
+
+		//送信
+		try{
+			msg.taskNotify(dest, text, cardNames);
+		}catch(IOException e0){
 			return false;
 		}
 
@@ -114,8 +139,11 @@ public class ChannelNotification {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(head + "\n");
 		appendTaskNotifyText(buffer, cards);
+		List<String> cardNames = cards.stream()
+			.map((nc -> nc.getCard() != null ? nc.getCard().getName() : null))
+			.collect(Collectors.toList());
 
-		return sendMessage(dest, buffer.toString());
+		return sendTaskNotify(dest, buffer.toString(), cardNames);
 	}
 
 	public boolean sprintBeginNotification
@@ -124,10 +152,28 @@ public class ChannelNotification {
 		StringBuffer buffer = new StringBuffer();
 		DateFormat df = new SimpleDateFormat("M/d");
 
-		buffer.append("新しいスプリントが開始しました\n");
+		buffer.append("新しいイテレーションが開始しました\n");
 		buffer.append(df.format(beginDate) + " ～ " + df.format(finishDate) + "\n\n");
 
 		appendTaskNotifyText(buffer, cards);
+
+		return sendMessage(dest, buffer.toString());
+	}
+
+	public boolean promoteMeeting(String dest, List<NotifyTrelloCard> cards, String dashboardUrl){
+		//メッセージ作成
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(":mega:今日は目標日です。振り返りをしましょう:mega:\n");
+		if( dashboardUrl != null ) buffer.append(dashboardUrl + "\n");
+
+		//タスクがあるかどうか確認
+		if( cards != null && cards.size() > 0 ){
+			//buffer.append("\n残っているタスクがあります");
+			//appendTaskNotifyText(buffer, cards);
+			buffer.append("\n残っているタスクが" + cards.size() + "件あります");
+		}else{
+			buffer.append("タスクはすべて完了しています");
+		}
 
 		return sendMessage(dest, buffer.toString());
 	}

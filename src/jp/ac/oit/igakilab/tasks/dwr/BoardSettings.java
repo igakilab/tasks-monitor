@@ -26,6 +26,7 @@ public class BoardSettings {
 		BoardSettingsForms.Info inf = new BoardSettingsForms.Info();
 		inf.setLastUpdate(bdb.getLastUpdateDate(boardId));
 		inf.setSlackNotifyEnabled(bdb.getSlackNotifyEnabled(boardId));
+		inf.setSlackMeetingNotifyHour(bdb.getSlackMeetingNotifyHour(boardId));
 
 		client.close();
 		return inf;
@@ -69,8 +70,8 @@ public class BoardSettings {
 		TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
 
 		//アップデート
-		updater.clearLastUpdateDate(boardId);
-		updater.updateBoardActions(boardId);
+		updater.clearTrelloBoardActionsCache(boardId);
+		updater.updateBoardActions(boardId, null);
 
 		client.close();
 		return true;
@@ -89,6 +90,30 @@ public class BoardSettings {
 
 		//処理
 		boolean res = bdb.setSlackNotifyEnabled(boardId, enabled);
+
+		//返却
+		client.close();
+		return res;
+	}
+
+	public boolean setSlackMeetingNotifyHour(String boardId, int hour){
+		//インスタンス初期化
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+
+		//ボード存在チェック
+		if( !bdb.boardIdExists(boardId) ){
+			client.close();
+			return false;
+		}
+
+		//処理
+		boolean res = false;
+		if( hour >= 0 && hour < 24 ){
+			res = bdb.setSlackMeetingNotifyHour(boardId, hour);
+		}else{
+			res = bdb.setSlackMeetingNotifyHour(boardId, -1);
+		}
 
 		//返却
 		client.close();

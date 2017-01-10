@@ -51,6 +51,10 @@
 				<a class="btn btn-default sprint-history-btn" role="button">
 					<span class="glyphicon glyphicon-time"></span> スプリント履歴
 				</a>
+
+				<a class="btn btn-default board-settings-btn" role="butotn">
+					<span class="glyphicon glyphicon-wrench"></span> 設定
+				</a>
 			</div>
 		</div>
 
@@ -255,6 +259,7 @@
 
 					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
 					$(".sprint-plan-btn").attr("href", "sprint.html?bid=" + data.boardId);
+					$(".board-settings-btn").attr("href", "boardsettings.html?bid=" + data.boardId);
 
 					if( data.sprintId != null ){
 						$(".sprint-close-btn")

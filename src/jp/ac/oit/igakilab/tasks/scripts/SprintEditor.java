@@ -15,7 +15,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
@@ -38,9 +38,9 @@ public class SprintEditor {
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
-	private HubotSendMessage hubotMsg;
+	private HubotTaskNotify hubotMsg;
 
-	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotSendMessage msg){
+	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotTaskNotify msg){
 		dbClient = client;
 		trelloApi = api;
 		hubotMsg = msg;
@@ -233,6 +233,11 @@ public class SprintEditor {
 		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		if( sprintCards != null ){
+			//期限を計算
+			Calendar dueDate = Calendar.getInstance();
+			dueDate.setTime(finishDate);
+			dueDate.set(Calendar.HOUR, 18);
+
 			//削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 			List<String> removed = getRemovedCards(sprint.getTrelloCardIds(), sprintCards);
@@ -240,7 +245,7 @@ public class SprintEditor {
 			//カードを追加
 			for(CardMembers cm : sprintCards){
 				List<String> trelloMemberIds = ttb.getTrelloIdAll(cm.getMemberIds());
-				tce.setDueAndMembers(cm.getCardId(), finishDate, trelloMemberIds, true);
+				tce.setDueAndMembers(cm.getCardId(), dueDate.getTime(), trelloMemberIds, true);
 			}
 
 			//カードを削除

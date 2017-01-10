@@ -6,7 +6,7 @@ import com.mongodb.MongoClient;
 
 import it.sauronsoftware.cron4j.Scheduler;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.scripts.SlackChannelTaskNotify;
 
 public class HubotBoardTaskNotification extends CronTask{
@@ -30,7 +30,7 @@ public class HubotBoardTaskNotification extends CronTask{
 
 	@Override
 	public void execute(){
-		HubotSendMessage msg = new HubotSendMessage(hubotUrl);
+		HubotTaskNotify msg = new HubotTaskNotify(hubotUrl);
 		MongoClient client = TasksMongoClientBuilder.createClient();
 
 		Calendar cal = Calendar.getInstance();
