@@ -18,6 +18,7 @@ var SprintResultAnalyzer;
   - getCard カードidに基づくカードデータ
   - getCards すべてのカードデータ
   - getMemberCards メンバーidに基づくカードデータの配列
+  - getDefaultTags デフォルトタグを返却
 */
 
 SprintResultAnalyzer = (function() {
@@ -32,6 +33,7 @@ SprintResultAnalyzer = (function() {
 		this.cards = [];
 		this.members = [];
 		this.memberHistories = null;
+		this.defaultTags = [];
 	}
 
 
@@ -135,6 +137,10 @@ SprintResultAnalyzer = (function() {
 		//*****
 		//メンバーの達成カード数履歴情報を格納する
 		this.memberHistories = data.memberHistories;
+
+		//**
+		//デフォルトタグを格納する
+		this.defaultTags = data.defaultTags;
 	}
 
 
@@ -229,6 +235,13 @@ SprintResultAnalyzer = (function() {
 				return this.memberHistories[i];
 			}
 		}
+	}
+
+	/*
+	 * デフォルトタグを返却します
+	 */
+	_class.prototype.getDefaultTags = function(){
+		return this.defaultTags;
 	}
 
 	return _class;
