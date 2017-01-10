@@ -103,6 +103,35 @@ function setCardList(builder){
 	}
 }
 
+
+/*
+ * メンバーのタグリストを更新します
+ */
+function setMemberTags(builder){
+	var $dl = $(".member-tags-list");
+
+	$dl.empty();
+
+	for(var i=0; i<builder.members.length; i++){
+		var memberName = builder.members[i].name;
+		var memberTags = builder.members[i].tags;
+
+		var $ul = $("<ul></ul>").addClass("list-inline");
+		for(var j=0; j<memberTags.length; j++){
+			$ul.append(
+				$("<li></li>").append(
+					memberTags[j].tagName,
+					$("<span></span>").addClass("badge").text(memberTags[j].count)
+			));
+		}
+
+		$dl.append(
+			$("<dt></dt>").text(memberName),
+			$("<dd></dd>").append($ul)
+		);
+	}
+}
+
 function selectButtonPressed(builder, cardId){
 	builder.selectCard(cardId);
 	setCardList(builder);
