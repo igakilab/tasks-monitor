@@ -4,11 +4,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TagCountForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloBoardDataForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.sprints.CardTagsAggregator.TagCount;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
 
 public class SprintMemberHistoryForms {
+	public static class MemberTasksResult{
+		private List<MemberTasksWrapper> sprints;
+		private List<TagCountForm> tags;
+
+		public MemberTasksResult(){
+			sprints = null;
+			tags = null;
+		}
+
+		public List<MemberTasksWrapper> getSprints() {
+			return sprints;
+		}
+
+		public void setSprints(List<MemberTasksWrapper> sprints) {
+			this.sprints = sprints;
+		}
+
+		public List<TagCountForm> getTags() {
+			return tags;
+		}
+
+		public void setTags(List<TagCountForm> tags) {
+			this.tags = tags;
+		}
+
+		public void setTagCounts(List<TagCount> source){
+			tags = new ArrayList<>();
+			source.forEach((e -> tags.add(TagCountForm.getInstance(e))));
+		}
+
+		public void addTasksWrapper(MemberTasksWrapper wrpr){
+			if( sprints == null ) sprints = new ArrayList<>();
+			sprints.add(wrpr);
+		}
+	}
+
 	public static class MemberTasksWrapper{
 		private SprintForm sprint;
 		private TrelloBoardDataForm board;

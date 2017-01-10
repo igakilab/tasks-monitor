@@ -1,6 +1,8 @@
 package jp.ac.oit.igakilab.tasks.sprints;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.mongodb.MongoClient;
@@ -16,9 +18,10 @@ public class SprintResultProvider {
 	public static void main(String[] args){
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		SprintResultProvider prov = new SprintResultProvider(client);
-		List<SprintDataContainer> list = prov.getLatestSprintResultsByBoardId
-			("57ab33677fd33ec535cc4f28", null, -1);
-		list.forEach((c -> System.out.println(c.getSprintId() + " " + c.isClosed())));
+//		List<SprintDataContainer> list = prov.getLatestSprintResultsByBoardId
+//			("57ab33677fd33ec535cc4f28", null, -1);
+//		list.forEach((c -> System.out.println(c.getSprintId() + " " + c.isClosed())));
+		prov.getResultCardsByMemberIds(Arrays.asList("koike"));
 		client.close();
 	}
 
@@ -87,5 +90,13 @@ public class SprintResultProvider {
 		}
 
 		return result;
+	}
+
+	public List<SprintResultCard> getResultCardsByMemberIds
+	(Collection<String> memberIds){
+		SprintResultCardDocumentConverter converter = new SprintResultCardDocumentConverter();
+		List<SprintResultCard> cards = srdb.getResultCardsByMemberIds(memberIds, converter);
+
+		return cards;
 	}
 }

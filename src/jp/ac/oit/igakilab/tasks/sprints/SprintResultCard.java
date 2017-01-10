@@ -13,6 +13,7 @@ public class SprintResultCard {
 	private String cardId;
 	private boolean finished;
 	private List<String> memberIds;
+	private List<String> tags;
 	private List<TrelloActionRawData> trelloActions;
 
 	public SprintResultCard(){
@@ -20,6 +21,7 @@ public class SprintResultCard {
 		cardId = null;
 		finished = false;
 		memberIds = new ArrayList<String>();
+		tags = new ArrayList<String>();
 		trelloActions = new ArrayList<TrelloActionRawData>();
 	}
 
@@ -63,6 +65,20 @@ public class SprintResultCard {
 		return memberIds.contains(memberId);
 	}
 
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
+	public void addTag(String tag){
+		if( !tags.contains(tag) ){
+			tags.add(tag);
+		}
+	}
+
 	public List<TrelloActionRawData> getTrelloActions() {
 		return trelloActions;
 	}
@@ -97,5 +113,10 @@ public class SprintResultCard {
 
 	public void addTrelloAction(TrelloActionRawData rawData){
 		this.trelloActions.add(rawData);
+	}
+
+	public String toString(){
+		return String.format("%s (%s)",
+			cardId, memberIds);
 	}
 }

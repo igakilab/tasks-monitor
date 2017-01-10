@@ -9,8 +9,11 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintResultsDB;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.model.TagCountForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
+import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
+import jp.ac.oit.igakilab.tasks.sprints.CardTagsAggregator.TagCount;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsCard;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloCard;
@@ -64,8 +67,49 @@ public class SprintBuilderForm {
 	}
 
 
+	public static class TagsMemberForm extends MemberForm{
+		public static TagsMemberForm getInstance(Member member, List<TagCount> tags){
+			TagsMemberForm form = new TagsMemberForm();
+			form.setId(member.getId());
+			if( member.getName() != null )
+				form.setName(member.getName());
+			if( member.getTrelloId() != null )
+				form.setTrelloId(member.getTrelloId());
+			if( member.getSlackId() != null )
+				form.setSlackId(member.getSlackId());
+			form.setAdmin(member.isAdmin());
+
+			form.setTagCount(tags);
+
+			return form;
+		}
+
+		private List<TagCountForm> tags;
+
+		public List<TagCountForm> getTags() {
+			return tags;
+		}
+
+		public void setTags(List<TagCountForm> tags) {
+			this.tags = tags;
+		}
+
+		public void addTag(TagCountForm tcf){
+			if( tags == null ) tags = new ArrayList<>();
+			tags.add(tcf);
+		}
+
+		public void setTagCount(List<TagCount> tags){
+			if( tags != null ){
+				this.tags  = new ArrayList<>();
+				tags.forEach(tc -> addTag(TagCountForm.getInstance(tc)));
+			}
+		}
+	}
+
+
 	public static SprintBuilderForm getInstance
-	(Sprint currentSprint, List<SBTrelloCardForm> trelloCards, List<MemberForm> members){
+	(Sprint currentSprint, List<SBTrelloCardForm> trelloCards, List<TagsMemberForm> members){
 		SprintBuilderForm form = new SprintBuilderForm();
 
 		//進行中スプリントがある場合はフォームに指定
@@ -82,14 +126,15 @@ public class SprintBuilderForm {
 		return form;
 	}
 
+
 	private SprintForm currentSprint;
 	private List<SBTrelloCardForm> cards;
-	private List<MemberForm> members;
+	private List<TagsMemberForm> members;
 
 	public SprintBuilderForm(){
 		currentSprint = null;
 		cards = new ArrayList<SBTrelloCardForm>();
-		members = new ArrayList<MemberForm>();
+		setMembers(new ArrayList<TagsMemberForm>());
 	}
 
 	public SprintForm getCurrentSprint() {
@@ -108,11 +153,11 @@ public class SprintBuilderForm {
 		this.cards = cards;
 	}
 
-	public List<MemberForm> getMembers() {
+	public List<TagsMemberForm> getMembers() {
 		return members;
 	}
 
-	public void setMembers(List<MemberForm> memberIds) {
-		this.members = memberIds;
+	public void setMembers(List<TagsMemberForm> members) {
+		this.members = members;
 	}
 }

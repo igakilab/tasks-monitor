@@ -40,8 +40,10 @@ public class SprintResultAnalyzerForm {
 			TrelloCard ctmp = board.getCardById(mc.getCardId());
 			TrelloActionsCard card = (ctmp instanceof TrelloActionsCard) ? (TrelloActionsCard)ctmp : null;
 			if( card != null ){
-				tmp.add(AnalyzedTrelloCardForm
-					.getInstance(card, board, sprint.getBeginDate(), end.getTime(), null));
+				AnalyzedTrelloCardForm cform =
+					AnalyzedTrelloCardForm.getInstance(
+						card, board, sprint.getBeginDate(), end.getTime(), null);
+				cform.setTags(mc.getTags());
 			}
 		};
 		result.getFinishedCards().forEach(collector);
