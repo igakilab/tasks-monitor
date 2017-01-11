@@ -16,6 +16,10 @@
  *   タグを新しく追加します。
  * -removeTag(<カードID>, <タグ文字列>)
  *   タグを除去します。
+ * -turnTag(<カードID>, <タグ文字列>)
+ *   タグの選択状態を反転させます。登録されていないタグの場合は新しく追加されます。
+ *   この処理によりタグが新しく選択された場合はtrueを、
+ *   選択が外された場合や失敗した場合はfalseが返却されます。
  * -isModified()
  *   タグが変更された要素があればtrueを返却します
  * -getModifiedCards()
@@ -101,6 +105,26 @@ var TasksSkillManager = (function(){
 				return e != tagString;
 			});
 			card.modified = true;
+		}
+	}
+	
+	
+	/*
+	 *   タグの選択状態を反転させます。登録されていないタグの場合は新しく追加されます。
+	 *   この処理によりタグが新しく選択された場合はtrueを、
+	 *   選択が外された場合や失敗した場合はfalseが返却されます。
+	 */
+	_class.prototype.turnTag = function(cardId, tagString){
+		if( this.isTagged(cardId, tagString) ){
+			this.removeTag(cardId, tagString);
+			return false;
+		}else{
+			if( this.getCard(cardId) != null ){
+				this.addtag(cardId, tagString);
+				return true;
+			}else{
+				return false;
+			}
 		}
 	}
 
