@@ -17,7 +17,7 @@ function addMemberTaskCount(name, finished, all){
 function addCardToTaskTable(card, finished){
 	var tr_type = finished ? "success" : "danger";
 	var mark = finished ? Util.bsGlyphicon("ok") : Util.bsGlyphicon("remove");
-	console.log(card);
+	//console.log(card);
 
 	var tr = $("<tr></tr>").append(
 		$("<td></td>").append(mark),
@@ -102,5 +102,99 @@ function setSprintResult(result){
 			$("<div></div>").addClass("col-md-6").attr("id", divId));
 
 		drawMemberHistoryGraph(mh.results, val.name, divId);
+	});
+}
+
+
+/*
+ * ユーザー入力のタグ設定をするときに呼び出される関数です
+ */
+function usersTagPrompt(skillmgr, cardId){
+	var mp = new ModalPrompt($("#modalWorkspace"));
+	mp.onButtonPressed = function(res){
+		console.log(res);
+		if( res ){
+			skillmgr.addTag(cardId, res);
+			setCardSkillTable(skillmgr);
+		}
+	};
+	mp.prompt("新しく追加するスキルタグを入力してください");
+}
+
+
+/*
+ * スキル登録表の行を生成します
+ * othersCallbackに渡される引数は(skillmgr, cardId)です
+ */
+function createCardSkillRow(card, skillmgr, othersCallback){
+	//<div class="btn-group btn-group-sm" role="group" aria-label="...">
+	var $btngroup = $("<div></div>").addClass("btn-group btn-group-sm")
+		.attr("role", "group").attr("aria-label", "...");
+
+	//タグボタン追加
+	var turnCallback = function(e){
+		var res = skillmgr.turnTag(e.data.cid, e.data.tag);
+
+		var $btn = $(e.target);
+		if( res ){
+			$btn.addClass("active");
+		}else{
+			$btn.removeClass("active");
+		}
+	};
+	skillmgr.defaultTags.forEach(function(e){
+		var data = {cid: card.id, tag: e};
+		var clz = skillmgr.isTagged(card.id, e) ?
+			"btn btn-default active" : "btn btn-default";
+		$btngroup.append(
+			$("<button></button>").text(e)
+				.addClass(clz)
+				.on('click', data, turnCallback)
+		);
+	});
+
+	//その他ボタン
+	$btngroup.append(
+		$("<button></button>").addClass("btn btn-default").text("...")
+			.on('click', {mgr:skillmgr, cid: card.id}, function(e){
+				othersCallback(e.data.mgr, e.data.cid);
+			})
+	);
+
+	return $("<tr></tr>").append(
+		$("<td></td>").append(card.name),
+		$("<td></td>").append($btngroup));
+}
+
+
+/*
+ * スキル登録表を更新します
+ */
+function setCardSkillTable(skillmgr){
+	var $tbody = $(".got-skills");
+
+	console.log(skillmgr.defaultTags);
+	$tbody.empty();
+
+	var defaultTags = skillmgr.defaultTags;
+	for(var i=0; i<skillmgr.cards.length; i++){
+		var $tr = createCardSkillRow(skillmgr.cards[i], skillmgr, usersTagPrompt);
+		$tbody.append($tr);
+	}
+}
+
+
+/*
+ * タグの変更結果をサーバーに送信します
+ */
+function applyTasksSkill(sprintId, skillmgr, callback){
+	var data = [];
+	var mcards = skillmgr.getModifiedCards();
+	for(var i=0; i<mcards.length; i++){
+		data.push({cardId: mcards[i].id, tags: mcards[i].tags})
+	}
+
+	SprintFinisher.setSprintCardsTags(sprintId, data, function(res){
+		callback();
 	});
 }

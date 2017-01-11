@@ -1,6 +1,6 @@
 var keywords=["a","b","c","d"];
 
-addSkillsTable(null, keywords);
+//addSkillsTable(null, keywords);
 
 function autokeyword(name, keyword){
 	for (var i = 0; i < keyword.length; i++) {
