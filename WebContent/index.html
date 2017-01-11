@@ -201,10 +201,13 @@
 			</div>
 		</div>
 
+		<div id="mpWorkspace"></div>
+
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/jquery.serialize.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.mobile.custom.min.js"></script>
+		<script src="js/modal-prompt.js"></script>
 		<script src="js/htimeline.js"></script> <!-- Resource jQuery -->
 		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
@@ -275,21 +278,41 @@
 					});
 
 					if( data.sprintId != null ){
+						var remainedCount = 0;
+						data.sprintCards.forEach(function(e){
+							if( !e.finished ) remainedCount++;
+						});
+
+						var closeSprint = function(){
+							$(".sprint-close-btn").off('click')
+								.text("処理中...").addClass("disabled");
+							DashBoard.closeCurrentSprint(boardId, {
+								//正常に終了した時の動作
+								callback: function(sid) {
+									location.href = "feedback.html?sid=" + sid;
+								},
+								//異常終了した時の動作
+								errorHandler: function(msg){
+									alert(msg);
+								}
+							});
+						}
+
 						$(".sprint-close-btn")
 							.removeClass("disabled")
-							.on('click', function(){
-								$(".sprint-close-btn").off('click')
-									.text("処理中...").addClass("disabled");
-								DashBoard.closeCurrentSprint(boardId, {
-									//正常に終了した時の動作
-									callback: function(sid) {
-										location.href = "feedback.html?sid=" + sid;
-									},
-									//異常終了した時の動作
-									errorHandler: function(msg){
-										alert(msg);
+							.on('click', {rem: remainedCount}, function(e){
+								if( e.data.rem > 0 ){
+									var mp = new ModalPrompt($("#mpWorkspace"));
+									mp.onButtonPressed = function(res){
+										if( res ) closeSprint();
 									}
-								});
+									mp.$submitButton.removeClass("btn-primary").addClass("btn-warning");
+									mp.$cancelButton.text("Cancel");
+									mp.confirm($("<div></div>")
+										.html("未完了のタスクがあります<br/>イテレーションを終了してもよろしいですか?"));
+								}else{
+									closeSprint();
+								}
 							});
 					}
 
