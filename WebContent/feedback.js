@@ -108,22 +108,32 @@ function setSprintResult(result){
 
 /*
  * スキル登録表の行を生成します
+ * othersCallbackに渡される引数は(skillmgr, cardId)です
  */
-function createCardSkillRow(card, defaultTags){
+function createCardSkillRow(card, skillmgr, othersCallback){
 	//<div class="btn-group btn-group-sm" role="group" aria-label="...">
 	var $btngroup = $("<div></div>").addClass("btn-group btn-group-sm")
 		.attr("role", "group").attr("aria-label", "...");
 	
-	//デフォルトタグ追加	
-	defaultTags.forEach(function(e){
+	//タグボタン追加
+	var turnCallback = function(e){
+		skillmgr.turnTag(e.data.cid, e.data.tag);
+	};
+	skillmgr.defaultTags.forEach(function(e){
+		var data = {cid: card.id, tag: e};
 		$btngroup.append(
-			$("<button></button>")
-				.addClass("btn btn-default").text(e));
+			$("<button></button>").text(e)
+				.addClass("btn btn-default")
+				.on('click', data, turnCallback)
+		);
 	});
 	
-	//others btn
+	//その他ボタン	
 	$btngroup.append(<div class="btn-group btn-group-sm" role="group" aria-label="...">
-		$("<button></button>").addClass("btn btn-default").text("...");
+		$("<button></button>").addClass("btn btn-default").text("...")
+			.on('click', {mgr:skillmgr, cid: card.id}, function(e){
+				othersCallback(e.data.skillmgr, e.data.cid);
+		});
 	);
 	
 	return $("<tr></tr>").append(
@@ -142,7 +152,7 @@ function setCardSkillTable(skillmgr){
 	
 	var defaultTags = skillmgr.defaultTags;
 	for(var i=0; i<skillmgr.cards.length; i++){
-		var $tr = createCardSkillRow(skillmgr.cards[i], defaultTags);
+		var $tr = createCardSkillRow(skillmgr.cards[i], skillmgr);
 		$table.append($tr);
 	}
 });
