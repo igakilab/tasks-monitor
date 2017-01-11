@@ -107,6 +107,20 @@ function setSprintResult(result){
 
 
 /*
+ * ユーザー入力のタグ設定をするときに呼び出される関数です
+ */
+function usersTagPrompt(skillmgr, cardId){
+	var mp = new ModalPrompt("#modalWorkspace");
+	mp.onButtonPressed = function(res){
+		if( res ){
+			skillmgr.addTag(cardId, res);
+		}
+	};
+	mp.prompt("新しく追加するスキルタグを入力してください");
+}
+
+
+/*
  * スキル登録表の行を生成します
  * othersCallbackに渡される引数は(skillmgr, cardId)です
  */
@@ -129,7 +143,7 @@ function createCardSkillRow(card, skillmgr, othersCallback){
 	});
 	
 	//その他ボタン	
-	$btngroup.append(<div class="btn-group btn-group-sm" role="group" aria-label="...">
+	$btngroup.append(
 		$("<button></button>").addClass("btn btn-default").text("...")
 			.on('click', {mgr:skillmgr, cid: card.id}, function(e){
 				othersCallback(e.data.skillmgr, e.data.cid);
@@ -152,7 +166,7 @@ function setCardSkillTable(skillmgr){
 	
 	var defaultTags = skillmgr.defaultTags;
 	for(var i=0; i<skillmgr.cards.length; i++){
-		var $tr = createCardSkillRow(skillmgr.cards[i], skillmgr);
+		var $tr = createCardSkillRow(skillmgr.cards[i], skillmgr, usersTagPrompt);
 		$table.append($tr);
 	}
 });
