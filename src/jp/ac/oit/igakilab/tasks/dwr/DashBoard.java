@@ -7,6 +7,7 @@ import com.mongodb.MongoClient;
 import jp.ac.oit.igakilab.tasks.db.SprintsManageDB;
 import jp.ac.oit.igakilab.tasks.db.TasksMongoClientBuilder;
 import jp.ac.oit.igakilab.tasks.db.TrelloBoardActionsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.DashBoardForms;
@@ -15,6 +16,7 @@ import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
+import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardActionsUpdater;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.TrelloBoardFetcher;
@@ -59,6 +61,10 @@ public class DashBoard {
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(client);
 		DashBoardForms.DashBoardData form =
 			DashBoardForms.DashBoardData.getInstance(board, sprint, ttb);
+		//最終更新日時を取得
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		form.setLastUpdate(bdb.getLastUpdateDate(boardId));
+
 
 		client.close();
 		return form;
@@ -140,5 +146,16 @@ public class DashBoard {
 
 		client.close();
 		return currSpr.getId();
+	}
+
+	//ボードを更新する
+	public void updateBoardData(String boardId){
+		MongoClient client = TasksMongoClientBuilder.createClient();
+		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
+
+		TrelloBoardActionsUpdater updater = new TrelloBoardActionsUpdater(client, api);
+		updater.updateBoardActions(boardId);
+
+		client.close();
 	}
 }
