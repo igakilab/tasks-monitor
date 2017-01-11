@@ -104,3 +104,45 @@ function setSprintResult(result){
 		drawMemberHistoryGraph(mh.results, val.name, divId);
 	});
 }
+
+
+/*
+ * スキル登録表の行を生成します
+ */
+function createCardSkillRow(card, defaultTags){
+	//<div class="btn-group btn-group-sm" role="group" aria-label="...">
+	var $btngroup = $("<div></div>").addClass("btn-group btn-group-sm")
+		.attr("role", "group").attr("aria-label", "...");
+	
+	//デフォルトタグ追加	
+	defaultTags.forEach(function(e){
+		$btngroup.append(
+			$("<button></button>")
+				.addClass("btn btn-default").text(e));
+	});
+	
+	//others btn
+	$btngroup.append(<div class="btn-group btn-group-sm" role="group" aria-label="...">
+		$("<button></button>").addClass("btn btn-default").text("...");
+	);
+	
+	return $("<tr></tr>").append(
+		$("<td></td>").append(card.name),
+		$("<td></td>").append($btngroup));
+}
+
+
+/*
+ * スキル登録表を更新します
+ */
+function setCardSkillTable(skillmgr){
+	var $table = $(".got-skills");
+	
+	$table.empty();
+	
+	var defaultTags = skillmgr.defaultTags;
+	for(var i=0; i<skillmgr.cards.length; i++){
+		var $tr = createCardSkillRow(skillmgr.cards[i], defaultTags);
+		$table.append($tr);
+	}
+});
