@@ -123,10 +123,12 @@
 
 
 				<div class="row">
-					<button type="button" class="btn btn-primary next-sprint-btn">
-					次のスプリントへ</button>
+					<button type="button" class="btn btn-default to-dashboard-discard-btn">
+					戻る(変更を破棄)</button>
 					<button type="button" class="btn btn-default to-dashboard-btn">
 					ダッシュボードへ</button>
+					<button type="button" class="btn btn-primary next-sprint-btn">
+					次のスプリントへ</button>
 				</div>
 			</div>
 		</div>
@@ -143,6 +145,7 @@
 		<script src="js/modal-prompt.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintFinisher.js"></script>
 		<script src="dwr/interface/SprintHistory.js"></script>
 
 		<script src="feedback.js"></script>
@@ -167,11 +170,27 @@
 				setCardSkillTable(skillManager);
 
 				$(".next-sprint-btn").on('click', function(){
-					location.href = "sprint.html?bid=" + sra.getBoardData().id;
+					applyTasksSkill(sprintId, skillManager, function(){
+						$(window).off('beforeunload');
+						location.href = "sprint.html?bid=" + sra.getBoardData().id;
+					});
 				});
 
 				$(".to-dashboard-btn").on('click', function(){
+					applyTasksSkill(sprintId, skillManager, function(){
+						$(window).off('beforeunload');
+						location.href = "index.html?bid=" + sra.getBoardData().id;
+					});
+				});
+
+				$(".to-dashboard-discard-btn").on('click', function(){
 					location.href = "index.html?bid=" + sra.getBoardData().id;
+				});
+
+				$(window).on('beforeunload', function(){
+					if( skillManager.isModified() ){
+						return "変更が破棄されます";
+					}
 				});
 			});
 		});

@@ -182,3 +182,19 @@ function setCardSkillTable(skillmgr){
 		$tbody.append($tr);
 	}
 }
+
+
+/*
+ * タグの変更結果をサーバーに送信します
+ */
+function applyTasksSkill(sprintId, skillmgr, callback){
+	var data = [];
+	var mcards = skillmgr.getModifiedCards();
+	for(var i=0; i<mcards.length; i++){
+		data.push({cardId: mcards[i].id, tags: mcards[i].tags})
+	}
+
+	SprintFinisher.setSprintCardsTags(sprintId, data, function(res){
+		callback();
+	});
+}
