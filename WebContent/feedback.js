@@ -110,14 +110,15 @@ function setSprintResult(result){
  * ユーザー入力のタグ設定をするときに呼び出される関数です
  */
 function usersTagPrompt(skillmgr, cardId){
-	var mp = new ModalPrompt("#modalWorkspace");
+	var mp = new ModalPrompt($("#modalWorkspace"));
 	mp.onButtonPressed = function(res){
+		console.log(res);
 		if( res ){
 			skillmgr.addTag(cardId, res);
+			setCardSkillTable(skillmgr);
 		}
 	};
 	mp.prompt("新しく追加するスキルタグを入力してください");
-	setCardSkillTable(skillmgr);
 }
 
 
@@ -129,11 +130,11 @@ function createCardSkillRow(card, skillmgr, othersCallback){
 	//<div class="btn-group btn-group-sm" role="group" aria-label="...">
 	var $btngroup = $("<div></div>").addClass("btn-group btn-group-sm")
 		.attr("role", "group").attr("aria-label", "...");
-	
+
 	//タグボタン追加
 	var turnCallback = function(e){
 		var res = skillmgr.turnTag(e.data.cid, e.data.tag);
-		
+
 		var $btn = $(e.target);
 		if( res ){
 			$btn.addClass("active");
@@ -143,21 +144,23 @@ function createCardSkillRow(card, skillmgr, othersCallback){
 	};
 	skillmgr.defaultTags.forEach(function(e){
 		var data = {cid: card.id, tag: e};
+		var clz = skillmgr.isTagged(card.id, e) ?
+			"btn btn-default active" : "btn btn-default";
 		$btngroup.append(
 			$("<button></button>").text(e)
-				.addClass("btn btn-default")
+				.addClass(clz)
 				.on('click', data, turnCallback)
 		);
 	});
-	
-	//その他ボタン	
+
+	//その他ボタン
 	$btngroup.append(
 		$("<button></button>").addClass("btn btn-default").text("...")
 			.on('click', {mgr:skillmgr, cid: card.id}, function(e){
-				othersCallback(e.data.skillmgr, e.data.cid);
-		});
+				othersCallback(e.data.mgr, e.data.cid);
+			})
 	);
-	
+
 	return $("<tr></tr>").append(
 		$("<td></td>").append(card.name),
 		$("<td></td>").append($btngroup));
@@ -168,13 +171,14 @@ function createCardSkillRow(card, skillmgr, othersCallback){
  * スキル登録表を更新します
  */
 function setCardSkillTable(skillmgr){
-	var $table = $(".got-skills");
-	
-	$table.empty();
-	
+	var $tbody = $(".got-skills");
+
+	console.log(skillmgr.defaultTags);
+	$tbody.empty();
+
 	var defaultTags = skillmgr.defaultTags;
 	for(var i=0; i<skillmgr.cards.length; i++){
 		var $tr = createCardSkillRow(skillmgr.cards[i], skillmgr, usersTagPrompt);
-		$table.append($tr);
+		$tbody.append($tr);
 	}
-});
+}

@@ -59,9 +59,13 @@ var TasksSkillManager = (function(){
 		var card = this.getCard(cardId);
 		if( card != null ){
 			for(var i=0; i<card.tags.length; i++){
-				if( card.tags[i] == tagString ) return true;
+				if( card.tags[i] == tagString ){
+					//console.log("ISTAGGED: (" + card.id + ", " + tagString + ", true)");
+					return true;
+				}
 			}
 		}
+		//console.log("ISTAGGED: (" + card.id + ", " + tagString + ", false)");
 		return false;
 	}
 
@@ -107,8 +111,8 @@ var TasksSkillManager = (function(){
 			card.modified = true;
 		}
 	}
-	
-	
+
+
 	/*
 	 *   タグの選択状態を反転させます。登録されていないタグの場合は新しく追加されます。
 	 *   この処理によりタグが新しく選択された場合はtrueを、
@@ -120,7 +124,7 @@ var TasksSkillManager = (function(){
 			return false;
 		}else{
 			if( this.getCard(cardId) != null ){
-				this.addtag(cardId, tagString);
+				this.addTag(cardId, tagString);
 				return true;
 			}else{
 				return false;
@@ -169,6 +173,9 @@ var TasksSkillManager = (function(){
 				tags: sprintCards[i].tags,
 				modified: false
 			});
+			sprintCards[i].tags.forEach(function(e){
+				this.addDefaultTag(e);
+			}, this);
 		}
 	}
 
