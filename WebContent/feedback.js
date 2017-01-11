@@ -117,6 +117,7 @@ function usersTagPrompt(skillmgr, cardId){
 		}
 	};
 	mp.prompt("新しく追加するスキルタグを入力してください");
+	setCardSkillTable(skillmgr);
 }
 
 
@@ -131,7 +132,14 @@ function createCardSkillRow(card, skillmgr, othersCallback){
 	
 	//タグボタン追加
 	var turnCallback = function(e){
-		skillmgr.turnTag(e.data.cid, e.data.tag);
+		var res = skillmgr.turnTag(e.data.cid, e.data.tag);
+		
+		var $btn = $(e.target);
+		if( res ){
+			$btn.addClass("active");
+		}else{
+			$btn.removeClass("active");
+		}
 	};
 	skillmgr.defaultTags.forEach(function(e){
 		var data = {cid: card.id, tag: e};
