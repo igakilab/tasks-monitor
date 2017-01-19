@@ -38,6 +38,11 @@
 			<div class="alert-div"></div>
 
 			<div class="container">
+				<div id="tagGraph">
+				</div>
+			</div>
+
+			<div class="container">
 				<div id="graph">
 				</div>
 			</div>
@@ -90,32 +95,41 @@
 			Util.showAlertToDiv("処理中...", "info");
 
 			//グラフの描画
-			google.charts.load("current", {"packages":["corechart"]});
-			google.charts.setOnLoadCallback(function(){
-				//グラフのデータ変換
-				var table = [];
-				for(var i=0; i<data.length; i++){
-					var tmp = data[i];
-					table.push({
-						label: tmp.sprint.id,
-						finishedCount: tmp.cards.filter(function(e){
-							return e.finished;
-						}).length,
-						remainedCount: tmp.cards.filter(function(e){
-							return !e.finished;
-						}).length
-					});
-				}
+			console.log(data.sprints.length);
+			if( data.sprints.length > 0 ){
+				google.charts.load("current", {"packages":["corechart"]});
+				google.charts.setOnLoadCallback(function(){
+					//グラフのデータ変換
+					var table = [];
+					var sprints = data.sprints;
+					for(var i=0; i<sprints.length; i++){
+						var tmp = sprints[i];
+						table.push({
+							label: tmp.sprint.id,
+							finishedCount: tmp.cards.filter(function(e){
+								return e.finished;
+							}).length,
+							remainedCount: tmp.cards.filter(function(e){
+								return !e.finished;
+							}).length
+						});
+					}
 
-				//描画
-				drawMemberTasksChart(table);
-			});
+					//描画
+					drawMemberTasksChart(table);
+					drawMemberTagsChart(data.tags);
+				});
+			}
 
 			//表の追加
 			showMemberTasks(data);
 
 			//クリア
-			Util.showAlertToDiv();
+			if( data.sprints.length > 0 ){
+				Util.showAlertToDiv();
+			}else{
+				Util.showAlertToDiv("スプリントデータがありません", "warning");
+			}
 		}
 		</script>
 

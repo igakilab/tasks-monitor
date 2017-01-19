@@ -24,6 +24,9 @@ implements DocumentParser<SprintResultCard>, DocumentConverter<SprintResultCard>
 
 		picker.getStringArray("memberIds").forEach((mid) ->
 			card.addMemberId(mid));
+		picker.getStringArray("tags").forEach((tag) ->
+			card.addTag(tag));
+		//System.out.println(card.getSprintId() + " : " + card.getTags());
 		picker.getArray("trelloActions").forEach((obj) -> {
 			if( obj instanceof Document ){
 				card.addTrelloAction(new TrelloActionRawData.DocumentModel((Document)obj));
@@ -42,6 +45,9 @@ implements DocumentParser<SprintResultCard>, DocumentConverter<SprintResultCard>
 			doc.append("cardId", data.getCardId());
 			doc.append("finished", data.isFinished());
 			doc.append("memberIds", data.getMemberIds());
+			if( data.getTags().size() > 0 ){
+				doc.append("tags", data.getTags());
+			}
 
 			List<Document> actions = new ArrayList<Document>();
 			data.getTrelloActions().forEach((action) -> {

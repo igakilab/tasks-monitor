@@ -6,6 +6,7 @@ public class BoardSettingsForms {
 	public static class Info{
 		private Date lastUpdate;
 		private boolean slackNotifyEnabled;
+		private Integer slackMeetingNotifyHour;
 
 		public Info(){
 			lastUpdate = null;
@@ -26,6 +27,14 @@ public class BoardSettingsForms {
 
 		public void setSlackNotifyEnabled(boolean slackNotifyEnabled) {
 			this.slackNotifyEnabled = slackNotifyEnabled;
+		}
+
+		public Integer getSlackMeetingNotifyHour() {
+			return slackMeetingNotifyHour;
+		}
+
+		public void setSlackMeetingNotifyHour(Integer slackMeetingNotifyHour) {
+			this.slackMeetingNotifyHour = slackMeetingNotifyHour;
 		}
 	}
 }

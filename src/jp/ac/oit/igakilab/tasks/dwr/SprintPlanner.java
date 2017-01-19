@@ -3,7 +3,9 @@ package jp.ac.oit.igakilab.tasks.dwr;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.mongodb.MongoClient;
@@ -18,17 +20,21 @@ import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.forms.CardMembersForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm.SBTrelloCardForm;
+import jp.ac.oit.igakilab.tasks.dwr.forms.jsmodule.SprintBuilderForm.TagsMemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.MemberForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.SprintForm;
 import jp.ac.oit.igakilab.tasks.dwr.forms.model.TrelloCardForm;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.members.Member;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditException;
 import jp.ac.oit.igakilab.tasks.scripts.SprintEditor;
 import jp.ac.oit.igakilab.tasks.scripts.TrelloBoardBuilder;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
+import jp.ac.oit.igakilab.tasks.sprints.CardTagsAggregator;
 import jp.ac.oit.igakilab.tasks.sprints.Sprint;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultCard;
+import jp.ac.oit.igakilab.tasks.sprints.SprintResultProvider;
 import jp.ac.oit.igakilab.tasks.trello.TasksTrelloClientBuilder;
 import jp.ac.oit.igakilab.tasks.trello.api.TrelloApi;
 import jp.ac.oit.igakilab.tasks.trello.model.TrelloActionsBoard;
@@ -119,13 +125,29 @@ public class SprintPlanner {
 		}
 
 		//メンバーリストを生成
-		List<MemberForm> members = new ArrayList<MemberForm>();
+		List<String> mids = new ArrayList<>();
+		List<TagsMemberForm> members = new ArrayList<TagsMemberForm>();
 		board.getMemberIds().forEach((tmid) -> {
 			Member m = ttb.getMember(tmid);
 			if( m != null ){
-				members.add(MemberForm.getInstance(m));
+				members.add(TagsMemberForm.getInstance(m, null)) ;
+				mids.add(m.getId());
 			}
 		});
+
+		//タグ集計
+		SprintResultProvider prov = new SprintResultProvider(client);
+		List<SprintResultCard> cards = prov.getResultCardsByMemberIds(mids);
+		Map<String,CardTagsAggregator> aggregators = new HashMap<>();
+		mids.forEach((mid -> aggregators.put(mid, new CardTagsAggregator())));
+		for(SprintResultCard card : cards){
+			for(String mid : card.getMemberIds()){
+				if( aggregators.containsKey(mid) ){
+					aggregators.get(mid).apply(card);
+				}
+			}
+		}
+		members.forEach((tmf -> tmf.setTagCount(aggregators.get(tmf.getId()).getTagCounts())));
 
 		//formを生成
 		SprintBuilderForm form = SprintBuilderForm.getInstance(sprint, fcards, members);
@@ -142,7 +164,7 @@ public class SprintPlanner {
 		MongoClient client = TasksMongoClientBuilder.createClient();
 		TrelloApi<Object> api = TasksTrelloClientBuilder.createApiClient();
 		SprintsManageDB smdb = new SprintsManageDB(client);
-		HubotSendMessage msg = new HubotSendMessage(AppProperties.global.get("tasks.hubot.url"));
+		HubotTaskNotify msg = new HubotTaskNotify(AppProperties.global.get("tasks.hubot.url"));
 		SprintEditor se = new SprintEditor(client, api, msg);
 
 		//進行中スプリントの取得

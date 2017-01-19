@@ -27,6 +27,32 @@ function drawMemberTasksChart(data, destId){
 
 
 /*
+ * メンバーのタスクタグのグラフを描画します
+ * daataには以下のフォーマットのデータ配列を指定します
+ * {tagName: <タグ名>, count:<タグ数>}
+ */
+function drawMemberTagsChart(data, destId){
+	//データ配列の初期化
+	var sum = 0;
+	var table = [ ["タグ名", "個数"] ];
+	for(var i=0; i<data.length; i++){
+		table[table.length] = [data[i].tagName, data[i].count];
+		sum += data[i].count;
+	}
+
+	//オプションを生成
+	var options = {
+		title: "タスクタグの割合 (総数:" + sum + ")",
+		pieHole: 0.4
+	};
+
+	//グラフ描画
+	var chart = new google.visualization.PieChart(document.getElementById(destId || "tagGraph"));
+	chart.draw(google.visualization.arrayToDataTable(table), options);
+}
+
+
+/*
  * スプリントの結果パネルを生成します
  */
 function generateSprintPanel(data){
@@ -104,8 +130,9 @@ function showMemberTasks(data){
 
 	$div.empty();
 
-	for(var i=0; i<data.length; i++){
-		var $panel = generateSprintPanel(data[i]);
+	sprints = data.sprints;
+	for(var i=0; i<sprints.length; i++){
+		var $panel = generateSprintPanel(sprints[i]);
 		$div.append($panel);
 	}
 }

@@ -116,4 +116,22 @@ public class SprintFinisherForms {
 			this.sprintCards = sprintCards;
 		}
 	}
+
+	public static class SprintResultCardTagsForm{
+		private String cardId;
+		private List<String> tags;
+
+		public String getCardId() {
+			return cardId;
+		}
+		public void setCardId(String cardId) {
+			this.cardId = cardId;
+		}
+		public List<String> getTags() {
+			return tags;
+		}
+		public void setTags(List<String> tags) {
+			this.tags = tags;
+		}
+	}
 }

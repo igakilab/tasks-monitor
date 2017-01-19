@@ -11,6 +11,7 @@ import org.bson.Document;
 import com.mongodb.MongoClient;
 
 import jp.ac.oit.igakilab.tasks.db.SprintsDB;
+import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.TrelloActionDocumentParser;
 import jp.ac.oit.igakilab.tasks.dwr.ExecuteFailedException;
@@ -240,6 +241,7 @@ public class SprintResultAnalyzerForm {
 			TrelloActionsCard acard = card.getTrelloActionsCard(parser);
 			AnalyzedTrelloCardForm analyzed = AnalyzedTrelloCardForm
 				.getInstance(acard, board, sprint.getBeginDate(), end.getTime(), ttb);
+			analyzed.setTags(card.getTags());
 
 			analyzed.setFinished(card.isFinished());
 			form.sprintCards.add(analyzed);
@@ -262,6 +264,10 @@ public class SprintResultAnalyzerForm {
 		}
 		form.setMemberHistories(histories);
 
+		//デフォルトタグの設定
+		TrelloBoardsDB bdb = new TrelloBoardsDB(client);
+		form.defaultTags = bdb.getDefaultTags(board.getId());
+
 		return form;
 	}
 
@@ -272,6 +278,7 @@ public class SprintResultAnalyzerForm {
 	private List<AnalyzedTrelloCardForm> sprintCards;
 	private List<MemberForm> members;
 	private List<MemberHistory> memberHistories;
+	private List<String> defaultTags;
 
 	public TrelloBoardDataForm getBoardData() {
 		return boardData;
@@ -308,5 +315,11 @@ public class SprintResultAnalyzerForm {
 	}
 	public void setMemberHistories(List<MemberHistory> memberHistories) {
 		this.memberHistories = memberHistories;
+	}
+	public List<String> getDefaultTags() {
+		return defaultTags;
+	}
+	public void setDefaultTags(List<String> defaultTags) {
+		this.defaultTags = defaultTags;
 	}
 }

@@ -138,11 +138,14 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 	private boolean finished;
 	private int workingMinutes;
 
+	private List<String> tags;
+
 	public AnalyzedTrelloCardForm(){
 		createdAt = null;
 		listUpdates = null;
 		finished = false;
 		workingMinutes = 0;
+		tags = null;
 	}
 
 	public Date getCreatedAt() {
@@ -175,5 +178,18 @@ public class AnalyzedTrelloCardForm  extends TrelloCardForm{
 
 	public void setWorkingMinutes(int workingMinutes) {
 		this.workingMinutes = workingMinutes;
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
+	public void addTag(String tag){
+		if( this.tags == null ) this.tags = new ArrayList<String>();
+		this.tags.add(tag);
 	}
 }

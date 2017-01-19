@@ -99,18 +99,41 @@
 					</div>
 				</div>
 
+				<div class="row">
+					<div class="col-md-12">
+						<h2>習得スキル</h2>
+						<table class="table" style="text-align: left">
+							<thead><tr>
+								<th>タスク名</th><th>スキル</th>
+							</tr></thead>
+							<tbody class="got-skills">
+								<tr><td>タスク1</td>
+								<td><div class="btn-group btn-group-sm" role="group" aria-label="...">
+									<button type="button" class="btn btn-default">Left</button>
+									<button type="button" class="btn btn-default">Middle</button>
+									<button type="button" class="btn btn-default">Right</button>
+								</div></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
 				<div class="row member-histories">
 				</div>
 
 
 				<div class="row">
-					<button type="button" class="btn btn-primary next-sprint-btn">
-					次のスプリントへ</button>
+					<button type="button" class="btn btn-default to-dashboard-discard-btn">
+					戻る(変更を破棄)</button>
 					<button type="button" class="btn btn-default to-dashboard-btn">
 					ダッシュボードへ</button>
+					<button type="button" class="btn btn-primary next-sprint-btn">
+					次のスプリントへ</button>
 				</div>
 			</div>
 		</div>
+
+		<div id="modalWorkspace"></div>
 
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/bootstrap.min.js"></script>
@@ -118,11 +141,15 @@
 		<script src="comm.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/sprint-result-analyzer.js"></script>
+		<script src="js/tasks-skill-manager.js"></script>
+		<script src="js/modal-prompt.js"></script>
 		<script src="dwr/engine.js"></script>
 		<script src="dwr/util.js"></script>
+		<script src="dwr/interface/SprintFinisher.js"></script>
 		<script src="dwr/interface/SprintHistory.js"></script>
 
 		<script src="feedback.js"></script>
+		<script src="keyword_match.js"></script>
 		<script>
 		/*
 		 * ページロード時に実行される関数
@@ -138,12 +165,32 @@
 					setSprintResult(sra);
 				});
 
+				var skillManager = new TasksSkillManager();
+				skillManager.initBySprintResultAnalyzer(sra);
+				setCardSkillTable(skillManager);
+
 				$(".next-sprint-btn").on('click', function(){
-					location.href = "sprint.html?bid=" + sra.getBoardData().id;
+					applyTasksSkill(sprintId, skillManager, function(){
+						$(window).off('beforeunload');
+						location.href = "sprint.html?bid=" + sra.getBoardData().id;
+					});
 				});
 
 				$(".to-dashboard-btn").on('click', function(){
+					applyTasksSkill(sprintId, skillManager, function(){
+						$(window).off('beforeunload');
+						location.href = "index.html?bid=" + sra.getBoardData().id;
+					});
+				});
+
+				$(".to-dashboard-discard-btn").on('click', function(){
 					location.href = "index.html?bid=" + sra.getBoardData().id;
+				});
+
+				$(window).on('beforeunload', function(){
+					if( skillManager.isModified() ){
+						return "変更が破棄されます";
+					}
 				});
 			});
 		});

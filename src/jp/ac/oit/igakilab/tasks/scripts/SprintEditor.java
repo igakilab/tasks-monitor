@@ -15,7 +15,7 @@ import jp.ac.oit.igakilab.tasks.db.TrelloBoardsDB;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintDocumentConverter;
 import jp.ac.oit.igakilab.tasks.db.converters.SprintResultCardDocumentConverter;
 import jp.ac.oit.igakilab.tasks.hubot.ChannelNotification;
-import jp.ac.oit.igakilab.tasks.hubot.HubotSendMessage;
+import jp.ac.oit.igakilab.tasks.hubot.HubotTaskNotify;
 import jp.ac.oit.igakilab.tasks.hubot.NotifyTrelloCard;
 import jp.ac.oit.igakilab.tasks.members.MemberTrelloIdTable;
 import jp.ac.oit.igakilab.tasks.sprints.CardMembers;
@@ -38,9 +38,9 @@ public class SprintEditor {
 
 	private MongoClient dbClient;
 	private TrelloApi<Object> trelloApi;
-	private HubotSendMessage hubotMsg;
+	private HubotTaskNotify hubotMsg;
 
-	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotSendMessage msg){
+	public SprintEditor(MongoClient client, TrelloApi<Object> api, HubotTaskNotify msg){
 		dbClient = client;
 		trelloApi = api;
 		hubotMsg = msg;
@@ -233,6 +233,11 @@ public class SprintEditor {
 		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
 		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
 		if( sprintCards != null ){
+			//期限を計算
+			Calendar dueDate = Calendar.getInstance();
+			dueDate.setTime(finishDate);
+			dueDate.set(Calendar.HOUR, 18);
+
 			//削除カードを分別
 			Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
 			List<String> removed = getRemovedCards(sprint.getTrelloCardIds(), sprintCards);
@@ -240,7 +245,7 @@ public class SprintEditor {
 			//カードを追加
 			for(CardMembers cm : sprintCards){
 				List<String> trelloMemberIds = ttb.getTrelloIdAll(cm.getMemberIds());
-				tce.setDueAndMembers(cm.getCardId(), finishDate, trelloMemberIds, true);
+				tce.setDueAndMembers(cm.getCardId(), dueDate.getTime(), trelloMemberIds, true);
 			}
 
 			//カードを削除
@@ -327,6 +332,47 @@ public class SprintEditor {
 
 		//処理終了
 		logger.log("closeSprint", "処理が完了しました (SprintId:" + sprintId + ")");
+		return true;
+	}
+
+
+	/**
+	 * cardsに指定されたカードと担当者情報を進行中のスプリントに追加します
+	 * @param sprintId
+	 * @param cards
+	 * @return
+	 * @throws SprintEditException
+	 */
+	public boolean addSprintCards(String sprintId, List<CardMembers> cards)
+	throws SprintEditException{
+		//スプリント取得
+		SprintsDB sdb = new SprintsDB(dbClient);
+		Sprint sprint = sdb.getSprintById(sprintId, new SprintDocumentConverter());
+		if( sprint == null || sprint.isClosed() ){
+			throw new SprintEditException("対象のスプリントが見つかりません: " + sprintId);
+		}
+
+		//データベース登録
+		SprintManager manager = new SprintManager(dbClient);
+		try{
+			if( !manager.addSprintCards(sprintId, cards) ){
+				throw new SprintEditException("DB登録に失敗しました");
+			}
+		}catch(SprintManagementException e0){
+			throw new SprintEditException("DB登録エラー: " + e0.getMessage());
+		}
+
+		//Trelloに設定
+		TrelloCardEditor tce = new TrelloCardEditor(trelloApi);
+		MemberTrelloIdTable ttb = new MemberTrelloIdTable(dbClient);
+		Calendar dueDate = Calendar.getInstance();
+		dueDate.setTime(sprint.getFinishDate());
+		dueDate.set(Calendar.HOUR, 18);
+		cards.forEach((cm) -> {
+			List<String> trelloIds = ttb.getTrelloIdAll(cm.getMemberIds());
+			tce.setDueAndMembers(cm.getCardId(), dueDate.getTime(), trelloIds);
+		});
+
 		return true;
 	}
 
