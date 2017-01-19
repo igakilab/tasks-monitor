@@ -222,6 +222,7 @@ public class DashBoardForms {
 		private String boardName;
 		private String boardUrl;
 		private Kanban kanban;
+		private Date lastUpdate;
 		private List<MemberForm> members;
 		//スプリントの情報
 		private String sprintId;
@@ -275,6 +276,14 @@ public class DashBoardForms {
 		public void setKanban(Kanban kanban) {
 			this.kanban = kanban;
 		}
+		public Date getLastUpdate() {
+			return lastUpdate;
+		}
+
+		public void setLastUpdate(Date lastUpdate) {
+			this.lastUpdate = lastUpdate;
+		}
+
 		public List<MemberForm> getMembers() {
 			return members;
 		}

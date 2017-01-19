@@ -10,6 +10,8 @@ function showDashBoard(data){
 			.attr("href", data.boardUrl)
 			.css("text-decoration", "none")
 	);
+	$(".last-update-date").text(
+		Util.formatDate(data.lastUpdate, "YYYY/MM/DD hh:mm:ss"));
 
 
 	// *****

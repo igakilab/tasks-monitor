@@ -56,6 +56,13 @@
 					<span class="glyphicon glyphicon-wrench"></span> 設定
 				</a>
 			</div>
+
+			<div class="row col-md-12 text-right">
+				最終更新日時: <span class="last-update-date"></span>&nbsp;&nbsp;
+				<button type="button" class="btn btn-default btn-sm board-update-btn">
+					<span class="glyphicon glyphicon-refresh"></span>
+				</button>
+			</div>
 		</div>
 
 		<div class="container">
@@ -194,10 +201,13 @@
 			</div>
 		</div>
 
+		<div id="mpWorkspace"></div>
+
 		<script src="js/jquery-2.1.4.min.js"></script>
 		<script src="js/jquery.serialize.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/jquery.mobile.custom.min.js"></script>
+		<script src="js/modal-prompt.js"></script>
 		<script src="js/htimeline.js"></script> <!-- Resource jQuery -->
 		<script src="js/util.js"></script>
 		<script src="dwr/engine.js"></script>
@@ -260,23 +270,49 @@
 					$(".sprint-history-btn").attr("href", "history.html?bid=" + data.boardId);
 					$(".sprint-plan-btn").attr("href", "sprint.html?bid=" + data.boardId);
 					$(".board-settings-btn").attr("href", "boardsettings.html?bid=" + data.boardId);
+					$(".board-update-btn").on('click', {bid: data.boardId}, function(e){
+						Util.showAlertToDiv("更新中...", "warning");
+						DashBoard.updateBoardData(e.data.bid, function(){
+							location.reload();
+						});
+					});
 
 					if( data.sprintId != null ){
+						var remainedCount = 0;
+						data.sprintCards.forEach(function(e){
+							if( !e.finished ) remainedCount++;
+						});
+
+						var closeSprint = function(){
+							$(".sprint-close-btn").off('click')
+								.text("処理中...").addClass("disabled");
+							DashBoard.closeCurrentSprint(boardId, {
+								//正常に終了した時の動作
+								callback: function(sid) {
+									location.href = "feedback.html?sid=" + sid;
+								},
+								//異常終了した時の動作
+								errorHandler: function(msg){
+									alert(msg);
+								}
+							});
+						}
+
 						$(".sprint-close-btn")
 							.removeClass("disabled")
-							.on('click', function(){
-								$(".sprint-close-btn").off('click')
-									.text("処理中...").addClass("disabled");
-								DashBoard.closeCurrentSprint(boardId, {
-									//正常に終了した時の動作
-									callback: function(sid) {
-										location.href = "feedback.html?sid=" + sid;
-									},
-									//異常終了した時の動作
-									errorHandler: function(msg){
-										alert(msg);
+							.on('click', {rem: remainedCount}, function(e){
+								if( e.data.rem > 0 ){
+									var mp = new ModalPrompt($("#mpWorkspace"));
+									mp.onButtonPressed = function(res){
+										if( res ) closeSprint();
 									}
-								});
+									mp.$submitButton.removeClass("btn-primary").addClass("btn-warning");
+									mp.$cancelButton.text("Cancel");
+									mp.confirm($("<div></div>")
+										.html("未完了のタスクがあります<br/>イテレーションを終了してもよろしいですか?"));
+								}else{
+									closeSprint();
+								}
 							});
 					}
 
@@ -297,64 +333,6 @@
 					Util.showAlertToDiv("通信エラー: " + msg);
 				}
 			});
-
-// 			SprintPlanner.getCurrentSprint(boardId, function(spr){
-// 				/*if( spr != null ){
-// 					//スプリントがあればエラーを表示
-// 					Util.showAlertToDiv($("<span></span>").append(
-// 						"現在進行中のスプリントがあります",
-// 						$("<a></a>").text("ダッシュボードへ")
-// 							.attr("href", "index.html?boardId=" + boardId)
-// 					));
-// 				}else{*/
-// 					//スプリントがなければ続行
-// 					//datepickerを初期化
-// 					$(".datepicker").datepicker({
-// 						language:"ja",
-// 						format:"yyyy/mm/dd"
-// 					});
-
-// 					//仮の目標日を設定
-// 					var dt = new Date();
-// 					//dt.setDate(dt.getDate() + 7);
-// 					$("#finishDateInput").val(Util.formatDate(dt, "YYYY/MM/DD"));
-
-// 					//エラーハンドラーを設定
-// 					SprintBuilder.defaultErrorHandler = function(msg){
-// 						Util.showAlertToDiv(msg);
-// 					};
-
-// 					//スプリントのデータを取得
-// 					var builder = new SprintBuilder(boardId);
-// 					builder.fetch(function(){
-// 						setCardList(builder);
-// 					});
-
-// 					//新規作成ボタンを設定
-// 					$(".create-btn").on('click', function(){
-// 						//日付のパース
-// 						var ds = Util.getUrlParameters().finishDate;
-// 						var fd = Date.parse(ds);
-// 						//フォーマット確認
-// 						if( isNaN(fd) ){
-// 							Util.showAlertToDiv("無効な目標日です: " +
-// 								ds + " (yyyy/mm/dd形式で入力してください)");
-// 							return;
-// 						}
-
-// 						builder.setFinishDate(fd);
-
-// 						builder.regist(function(sid){
-// 							location.href = "index.html?boardId=" + boardId;
-// 						});
-// 					});
-
-// 					//ダッシュボードへ移動ボタンを設定
-// 					/*$(".to-dashboard-btn").on('click', function(){
-// 						location.href = "index.html?boardId=" + boardId;
-// 					});
-// 				}*/
-// 			});
 
 
 			//modalの設定
